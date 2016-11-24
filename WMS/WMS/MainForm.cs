@@ -12,7 +12,6 @@ namespace WMS
             dgvProducts.AutoGenerateColumns = true;
             dgvProducts.AllowUserToAddRows = true;
             refreshDataGridView();
-            dgvProducts.Columns[0].ReadOnly = true; //You may not modify the primary key cell.
         }
 
         private void tsbAddProduct_Click(object sender, EventArgs e)
@@ -72,9 +71,6 @@ namespace WMS
                         tsbDeleteProduct.Enabled = false;
                     }
                 }
-
-                
-
                 //Refresh.
                 refreshDataGridView();
             }
@@ -88,6 +84,7 @@ namespace WMS
             {
                 dgvProducts.DataSource = db.Products.ToList();
             }
+            dgvProducts.Columns[0].ReadOnly = true; //You may not modify the primary key cell.
         }
 
         private void dgvProducts_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
@@ -116,7 +113,6 @@ namespace WMS
                             MessageBox.Show("The value \"" + (string)e.FormattedValue + "\" is in the future, please input a valid date. Reverting input.");
                             dgvProducts.CancelEdit();
                         }
-                        
                         break;
                     case "Count":
                         //Must be an integer bigger or equal to 0.
@@ -132,11 +128,6 @@ namespace WMS
                         return; //User can't really make a mistake with the description.
                 }
             }
-        }
-
-        private void dgvProducts_DataError(object sender, DataGridViewDataErrorEventArgs e)
-        {
-
         }
     }
 }

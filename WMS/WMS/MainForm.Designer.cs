@@ -56,7 +56,6 @@
             this.dgvProducts.TabIndex = 0;
             this.dgvProducts.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvProducts_CellEndEdit);
             this.dgvProducts.CellValidating += new System.Windows.Forms.DataGridViewCellValidatingEventHandler(this.dgvProducts_CellValidating);
-            this.dgvProducts.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgvProducts_DataError);
             this.dgvProducts.SelectionChanged += new System.EventHandler(this.dgvProducts_SelectionChanged);
             // 
             // toolStrip1
