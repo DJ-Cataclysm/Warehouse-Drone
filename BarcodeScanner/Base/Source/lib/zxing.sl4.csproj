@@ -22,7 +22,7 @@
     <SccAuxPath>Svn</SccAuxPath>
     <SccProvider>SubversionScc</SccProvider>
     <FileUpgradeFlags>40</FileUpgradeFlags>
-    <UpgradeBackupLocation>C:\Users\djisc_000\Documents\[School]\Drone Project\Base\Backup1\</UpgradeBackupLocation>
+    <UpgradeBackupLocation>C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\BarcodeScanner\Base\Backup2\Source\lib\</UpgradeBackupLocation>
     <OldToolsVersion>4.0</OldToolsVersion>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
