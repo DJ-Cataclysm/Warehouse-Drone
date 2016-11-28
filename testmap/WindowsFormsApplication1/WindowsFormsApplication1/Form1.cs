@@ -17,13 +17,14 @@ namespace WindowsFormsApplication1
         public Form1()
         {
             InitializeComponent();
-            webBrowser1.Navigate("C:/Users/carroto/Documents/Visual Studio 2013/Projects/WindowsFormsApplication1/WindowsFormsApplication1/testpage.html");
+            webBrowser1.Navigate("testpage.html"); //geen idee of dit het doet
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            int flySec = Convert.ToInt32(textBox1.Text);
+            int flySec = 0;
+            int.TryParse(textBox1.Text, out flySec);
 
             object[] o = new object[1];
             o[0] = flySec;
@@ -40,12 +41,47 @@ namespace WindowsFormsApplication1
             wb.Navigate("testpage.html");
         }
 
-        private void textBox1_TextChanged(object sender, EventArgs e)
+        private void btnForward_Click(object sender, EventArgs e)
         {
 
         }
 
-        private void label1_Click(object sender, EventArgs e)
+        private void btnLeft_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRight_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnBackward_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRotateLeft_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRotateRight_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnHoger_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLager_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnLand_Click(object sender, EventArgs e)
         {
 
         }
