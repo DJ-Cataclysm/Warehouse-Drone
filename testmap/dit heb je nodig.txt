@@ -1,0 +1,8 @@
+* nodejs
+* socket.io 
+
+* connectie met drone internet
+* open server
+	open node -> cd map/waarserverstaat
+	start serve -> node testserver.js
+* start applicatie
