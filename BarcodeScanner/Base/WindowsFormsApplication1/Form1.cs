@@ -23,7 +23,7 @@ namespace WindowsFormsApplication1
             // create a barcode reader instance
             IBarcodeReader reader = new BarcodeReader();
             // load a bitmap
-            var barcodeBitmap = (Bitmap)Bitmap.FromFile("C:\\Users\\djisc_000\\Documents\\[School]\\Drone Project\\barcode2.png");
+            var barcodeBitmap = (Bitmap)Bitmap.FromFile("barcode2.png");
             // detect and decode the barcode inside the bitmap
             var result = reader.Decode(barcodeBitmap);
             // do something with the result
@@ -31,7 +31,7 @@ namespace WindowsFormsApplication1
             {
                 code.Text = result.Text;
             }
-            barcodeBitmap = (Bitmap)Bitmap.FromFile("C:\\Users\\djisc_000\\Documents\\[School]\\Drone Project\\barcode.png");
+            barcodeBitmap = (Bitmap)Bitmap.FromFile("barcode.png");
             // detect and decode the barcode inside the bitmap
             result = reader.Decode(barcodeBitmap);
             // do something with the result
@@ -39,7 +39,7 @@ namespace WindowsFormsApplication1
             {
                 code2.Text = result.Text;
             }
-            barcodeBitmap = (Bitmap)Bitmap.FromFile("C:\\Users\\djisc_000\\Documents\\[School]\\Drone Project\\EAN-13.png");
+            barcodeBitmap = (Bitmap)Bitmap.FromFile("EAN-13.png");
             // detect and decode the barcode inside the bitmap
             result = reader.Decode(barcodeBitmap);
             // do something with the result
