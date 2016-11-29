@@ -115,6 +115,10 @@
       <Project>{78C83708-BF89-4A5D-B823-21D06EED6A6B}</Project>
       <Name>AR.Drone.WinApp</Name>
     </ProjectReference>
+    <ProjectReference Include="..\AR.Drone\FFmpeg.AutoGen\FFmpeg.AutoGen\FFmpeg.AutoGen.csproj">
+      <Project>{a536b02a-b0b1-4753-8328-17369ef09976}</Project>
+      <Name>FFmpeg.AutoGen</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5.2">
