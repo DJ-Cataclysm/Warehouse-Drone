@@ -43,3 +43,18 @@ C:\Users\marti\Documents\Visual Studio 2015\Projects\WareHouseDroneRepo\Warehous
 C:\Users\marti\Documents\Visual Studio 2015\Projects\WareHouseDroneRepo\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.NewProductForm.resources
 C:\Users\marti\Documents\Visual Studio 2015\Projects\WareHouseDroneRepo\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.Properties.Resources.resources
 C:\Users\marti\Documents\Visual Studio 2015\Projects\WareHouseDroneRepo\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.csproj.GenerateResource.Cache
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\WMS.exe.config
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.exe
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.pdb
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\WMS.exe
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\WMS.pdb
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\EntityFramework.dll
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\EntityFramework.SqlServer.dll
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\EntityFramework.xml
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\bin\Debug\EntityFramework.SqlServer.xml
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.csprojResolveAssemblyReference.cache
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.MainForm.resources
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.Migrations.init.resources
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.NewProductForm.resources
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.Properties.Resources.resources
+C:\Users\djisc_000\Documents\GitHub\Warehouse-Drone\WMS\WMS\obj\Debug\WMS.csproj.GenerateResource.Cache

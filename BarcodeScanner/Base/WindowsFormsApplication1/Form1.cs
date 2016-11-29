@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing;
 
+
 namespace WindowsFormsApplication1
 {
     public partial class Form1 : Form
