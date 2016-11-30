@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ZXing;
 
 namespace DroneControl
 {
@@ -182,7 +183,19 @@ namespace DroneControl
          */
         private void btnScanForBarcode_Click(object sender, EventArgs e)
         {
-            //TODO: Use barcode scanning software here!
+            // create a barcode reader instance
+            IBarcodeReader reader = new BarcodeReader();
+            // detect and decode the barcode inside the bitmap
+            var result = reader.Decode(_frameBitmap);
+            // do something with the result
+            if (result != null)
+            {
+                label1.Text = result.Text;
+            }
+            else if (result == null)
+            {
+                label1.Text = "Geen Barcode Gevonden";
+            }
         }
     }
 }

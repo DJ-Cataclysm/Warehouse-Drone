@@ -61,6 +61,7 @@
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
             this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -382,11 +383,22 @@
             this.btnScanForBarcode.UseVisualStyleBackColor = true;
             this.btnScanForBarcode.Click += new System.EventHandler(this.btnScanForBarcode_Click);
             // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(232, 431);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(57, 13);
+            this.label1.TabIndex = 1;
+            this.label1.Text = "Scanresult";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(971, 472);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.gbBarcodeScanning);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbTelemetry);
@@ -400,6 +412,7 @@
             this.groupBox1.ResumeLayout(false);
             this.gbBarcodeScanning.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -437,5 +450,6 @@
         private System.Windows.Forms.Timer tmrVideoUpdate;
         private System.Windows.Forms.GroupBox gbBarcodeScanning;
         private System.Windows.Forms.Button btnScanForBarcode;
+        private System.Windows.Forms.Label label1;
     }
 }
