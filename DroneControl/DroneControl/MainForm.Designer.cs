@@ -59,10 +59,13 @@
             this.btnConnect = new System.Windows.Forms.Button();
             this.tmrStateUpdate = new System.Windows.Forms.Timer(this.components);
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
+            this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
+            this.btnScanForBarcode = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
             this.groupBox1.SuspendLayout();
+            this.gbBarcodeScanning.SuspendLayout();
             this.SuspendLayout();
             // 
             // pbVideo
@@ -359,11 +362,32 @@
             this.tmrVideoUpdate.Interval = 20;
             this.tmrVideoUpdate.Tick += new System.EventHandler(this.tmrVideoUpdate_Tick);
             // 
+            // gbBarcodeScanning
+            // 
+            this.gbBarcodeScanning.Controls.Add(this.btnScanForBarcode);
+            this.gbBarcodeScanning.Location = new System.Drawing.Point(678, 412);
+            this.gbBarcodeScanning.Name = "gbBarcodeScanning";
+            this.gbBarcodeScanning.Size = new System.Drawing.Size(287, 54);
+            this.gbBarcodeScanning.TabIndex = 4;
+            this.gbBarcodeScanning.TabStop = false;
+            this.gbBarcodeScanning.Text = "Barcode Scanning";
+            // 
+            // btnScanForBarcode
+            // 
+            this.btnScanForBarcode.Location = new System.Drawing.Point(9, 19);
+            this.btnScanForBarcode.Name = "btnScanForBarcode";
+            this.btnScanForBarcode.Size = new System.Drawing.Size(269, 23);
+            this.btnScanForBarcode.TabIndex = 0;
+            this.btnScanForBarcode.Text = "Scan for barcode";
+            this.btnScanForBarcode.UseVisualStyleBackColor = true;
+            this.btnScanForBarcode.Click += new System.EventHandler(this.btnScanForBarcode_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(971, 415);
+            this.ClientSize = new System.Drawing.Size(971, 472);
+            this.Controls.Add(this.gbBarcodeScanning);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbTelemetry);
             this.Controls.Add(this.gbVideoFeed);
@@ -374,6 +398,7 @@
             this.gbTelemetry.ResumeLayout(false);
             this.gbTelemetry.PerformLayout();
             this.groupBox1.ResumeLayout(false);
+            this.gbBarcodeScanning.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -410,5 +435,7 @@
         private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.Timer tmrStateUpdate;
         private System.Windows.Forms.Timer tmrVideoUpdate;
+        private System.Windows.Forms.GroupBox gbBarcodeScanning;
+        private System.Windows.Forms.Button btnScanForBarcode;
     }
 }
