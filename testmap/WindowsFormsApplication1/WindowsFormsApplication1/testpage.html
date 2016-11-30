@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>ja</title>
+    <script src="node_modules/socket.io-client/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://localhost:3000');//path to socket.io
+    socket.emit('my other event', { my: 'data' });
+    socket.on('sendImg', function (data) {
+        var lastImg = data;
+    });
+    function fly(data) {
+        socket.emit('fly', data);
+    }
+    function test() {
+        socket.emit('test', { my: 'data' });
+    }
+   
+</script>
+ </head>
+<body style="background-color: green;">
+    testpagina
+    <input id="clickMe" type="button" value="vliegen" onclick="fly();" />
+</body>
+</html>
