@@ -1,4 +1,10 @@
-﻿using System;
+﻿using AR.Drone.Client;
+using AR.Drone.Client.Configuration;
+using AR.Drone.Data;
+using AR.Drone.Data.Navigation;
+using AR.Drone.Video;
+using AR.Drone.WinApp;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,188 +13,176 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using AR.Drone.Client;
-using AR.Drone.Data.Navigation;
-using AR.Drone.Client.Command;
-using AR.Drone.Video;
-using AR.Drone.Client.Configuration;
-using AR.Drone.Data;
-using AR.Drone.WinApp;
 
 namespace DroneControl
 {
     public partial class MainForm : Form
     {
-        DroneClient droneClient;
-        private readonly VideoPacketDecoderWorker videoPacketDecoderWorker;
-        private Settings settings;
-        private VideoFrame frame;
-        private Bitmap frameBitmap;
-        private uint frameNumber;
-        private NavigationData data;
+        /*
+         * Fields
+         */
+        private readonly DroneClient _droneClient;
+        private readonly VideoPacketDecoderWorker _videoPacketDecoderWorker;
+        private VideoFrame _frame;
+        private Bitmap _frameBitmap;
+        private uint _frameNumber;
+        private NavigationData _navigationData;
+        private NavigationPacket _navigationPacket;
 
-
+        /*
+         * Constructor: creating the form and creating the droneclient.
+         */
         public MainForm()
         {
             InitializeComponent();
-            droneClient = new DroneClient();
-            droneClient.NavigationDataAcquired += DroneClient_NavigationDataAcquired;
-            droneClient.VideoPacketAcquired += OnVideoPacketAcquired;
-            videoPacketDecoderWorker = new VideoPacketDecoderWorker(PixelFormat.BGR24, true, OnVideoPacketDecoded);
-            videoPacketDecoderWorker.Start();
-            tmrVideoUpdate.Enabled = true;
+
+            //Start videopacketdecoder worker
+            _videoPacketDecoderWorker = new VideoPacketDecoderWorker(PixelFormat.BGR24, true, OnVideoPacketDecoded);
+            _videoPacketDecoderWorker.Start();
+
+            //Create a droneclient and attach event handlers
+            _droneClient = new DroneClient("192.168.1.1");
+            _droneClient.NavigationPacketAcquired += OnNavigationPacketAcquired;
+            _droneClient.VideoPacketAcquired += OnVideoPacketAcquired;
+            _droneClient.NavigationDataAcquired += data => _navigationData = data;
+
+            //Start timers
             tmrStateUpdate.Enabled = true;
+            tmrVideoUpdate.Enabled = true;
+
+            //Attach exceptionhandler to the videopacketdecoder worker.
+            _videoPacketDecoderWorker.UnhandledException += UnhandledException;
         }
 
+        /*
+         * Basic exception handler
+         */
+        private void UnhandledException(object sender, Exception exception)
+        {
+            MessageBox.Show(exception.ToString(), "Unhandled Exception (Ctrl+C)", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        /*
+         * Show if current process is 64-bits or 32-bits (important for ffmpeg dll's)
+         */
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            Text += Environment.Is64BitProcess ? " [64-bit]" : " [32-bit]";
+        }
+
+        /*
+         * Exiting the program, cleaning up.
+         */
+        protected override void OnClosed(EventArgs e)
+        {
+            _droneClient.Dispose();
+            _videoPacketDecoderWorker.Dispose();
+            base.OnClosed(e);
+        }
+
+        /*
+         * Event: Storing received navigation packet.
+         */
+        private void OnNavigationPacketAcquired(NavigationPacket packet)
+        {
+            _navigationPacket = packet;
+        }
+
+        /*
+         * Event: Enqueue a video packet for the decoding process.
+         */
         private void OnVideoPacketAcquired(VideoPacket packet)
         {
-            if (videoPacketDecoderWorker.IsAlive)
-                videoPacketDecoderWorker.EnqueuePacket(packet);
+            if (_videoPacketDecoderWorker.IsAlive)
+            {
+                _videoPacketDecoderWorker.EnqueuePacket(packet);
+            } 
         }
 
+        /*
+         * Event: A video packet has been decoded and will be stored.
+         */
         private void OnVideoPacketDecoded(VideoFrame frame)
         {
-            this.frame = frame;
+            _frame = frame;
         }
 
+        /*
+         * Timer Tick Event: If there is a new frame available, create bitmap of said frame and update display.
+         */
         private void tmrVideoUpdate_Tick(object sender, EventArgs e)
         {
-            if (frame == null || frameNumber == frame.Number)
-                return;
-            frameNumber = frame.Number;
-
-            if (frameBitmap == null)
-                frameBitmap = VideoHelper.CreateBitmap(ref frame);
-            else
-                VideoHelper.UpdateBitmap(ref frameBitmap, ref frame);
-
-            pbVideo.Image = frameBitmap;
-        }
-
-        private void btnSendConfig_Click(object sender, EventArgs e)
-        {
-            var sendConfigTask = new Task(() =>
+            //Check if frame(number) has changed, if not: do not update.
+            if (_frame == null || _frameNumber == _frame.Number)
             {
-                if (settings == null)
-                {
-                    settings = new Settings();
-                }
+                return;
+            }
 
-                if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
-                    settings.Custom.SessionId == "00000000")
-                {
-                    // set new session, application and profile
-                    droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
+            _frameNumber = _frame.Number;
 
-                    settings.Custom.SessionId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-
-                    settings.Custom.ProfileId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-
-                    settings.Custom.ApplicationId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-                }
-
-                settings.General.NavdataDemo = false;
-                settings.General.NavdataOptions = NavdataOptions.All;
-
-                settings.Video.BitrateCtrlMode = VideoBitrateControlMode.Dynamic;
-                settings.Video.Bitrate = 1000;
-                settings.Video.MaxBitrate = 2000;
-
-                //send all changes in one pice
-                droneClient.Send(settings);
-            });
-            sendConfigTask.Start();
+            if (_frameBitmap == null)
+            {
+               _frameBitmap = VideoHelper.CreateBitmap(ref _frame);
+            }
+            else
+            {
+                VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
+            }
+            pbVideo.Image = _frameBitmap;
         }
 
-        private void DroneClient_NavigationDataAcquired(NavigationData data)
-        {
-            this.data = data;
-        }
-
-        private void btnTakeOff_Click(object sender, EventArgs e)
-        {
-            droneClient.Takeoff();
-            btnTakeOff.Enabled = false;
-            btnLand.Enabled = true;
-        }
-
-        private void btnLand_Click(object sender, EventArgs e)
-        {
-            droneClient.Land();
-            btnLand.Enabled = false;
-            btnTakeOff.Enabled = true;
-        }
-
-        private void btnEmergency_Click(object sender, EventArgs e)
-        {
-            droneClient.Emergency();
-            btnEmergency.Enabled = false;
-            btnResetEmergency.Enabled = true;
-        }
-
-        private void btnResetEmergency_Click(object sender, EventArgs e)
-        {
-            droneClient.ResetEmergency();
-            btnResetEmergency.Enabled = false;
-            btnEmergency.Enabled = true;
-        }
-
-        private void btnFlatTrim_Click(object sender, EventArgs e)
-        {
-            droneClient.FlatTrim();
-        }
-
-        private void btnHover_Click(object sender, EventArgs e)
-        {
-            droneClient.Hover();
-        }
-
-        private void btnUpdateHeading_Click(object sender, EventArgs e)
-        {
-            float roll = (float)nudRoll.Value;
-            float yaw = (float)nudYaw.Value;
-            float pitch = (float)nudPitch.Value;
-            float gaz = (float)nudGaz.Value;
-            droneClient.Progress(FlightMode.Progressive, roll, yaw, pitch, gaz);
-        }
-
-        private void btnActivate_Click(object sender, EventArgs e)
-        {
-            droneClient.Start();
-        }
-
-        private void btnDeactivate_Click(object sender, EventArgs e)
-        {
-            droneClient.Stop();
-        }
-
+        /*
+         * Timer Tick Event: Periodic update of displayed navigational data.
+         */
         private void tmrStateUpdate_Tick(object sender, EventArgs e)
         {
-            if(data != null)
+            //Navigational data can be null if there is no established connection to the drone
+            if (_navigationData != null)
             {
                 //Updating the form with new navigation data.
-                lblNavigationState.Text = data.State.ToString();
-                lblYaw.Text = data.Yaw.ToString();
-                lblPitch.Text = data.Pitch.ToString();
-                lblRoll.Text = data.Roll.ToString();
-                lblAltitude.Text = data.Altitude.ToString();
-                lblVelocityZ.Text = "Z: " + data.Velocity.Z.ToString();
-                lblVelocityY.Text = "Y: " + data.Velocity.Y.ToString();
-                lblVelocityX.Text = "X: " + data.Velocity.X.ToString();
-                lblBattery.Text = data.Battery.Percentage.ToString() + "%";
-                lblTime.Text = data.Time.ToString();
-                lblWifi.Text = data.Wifi.LinkQuality.ToString();
+                lblNavigationState.Text = _navigationData.State.ToString();
+                lblYaw.Text = _navigationData.Yaw.ToString();
+                lblPitch.Text = _navigationData.Pitch.ToString();
+                lblRoll.Text = _navigationData.Roll.ToString();
+                lblAltitude.Text = _navigationData.Altitude.ToString();
+                lblVelocityZ.Text = "Z: " + _navigationData.Velocity.Z.ToString();
+                lblVelocityY.Text = "Y: " + _navigationData.Velocity.Y.ToString();
+                lblVelocityX.Text = "X: " + _navigationData.Velocity.X.ToString();
+                lblBattery.Text = _navigationData.Battery.Percentage.ToString() + "%";
+                lblTime.Text = _navigationData.Time.ToString();
+                lblWifi.Text = _navigationData.Wifi.LinkQuality.ToString();
             }
-            
+        }
+
+        /*
+         * Button Click: Start the droneclient and connect to the drone.
+         */
+        private void btnConnect_Click(object sender, EventArgs e)
+        {
+            _droneClient.Start();
+            lblConnectionStatus.Text = "Connected";
+            btnConnect.Enabled = false;
+            btnDisconnect.Enabled = true;
+        }
+
+        /*
+         * Button Click: Stop the droneclient and disconnect the drone.
+         */
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            _droneClient.Stop();
+            lblConnectionStatus.Text = "Disconnected";
+            btnConnect.Enabled = true;
+            btnDisconnect.Enabled = false;
+        }
+
+        /*
+         * Button Click: Scan current stored frame for barcodes.
+         */
+        private void btnScanForBarcode_Click(object sender, EventArgs e)
+        {
+            //TODO: Use barcode scanning software here!
         }
     }
 }
