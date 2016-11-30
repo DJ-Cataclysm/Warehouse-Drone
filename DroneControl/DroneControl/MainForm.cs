@@ -1,17 +1,10 @@
 ﻿using AR.Drone.Client;
-using AR.Drone.Client.Configuration;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
 using AR.Drone.WinApp;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZXing;
 
@@ -192,7 +185,7 @@ namespace DroneControl
             {
                 label1.Text = result.Text;
             }
-            else if (result == null)
+            else
             {
                 label1.Text = "Geen Barcode Gevonden";
             }
