@@ -1,4 +1,7 @@
-﻿using AR.Drone.Client;
+﻿using AR.Drone.Avionics;
+using AR.Drone.Avionics.Objectives;
+using AR.Drone.Avionics.Objectives.IntentObtainers;
+using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
@@ -22,6 +25,7 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private NavigationPacket _navigationPacket;
+        private AutopilotWrapper _autopilotwrapper;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -46,6 +50,8 @@ namespace DroneControl
 
             //Attach exceptionhandler to the videopacketdecoder worker.
             _videoPacketDecoderWorker.UnhandledException += UnhandledException;
+
+            _autopilotwrapper = new AutopilotWrapper(_droneClient);
         }
 
         /*
@@ -158,6 +164,8 @@ namespace DroneControl
             lblConnectionStatus.Text = "Connected";
             btnConnect.Enabled = false;
             btnDisconnect.Enabled = true;
+            btnAutopilotGo.Enabled = true;
+            btnAutopilotStop.Enabled = true;
         }
 
         /*
@@ -189,6 +197,82 @@ namespace DroneControl
             {
                 label1.Text = "Geen Barcode Gevonden";
             }
+        }
+
+        private void btnAutopilotGo_Click(object sender, EventArgs e)
+        {
+            //Commands invoegen
+            _autopilotwrapper.EnqueueTakeoff();
+            _autopilotwrapper.EnqueueStrafeLeft();
+            _autopilotwrapper.EnqueueStrafeRight();
+            _autopilotwrapper.EnqueueLand();
+
+            //Start autopilot
+            _autopilotwrapper.start();
+            btnAutopilotGo.Enabled = false;
+        }
+
+
+
+        private void btnEmergency_Click(object sender, EventArgs e)
+        {
+            _droneClient.Emergency();
+        }
+
+        private void btnAutopilotStop_Click(object sender, EventArgs e)
+        {
+            _autopilotwrapper.stop();
+            btnAutopilotGo.Enabled = true;
+        }
+
+        private void btnForward_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, pitch: -0.05f);
+        }
+
+        private void btnBackward_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, pitch: 0.05f);
+        }
+
+        private void btnHover_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, 0, 0, 0, 0);
+        }
+
+        private void btnLeft_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, roll: -0.05f);
+        }
+
+        private void btnRight_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, roll: 0.05f);
+        }
+
+        private void btnRotateLeft_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, yaw: -0.2f);
+        }
+
+        private void btnRotateRight_Click(object sender, EventArgs e)
+        {
+            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, yaw: 0.2f);
+        }
+
+        private void btnTakeoff_Click(object sender, EventArgs e)
+        {
+            _droneClient.Takeoff();
+        }
+
+        private void btnLand_Click(object sender, EventArgs e)
+        {
+            _droneClient.Land();
+        }
+
+        private void btnFlatTrim_Click(object sender, EventArgs e)
+        {
+            _droneClient.FlatTrim();
         }
     }
 }

@@ -64,6 +64,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutopilotWrapper.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -98,6 +99,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AR.Drone\AR.Drone.Avionics\AR.Drone.Avionics.csproj">
+      <Project>{19B1D7B1-C46F-4A87-A674-3350BF372A74}</Project>
+      <Name>AR.Drone.Avionics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AR.Drone\AR.Drone.Client\AR.Drone.Client.csproj">
       <Project>{56dbf8e3-28a6-4c27-ba0a-b32352608f44}</Project>
       <Name>AR.Drone.Client</Name>
