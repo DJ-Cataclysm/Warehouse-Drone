@@ -2,7 +2,6 @@
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
-using AR.Drone.WinApp;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -23,7 +22,6 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private NavigationPacket _navigationPacket;
-        private AutopilotController _autopilotwrapper;
 
         /*
          * Constructor: creating the form and creating the droneclient.
