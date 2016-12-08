@@ -1,7 +1,4 @@
-﻿using AR.Drone.Avionics;
-using AR.Drone.Avionics.Objectives;
-using AR.Drone.Avionics.Objectives.IntentObtainers;
-using AR.Drone.Client;
+﻿using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
@@ -18,14 +15,15 @@ namespace DroneControl
         /*
          * Fields
          */
-        private readonly DroneClient _droneClient;
+        private DroneController _droneController;
+        private DroneClient _droneClient;
         private readonly VideoPacketDecoderWorker _videoPacketDecoderWorker;
         private VideoFrame _frame;
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
         private NavigationPacket _navigationPacket;
-        private AutopilotWrapper _autopilotwrapper;
+        private AutopilotController _autopilotwrapper;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -39,10 +37,8 @@ namespace DroneControl
             _videoPacketDecoderWorker.Start();
 
             //Create a droneclient and attach event handlers
-            _droneClient = new DroneClient("192.168.1.1");
-            _droneClient.NavigationPacketAcquired += OnNavigationPacketAcquired;
-            _droneClient.VideoPacketAcquired += OnVideoPacketAcquired;
-            _droneClient.NavigationDataAcquired += data => _navigationData = data;
+            _droneController = new DroneController();
+            _droneController.attachEventHandlers(OnNavigationPacketAcquired, OnVideoPacketAcquired, OnNavigationDataAcquired);
 
             //Start timers
             tmrStateUpdate.Enabled = true;
@@ -50,8 +46,6 @@ namespace DroneControl
 
             //Attach exceptionhandler to the videopacketdecoder worker.
             _videoPacketDecoderWorker.UnhandledException += UnhandledException;
-
-            _autopilotwrapper = new AutopilotWrapper(_droneClient);
         }
 
         /*
@@ -76,7 +70,7 @@ namespace DroneControl
          */
         protected override void OnClosed(EventArgs e)
         {
-            _droneClient.Dispose();
+            //droneController.Dispose();
             _videoPacketDecoderWorker.Dispose();
             base.OnClosed(e);
         }
@@ -87,6 +81,14 @@ namespace DroneControl
         private void OnNavigationPacketAcquired(NavigationPacket packet)
         {
             _navigationPacket = packet;
+        }
+
+        /*
+         * Event: Storing received navigation data.
+         */
+        private void OnNavigationDataAcquired(NavigationData data)
+        {
+            _navigationData = data;
         }
 
         /*
@@ -149,7 +151,7 @@ namespace DroneControl
                 lblVelocityZ.Text = "Z: " + _navigationData.Velocity.Z.ToString();
                 lblVelocityY.Text = "Y: " + _navigationData.Velocity.Y.ToString();
                 lblVelocityX.Text = "X: " + _navigationData.Velocity.X.ToString();
-                lblBattery.Text = _navigationData.Battery.Percentage.ToString() + "%";
+                lblBattery.Text = _navigationData.Battery.Percentage.ToString() + "% " + _navigationData.Battery.Voltage;
                 lblTime.Text = _navigationData.Time.ToString();
                 lblWifi.Text = _navigationData.Wifi.LinkQuality.ToString();
             }
@@ -160,12 +162,13 @@ namespace DroneControl
          */
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            _droneClient.Start();
+            _droneController.startClient();
             lblConnectionStatus.Text = "Connected";
             btnConnect.Enabled = false;
             btnDisconnect.Enabled = true;
             btnAutopilotGo.Enabled = true;
             btnAutopilotStop.Enabled = true;
+            _droneClient = _droneController.getDroneClient();
         }
 
         /*
@@ -173,7 +176,7 @@ namespace DroneControl
          */
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            _droneClient.Stop();
+            _droneController.stopClient();
             lblConnectionStatus.Text = "Disconnected";
             btnConnect.Enabled = true;
             btnDisconnect.Enabled = false;
@@ -202,13 +205,9 @@ namespace DroneControl
         private void btnAutopilotGo_Click(object sender, EventArgs e)
         {
             //Commands invoegen
-            _autopilotwrapper.EnqueueTakeoff();
-            _autopilotwrapper.EnqueueStrafeLeft();
-            _autopilotwrapper.EnqueueStrafeRight();
-            _autopilotwrapper.EnqueueLand();
-
             //Start autopilot
-            _autopilotwrapper.start();
+            _droneController.enqueueTest();
+            _droneController.startAutopilot();
             btnAutopilotGo.Enabled = false;
         }
 
@@ -216,12 +215,12 @@ namespace DroneControl
 
         private void btnEmergency_Click(object sender, EventArgs e)
         {
-            _droneClient.Emergency();
+            _droneController.emergency();
         }
 
         private void btnAutopilotStop_Click(object sender, EventArgs e)
         {
-            _autopilotwrapper.stop();
+            _droneController.startAutopilot();
             btnAutopilotGo.Enabled = true;
         }
 
@@ -273,6 +272,11 @@ namespace DroneControl
         private void btnFlatTrim_Click(object sender, EventArgs e)
         {
             _droneClient.FlatTrim();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            _droneController.doSmartScan();
         }
     }
 }
