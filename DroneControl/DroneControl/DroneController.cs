@@ -73,9 +73,8 @@ namespace DroneControl
             autopilotController.Stop();
         }
 
-        public void attachEventHandlers(Action<NavigationPacket> navPacketHandler, Action<VideoPacket> videoPacketHandler, Action<NavigationData> navDataHandler)
+        public void attachEventHandlers(Action<VideoPacket> videoPacketHandler, Action<NavigationData> navDataHandler)
         {
-            droneClient.NavigationPacketAcquired += navPacketHandler;
             droneClient.VideoPacketAcquired += videoPacketHandler;
             droneClient.NavigationDataAcquired += navDataHandler;
         }

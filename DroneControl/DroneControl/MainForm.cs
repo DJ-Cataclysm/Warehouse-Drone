@@ -36,7 +36,7 @@ namespace DroneControl
 
             //Create a droneclient and attach event handlers
             _droneController = new DroneController();
-            _droneController.attachEventHandlers(OnNavigationPacketAcquired, OnVideoPacketAcquired, OnNavigationDataAcquired);
+            _droneController.attachEventHandlers(OnVideoPacketAcquired, OnNavigationDataAcquired);
 
             //Start timers
             tmrStateUpdate.Enabled = true;
@@ -71,14 +71,6 @@ namespace DroneControl
             //droneController.Dispose();
             _videoPacketDecoderWorker.Dispose();
             base.OnClosed(e);
-        }
-
-        /*
-         * Event: Storing received navigation packet.
-         */
-        private void OnNavigationPacketAcquired(NavigationPacket packet)
-        {
-            _navigationPacket = packet;
         }
 
         /*
