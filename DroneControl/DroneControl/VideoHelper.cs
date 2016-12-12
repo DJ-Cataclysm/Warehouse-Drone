@@ -9,7 +9,8 @@ using VideoPixelFormat = AR.Drone.Video.PixelFormat;
 namespace DroneControl
 {
     /*
-     * This code is from Ruslan-B, creator of the AR.Drone library for C# 
+     * This code is from Ruslan-B, creator of the AR.Drone library for C#.
+     * It is a helper class for updating and creating the bitmap used in showing the video feed. 
      */
     public static class VideoHelper
     {

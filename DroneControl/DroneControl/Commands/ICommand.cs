@@ -2,6 +2,6 @@
 {
     interface ICommand
     {
-        void execute();
+        void execute(); //Used for enqueueing objectives at the AutoPilotController
     }
 }

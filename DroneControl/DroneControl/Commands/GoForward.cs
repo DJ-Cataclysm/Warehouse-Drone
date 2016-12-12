@@ -1,4 +1,5 @@
-﻿using AR.Drone.Avionics.Objectives;
+﻿using System;
+using AR.Drone.Avionics.Objectives;
 using AR.Drone.Avionics.Objectives.IntentObtainers;
 
 namespace DroneControl.Commands

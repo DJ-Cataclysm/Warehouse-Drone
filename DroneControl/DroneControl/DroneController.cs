@@ -13,7 +13,8 @@ namespace DroneControl
 
         public DroneController()
         {
-            droneClient = new DroneClient("192.168.1.1");
+            //The IP-address is always the default gateway when connected to the drone WiFi.
+            droneClient = new DroneClient("192.168.1.1"); 
             autopilotController = new AutopilotController(droneClient);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
         }

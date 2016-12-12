@@ -3,6 +3,9 @@ using AR.Drone.Avionics.Objectives.IntentObtainers;
 
 namespace DroneControl.Commands
 {
+    /*
+     * Because the execute method has a parameter, this command does not implement the ICommand interface.
+     */
     class GoToHeight
     {
         AutopilotController controllerReference;

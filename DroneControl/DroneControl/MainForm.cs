@@ -21,7 +21,6 @@ namespace DroneControl
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
-        private NavigationPacket _navigationPacket;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -202,7 +201,9 @@ namespace DroneControl
         }
 
 
-
+        /*
+         * These buttons are used in manually controlling the drone. This functionality will not be in the release.
+         */
         private void btnEmergency_Click(object sender, EventArgs e)
         {
             _droneController.emergency();
