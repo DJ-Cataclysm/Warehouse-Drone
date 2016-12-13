@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -6,13 +7,59 @@ namespace WMS
 {
     public partial class MainForm : Form
     {
-            
+        List<Mutation> pendingMutations;
+        MutationForm mutationForm;
+
         public MainForm()
         {
             InitializeComponent();
             dgvProducts.AutoGenerateColumns = true;
             dgvProducts.AllowUserToAddRows = true;
             refreshDataGridView();
+            pendingMutations = new List<Mutation>();
+        }
+
+        private void btnExampleMutation_Click(object sender, EventArgs e)
+        {
+            prepareMutationList();
+            filterMutationList();
+            showMutations();
+        }
+
+        private void prepareMutationList()
+        {
+            //Should be called when doing a full cycle scan or smart scan before drone scans anything.
+            //Creates empty mutations with the proper ID's and current stock.
+            using (ProductDBContext db = new ProductDBContext())
+            {
+                List<Product> products = db.Products.ToList();
+                foreach(Product p in products)
+                {
+                    pendingMutations.Add(new Mutation(p));
+                }
+            }
+        }
+
+        private void filterMutationList()
+        {
+            //Used for filtering the list in such a way that only records remain where the OldCount and NewCount do not match.
+            //Should be used after finishing the full cycle count.
+            pendingMutations.RemoveAll(m => m.NewCount == m.OldCount);
+        }
+
+        public void showMutations()
+        {
+            mutationForm = new MutationForm(pendingMutations);
+            mutationForm.ShowDialog();
+        }
+
+        public void productScanned(int id)
+        {
+            Mutation mutation = pendingMutations.Find(m => m.ID == id);
+            if(mutation != null)
+            {
+                mutation.NewCount++;
+            }
         }
 
         private void tsbAddProduct_Click(object sender, EventArgs e)
@@ -130,5 +177,7 @@ namespace WMS
                 }
             }
         }
+
+        
     }
 }

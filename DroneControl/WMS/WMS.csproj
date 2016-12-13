@@ -81,7 +81,18 @@
     <Compile Include="Migrations\201611211651446_init.Designer.cs">
       <DependentUpon>201611211651446_init.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612131551542_MutationsAdded.cs" />
+    <Compile Include="Migrations\201612131551542_MutationsAdded.Designer.cs">
+      <DependentUpon>201612131551542_MutationsAdded.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Mutation.cs" />
+    <Compile Include="MutationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MutationForm.Designer.cs">
+      <DependentUpon>MutationForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewProductForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -97,6 +108,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201611211651446_init.resx">
       <DependentUpon>201611211651446_init.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612131551542_MutationsAdded.resx">
+      <DependentUpon>201612131551542_MutationsAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MutationForm.resx">
+      <DependentUpon>MutationForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NewProductForm.resx">
       <DependentUpon>NewProductForm.cs</DependentUpon>
