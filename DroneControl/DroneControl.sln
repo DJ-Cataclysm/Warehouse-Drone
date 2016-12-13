@@ -21,7 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AR.Drone.Video", "AR.Drone\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AR.Drone.WinApp", "AR.Drone\AR.Drone.WinApp\AR.Drone.WinApp.csproj", "{78C83708-BF89-4A5D-B823-21D06EED6A6B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApplication1", "ConsoleApplication1\ConsoleApplication1.csproj", "{13648935-75B6-4DD7-813C-9A5F3AD33028}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Palmer", "ConsoleApplication1\Palmer.csproj", "{13648935-75B6-4DD7-813C-9A5F3AD33028}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoutePlanner", "RouteInterpreter\RoutePlanner.csproj", "{35F455F3-BCC4-45B5-B967-B76ADB4B7637}"
 EndProject
 Global

@@ -12,23 +12,33 @@ namespace ConsoleApplication2
         {
 
             //a(0) b(1) c(2) d(3) e(4) f(5)
-            int[,] connectieArray = new int[6, 3]{
-                {1, 3, -1},
-                {0, 2, 4},
-                {1, 5, -1},
-                {0, 4, -1},
-                {3, 1, 5},
-                {4, 2, -1}
+            int[,] connectieArray = new int[15, 4]{
+                {1, 5, -1, -1 },
+                {0, 6, 2, -1 },
+                {1, 7, 3, -1 },
+                {2, 8, 4, -1 },
+                {3, 9, -1, -1 },
+                {0, 6, 10, -1 },
+                {1, 5, 11, 7 },
+                {6, 2, 8, 12 },
+                {7, 3, 9, 13 },
+                {8, 4, 14, -1 },
+                {5, 11, -1, -1 },
+                {10, 6, 12, -1 },
+                {11, 7, 13, -1 },
+                {12, 8, 14, -1 },
+                {13, 9, -1, -1 }
             };
 
-            //f b a d e c 
+            //0 - 1 - 2
+            //|   |   |
+            //3 - 4 - 5
 
-            int[] start = { 5, 1, 4, 2, 3, 0 };
+            int[] start = { 6, 8, 4, 2, 0, 14, 12, 7, 3, 1, 11, 10, 5, 9, 13};
 
-            int counter = 0;
-            int v1plus1 = 0;
             int j = 0;
             bool isVerbonden = false;
+            bool isSwapped = false;
 
             //Checkverbonden
             //  Ja -> doorgaan
@@ -63,8 +73,8 @@ namespace ConsoleApplication2
                 else
                 {
                     Console.WriteLine("verbonden met volgende is false, bezig met snijpunten ophalen");
-                    int[] snijpuntA1 = new int[3];
-                    int[] snijpuntA1plus1 = new int[3];
+                    int[] snijpuntA1 = new int[4];
+                    int[] snijpuntA1plus1 = new int[4];
                     Console.WriteLine("snijpunten:");
                     for (int l = 0; l < connectieArray.GetLength(1); l++)
                     {
@@ -86,6 +96,7 @@ namespace ConsoleApplication2
 
                     for (int p = m+2; p < start.GetLength(0); p++)
                     {
+                        
                         Console.WriteLine("bezig met kijken snijpunten a1 - bezig met " + p + " dat is " + start[p] + " in  de start array" );
                         for (int l = 0; l < snijpuntA1.GetLength(0); l++)
                         {
@@ -115,21 +126,42 @@ namespace ConsoleApplication2
                                                 Console.Write(v);
                                             }
                                             Console.Read();
+                                            isSwapped = true;
                                         }
                                     }
                                 }
                             }
                         }
+                        if (p+1 == start.Length && !isSwapped)
+                        {
+                            int q = m;
+                            int r = p;
+                            while (q + 1 < r+1)
+                            {
+                                //Console.Write(q);
+                                //Console.Write(r);
+                                SwapInts(start, r, q + 1);
+                                q++;
+                                r--;
+                                foreach (int v in start)
+                                {
+                                    Console.Write(v);
+                                }
+                                Console.ReadLine();
+                            }
+                        }
                     }
+                    isSwapped = false;
+                    
                 }
             }
 
 
             foreach (int v in start)
             {
-                Console.Write(v);
+                Console.Write(v + " ");
             }
-            Console.Read();
+            Console.ReadLine();
         }
 
         static void SwapInts(int[] array, int position1, int position2)
