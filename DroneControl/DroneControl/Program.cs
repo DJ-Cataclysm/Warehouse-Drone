@@ -12,6 +12,7 @@ namespace DroneControl
         [STAThread]
         static void Main()
         {
+            //Manually load in required DLL-files for displaying video. When experiencing issues, make sure these DLL files exist.
             string ffmpegPath = string.Format(@"../../../AR.Drone/FFmpeg.AutoGen/FFmpeg/bin/windows/{0}", Environment.Is64BitProcess ? "x64" : "x86");
             InteropHelper.RegisterLibrariesSearchPath(ffmpegPath);
 
