@@ -21,6 +21,7 @@ namespace DroneControl
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
+        private WMS.MainForm wmsForm;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -43,6 +44,10 @@ namespace DroneControl
 
             //Attach exceptionhandler to the videopacketdecoder worker.
             _videoPacketDecoderWorker.UnhandledException += UnhandledException;
+
+            //Create instance of WMS.
+            wmsForm = new WMS.MainForm();
+            wmsForm.Show();
         }
 
         /*

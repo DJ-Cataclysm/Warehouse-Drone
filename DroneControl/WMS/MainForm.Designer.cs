@@ -33,7 +33,6 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbAddProduct = new System.Windows.Forms.ToolStripButton();
             this.tsbDeleteProduct = new System.Windows.Forms.ToolStripButton();
-            this.tsbDroneCommand = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProducts)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -63,8 +62,7 @@
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbAddProduct,
-            this.tsbDeleteProduct,
-            this.tsbDroneCommand});
+            this.tsbDeleteProduct});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(663, 25);
@@ -90,15 +88,6 @@
             this.tsbDeleteProduct.Text = "Delete product";
             this.tsbDeleteProduct.Click += new System.EventHandler(this.tsbDeleteProduct_Click);
             // 
-            // tsbDroneCommand
-            // 
-            this.tsbDroneCommand.Enabled = false;
-            this.tsbDroneCommand.Image = ((System.Drawing.Image)(resources.GetObject("tsbDroneCommand.Image")));
-            this.tsbDroneCommand.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbDroneCommand.Name = "tsbDroneCommand";
-            this.tsbDroneCommand.Size = new System.Drawing.Size(117, 22);
-            this.tsbDroneCommand.Text = "Drone command";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -123,7 +112,6 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbAddProduct;
         private System.Windows.Forms.ToolStripButton tsbDeleteProduct;
-        private System.Windows.Forms.ToolStripButton tsbDroneCommand;
     }
 }
 

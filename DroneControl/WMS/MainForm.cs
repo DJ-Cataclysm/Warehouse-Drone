@@ -5,7 +5,8 @@ using System.Windows.Forms;
 namespace WMS
 {
     public partial class MainForm : Form
-    {        
+    {
+            
         public MainForm()
         {
             InitializeComponent();
