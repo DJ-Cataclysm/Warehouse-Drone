@@ -61,24 +61,24 @@
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
             this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
+            this.barcode = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnAutopilotStop = new System.Windows.Forms.Button();
-            this.btnEmergency = new System.Windows.Forms.Button();
             this.btnAutopilotGo = new System.Windows.Forms.Button();
+            this.btnEmergency = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.btnLand = new System.Windows.Forms.Button();
-            this.btnTakeoff = new System.Windows.Forms.Button();
-            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.btnForward = new System.Windows.Forms.Button();
-            this.btnHover = new System.Windows.Forms.Button();
-            this.btnLeft = new System.Windows.Forms.Button();
-            this.btnRight = new System.Windows.Forms.Button();
-            this.btnRotateRight = new System.Windows.Forms.Button();
-            this.btnRotateLeft = new System.Windows.Forms.Button();
             this.btnBackward = new System.Windows.Forms.Button();
+            this.btnRotateLeft = new System.Windows.Forms.Button();
+            this.btnRotateRight = new System.Windows.Forms.Button();
+            this.btnRight = new System.Windows.Forms.Button();
+            this.btnLeft = new System.Windows.Forms.Button();
+            this.btnHover = new System.Windows.Forms.Button();
+            this.btnForward = new System.Windows.Forms.Button();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
             this.btnFlatTrim = new System.Windows.Forms.Button();
+            this.btnTakeoff = new System.Windows.Forms.Button();
+            this.btnLand = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -86,8 +86,8 @@
             this.gbBarcodeScanning.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            this.groupBox4.SuspendLayout();
             this.groupBox5.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // pbVideo
@@ -404,15 +404,15 @@
             this.btnScanForBarcode.UseVisualStyleBackColor = true;
             this.btnScanForBarcode.Click += new System.EventHandler(this.btnScanForBarcode_Click);
             // 
-            // label1
+            // barcode
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(491, 431);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(57, 13);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "Scanresult";
+            this.barcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.barcode.AutoSize = true;
+            this.barcode.Location = new System.Drawing.Point(491, 431);
+            this.barcode.Name = "barcode";
+            this.barcode.Size = new System.Drawing.Size(57, 13);
+            this.barcode.TabIndex = 1;
+            this.barcode.Text = "Scanresult";
             // 
             // groupBox2
             // 
@@ -436,16 +436,6 @@
             this.btnAutopilotStop.UseVisualStyleBackColor = true;
             this.btnAutopilotStop.Click += new System.EventHandler(this.btnAutopilotStop_Click);
             // 
-            // btnEmergency
-            // 
-            this.btnEmergency.Location = new System.Drawing.Point(6, 77);
-            this.btnEmergency.Name = "btnEmergency";
-            this.btnEmergency.Size = new System.Drawing.Size(101, 23);
-            this.btnEmergency.TabIndex = 1;
-            this.btnEmergency.Text = "Emergency";
-            this.btnEmergency.UseVisualStyleBackColor = true;
-            this.btnEmergency.Click += new System.EventHandler(this.btnEmergency_Click);
-            // 
             // btnAutopilotGo
             // 
             this.btnAutopilotGo.Enabled = false;
@@ -457,6 +447,16 @@
             this.btnAutopilotGo.UseVisualStyleBackColor = true;
             this.btnAutopilotGo.Click += new System.EventHandler(this.btnAutopilotGo_Click);
             // 
+            // btnEmergency
+            // 
+            this.btnEmergency.Location = new System.Drawing.Point(6, 77);
+            this.btnEmergency.Name = "btnEmergency";
+            this.btnEmergency.Size = new System.Drawing.Size(101, 23);
+            this.btnEmergency.TabIndex = 1;
+            this.btnEmergency.Text = "Emergency";
+            this.btnEmergency.UseVisualStyleBackColor = true;
+            this.btnEmergency.Click += new System.EventHandler(this.btnEmergency_Click);
+            // 
             // groupBox3
             // 
             this.groupBox3.Controls.Add(this.groupBox5);
@@ -467,39 +467,6 @@
             this.groupBox3.TabIndex = 6;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Manual pilot";
-            // 
-            // btnLand
-            // 
-            this.btnLand.Location = new System.Drawing.Point(6, 48);
-            this.btnLand.Name = "btnLand";
-            this.btnLand.Size = new System.Drawing.Size(101, 23);
-            this.btnLand.TabIndex = 2;
-            this.btnLand.Text = "Land";
-            this.btnLand.UseVisualStyleBackColor = true;
-            this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
-            // 
-            // btnTakeoff
-            // 
-            this.btnTakeoff.Location = new System.Drawing.Point(6, 19);
-            this.btnTakeoff.Name = "btnTakeoff";
-            this.btnTakeoff.Size = new System.Drawing.Size(101, 23);
-            this.btnTakeoff.TabIndex = 0;
-            this.btnTakeoff.Text = "Takeoff";
-            this.btnTakeoff.UseVisualStyleBackColor = true;
-            this.btnTakeoff.Click += new System.EventHandler(this.btnTakeoff_Click);
-            // 
-            // groupBox4
-            // 
-            this.groupBox4.Controls.Add(this.btnFlatTrim);
-            this.groupBox4.Controls.Add(this.btnTakeoff);
-            this.groupBox4.Controls.Add(this.btnLand);
-            this.groupBox4.Controls.Add(this.btnEmergency);
-            this.groupBox4.Location = new System.Drawing.Point(315, 19);
-            this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(110, 136);
-            this.groupBox4.TabIndex = 3;
-            this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Flight state";
             // 
             // groupBox5
             // 
@@ -517,55 +484,15 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Flight controls";
             // 
-            // btnForward
+            // btnBackward
             // 
-            this.btnForward.Location = new System.Drawing.Point(113, 19);
-            this.btnForward.Name = "btnForward";
-            this.btnForward.Size = new System.Drawing.Size(75, 23);
-            this.btnForward.TabIndex = 0;
-            this.btnForward.Text = "Forward";
-            this.btnForward.UseVisualStyleBackColor = true;
-            this.btnForward.Click += new System.EventHandler(this.btnForward_Click);
-            // 
-            // btnHover
-            // 
-            this.btnHover.Location = new System.Drawing.Point(113, 48);
-            this.btnHover.Name = "btnHover";
-            this.btnHover.Size = new System.Drawing.Size(75, 23);
-            this.btnHover.TabIndex = 1;
-            this.btnHover.Text = "Hover";
-            this.btnHover.UseVisualStyleBackColor = true;
-            this.btnHover.Click += new System.EventHandler(this.btnHover_Click);
-            // 
-            // btnLeft
-            // 
-            this.btnLeft.Location = new System.Drawing.Point(32, 48);
-            this.btnLeft.Name = "btnLeft";
-            this.btnLeft.Size = new System.Drawing.Size(75, 23);
-            this.btnLeft.TabIndex = 2;
-            this.btnLeft.Text = "Left";
-            this.btnLeft.UseVisualStyleBackColor = true;
-            this.btnLeft.Click += new System.EventHandler(this.btnLeft_Click);
-            // 
-            // btnRight
-            // 
-            this.btnRight.Location = new System.Drawing.Point(194, 48);
-            this.btnRight.Name = "btnRight";
-            this.btnRight.Size = new System.Drawing.Size(75, 23);
-            this.btnRight.TabIndex = 3;
-            this.btnRight.Text = "Right";
-            this.btnRight.UseVisualStyleBackColor = true;
-            this.btnRight.Click += new System.EventHandler(this.btnRight_Click);
-            // 
-            // btnRotateRight
-            // 
-            this.btnRotateRight.Location = new System.Drawing.Point(194, 19);
-            this.btnRotateRight.Name = "btnRotateRight";
-            this.btnRotateRight.Size = new System.Drawing.Size(75, 23);
-            this.btnRotateRight.TabIndex = 4;
-            this.btnRotateRight.Text = "Rotate right";
-            this.btnRotateRight.UseVisualStyleBackColor = true;
-            this.btnRotateRight.Click += new System.EventHandler(this.btnRotateRight_Click);
+            this.btnBackward.Location = new System.Drawing.Point(113, 77);
+            this.btnBackward.Name = "btnBackward";
+            this.btnBackward.Size = new System.Drawing.Size(75, 23);
+            this.btnBackward.TabIndex = 6;
+            this.btnBackward.Text = "Backward";
+            this.btnBackward.UseVisualStyleBackColor = true;
+            this.btnBackward.Click += new System.EventHandler(this.btnBackward_Click);
             // 
             // btnRotateLeft
             // 
@@ -577,15 +504,68 @@
             this.btnRotateLeft.UseVisualStyleBackColor = true;
             this.btnRotateLeft.Click += new System.EventHandler(this.btnRotateLeft_Click);
             // 
-            // btnBackward
+            // btnRotateRight
             // 
-            this.btnBackward.Location = new System.Drawing.Point(113, 77);
-            this.btnBackward.Name = "btnBackward";
-            this.btnBackward.Size = new System.Drawing.Size(75, 23);
-            this.btnBackward.TabIndex = 6;
-            this.btnBackward.Text = "Backward";
-            this.btnBackward.UseVisualStyleBackColor = true;
-            this.btnBackward.Click += new System.EventHandler(this.btnBackward_Click);
+            this.btnRotateRight.Location = new System.Drawing.Point(194, 19);
+            this.btnRotateRight.Name = "btnRotateRight";
+            this.btnRotateRight.Size = new System.Drawing.Size(75, 23);
+            this.btnRotateRight.TabIndex = 4;
+            this.btnRotateRight.Text = "Rotate right";
+            this.btnRotateRight.UseVisualStyleBackColor = true;
+            this.btnRotateRight.Click += new System.EventHandler(this.btnRotateRight_Click);
+            // 
+            // btnRight
+            // 
+            this.btnRight.Location = new System.Drawing.Point(194, 48);
+            this.btnRight.Name = "btnRight";
+            this.btnRight.Size = new System.Drawing.Size(75, 23);
+            this.btnRight.TabIndex = 3;
+            this.btnRight.Text = "Right";
+            this.btnRight.UseVisualStyleBackColor = true;
+            this.btnRight.Click += new System.EventHandler(this.btnRight_Click);
+            // 
+            // btnLeft
+            // 
+            this.btnLeft.Location = new System.Drawing.Point(32, 48);
+            this.btnLeft.Name = "btnLeft";
+            this.btnLeft.Size = new System.Drawing.Size(75, 23);
+            this.btnLeft.TabIndex = 2;
+            this.btnLeft.Text = "Left";
+            this.btnLeft.UseVisualStyleBackColor = true;
+            this.btnLeft.Click += new System.EventHandler(this.btnLeft_Click);
+            // 
+            // btnHover
+            // 
+            this.btnHover.Location = new System.Drawing.Point(113, 48);
+            this.btnHover.Name = "btnHover";
+            this.btnHover.Size = new System.Drawing.Size(75, 23);
+            this.btnHover.TabIndex = 1;
+            this.btnHover.Text = "Hover";
+            this.btnHover.UseVisualStyleBackColor = true;
+            this.btnHover.Click += new System.EventHandler(this.btnHover_Click);
+            // 
+            // btnForward
+            // 
+            this.btnForward.Location = new System.Drawing.Point(113, 19);
+            this.btnForward.Name = "btnForward";
+            this.btnForward.Size = new System.Drawing.Size(75, 23);
+            this.btnForward.TabIndex = 0;
+            this.btnForward.Text = "Forward";
+            this.btnForward.UseVisualStyleBackColor = true;
+            this.btnForward.Click += new System.EventHandler(this.btnForward_Click);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.btnFlatTrim);
+            this.groupBox4.Controls.Add(this.btnTakeoff);
+            this.groupBox4.Controls.Add(this.btnLand);
+            this.groupBox4.Controls.Add(this.btnEmergency);
+            this.groupBox4.Location = new System.Drawing.Point(315, 19);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(110, 136);
+            this.groupBox4.TabIndex = 3;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Flight state";
             // 
             // btnFlatTrim
             // 
@@ -597,6 +577,26 @@
             this.btnFlatTrim.UseVisualStyleBackColor = true;
             this.btnFlatTrim.Click += new System.EventHandler(this.btnFlatTrim_Click);
             // 
+            // btnTakeoff
+            // 
+            this.btnTakeoff.Location = new System.Drawing.Point(6, 19);
+            this.btnTakeoff.Name = "btnTakeoff";
+            this.btnTakeoff.Size = new System.Drawing.Size(101, 23);
+            this.btnTakeoff.TabIndex = 0;
+            this.btnTakeoff.Text = "Takeoff";
+            this.btnTakeoff.UseVisualStyleBackColor = true;
+            this.btnTakeoff.Click += new System.EventHandler(this.btnTakeoff_Click);
+            // 
+            // btnLand
+            // 
+            this.btnLand.Location = new System.Drawing.Point(6, 48);
+            this.btnLand.Name = "btnLand";
+            this.btnLand.Size = new System.Drawing.Size(101, 23);
+            this.btnLand.TabIndex = 2;
+            this.btnLand.Text = "Land";
+            this.btnLand.UseVisualStyleBackColor = true;
+            this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -604,7 +604,7 @@
             this.ClientSize = new System.Drawing.Size(971, 662);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.label1);
+            this.Controls.Add(this.barcode);
             this.Controls.Add(this.gbBarcodeScanning);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbTelemetry);
@@ -619,8 +619,8 @@
             this.gbBarcodeScanning.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
-            this.groupBox4.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
+            this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -660,7 +660,7 @@
         private System.Windows.Forms.Timer tmrVideoUpdate;
         private System.Windows.Forms.GroupBox gbBarcodeScanning;
         private System.Windows.Forms.Button btnScanForBarcode;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label barcode;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnAutopilotGo;
         private System.Windows.Forms.Button btnEmergency;
