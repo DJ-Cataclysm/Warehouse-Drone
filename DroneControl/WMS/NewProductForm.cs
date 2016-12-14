@@ -30,13 +30,13 @@ namespace WMS
             }
             
             //Release resources used by this component.
-            Dispose();
+            Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
             //Release resources used by this component.
-            Dispose();
+            Close();
         }
     }
 }

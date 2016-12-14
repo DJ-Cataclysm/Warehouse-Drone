@@ -67,6 +67,7 @@ namespace WMS
                         if (existingRecord != null)
                         {
                             existingRecord.Count = m.NewCount;
+                            existingRecord.LastCheck = DateTime.Now;
                         }
                     }
 
