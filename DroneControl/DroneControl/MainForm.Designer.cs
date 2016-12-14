@@ -79,6 +79,9 @@
             this.btnFlatTrim = new System.Windows.Forms.Button();
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
+            this.nudMockScan = new System.Windows.Forms.NumericUpDown();
+            this.btnMockScan = new System.Windows.Forms.Button();
+            this.btnMockDoneScanning = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -88,6 +91,7 @@
             this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).BeginInit();
             this.SuspendLayout();
             // 
             // pbVideo
@@ -386,10 +390,13 @@
             // 
             // gbBarcodeScanning
             // 
+            this.gbBarcodeScanning.Controls.Add(this.btnMockDoneScanning);
+            this.gbBarcodeScanning.Controls.Add(this.btnMockScan);
+            this.gbBarcodeScanning.Controls.Add(this.nudMockScan);
             this.gbBarcodeScanning.Controls.Add(this.btnScanForBarcode);
             this.gbBarcodeScanning.Location = new System.Drawing.Point(678, 412);
             this.gbBarcodeScanning.Name = "gbBarcodeScanning";
-            this.gbBarcodeScanning.Size = new System.Drawing.Size(287, 54);
+            this.gbBarcodeScanning.Size = new System.Drawing.Size(287, 153);
             this.gbBarcodeScanning.TabIndex = 4;
             this.gbBarcodeScanning.TabStop = false;
             this.gbBarcodeScanning.Text = "Barcode Scanning";
@@ -597,6 +604,38 @@
             this.btnLand.UseVisualStyleBackColor = true;
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
+            // nudMockScan
+            // 
+            this.nudMockScan.Location = new System.Drawing.Point(9, 60);
+            this.nudMockScan.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.nudMockScan.Name = "nudMockScan";
+            this.nudMockScan.Size = new System.Drawing.Size(120, 20);
+            this.nudMockScan.TabIndex = 1;
+            // 
+            // btnMockScan
+            // 
+            this.btnMockScan.Location = new System.Drawing.Point(135, 57);
+            this.btnMockScan.Name = "btnMockScan";
+            this.btnMockScan.Size = new System.Drawing.Size(143, 23);
+            this.btnMockScan.TabIndex = 2;
+            this.btnMockScan.Text = "Mock scan";
+            this.btnMockScan.UseVisualStyleBackColor = true;
+            this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
+            // 
+            // btnMockDoneScanning
+            // 
+            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 86);
+            this.btnMockDoneScanning.Name = "btnMockDoneScanning";
+            this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
+            this.btnMockDoneScanning.TabIndex = 3;
+            this.btnMockDoneScanning.Text = "Mock done scanning";
+            this.btnMockDoneScanning.UseVisualStyleBackColor = true;
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -621,6 +660,7 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -678,5 +718,8 @@
         private System.Windows.Forms.Button btnRotateLeft;
         private System.Windows.Forms.Button btnBackward;
         private System.Windows.Forms.Button btnFlatTrim;
+        private System.Windows.Forms.Button btnMockScan;
+        private System.Windows.Forms.NumericUpDown nudMockScan;
+        private System.Windows.Forms.Button btnMockDoneScanning;
     }
 }

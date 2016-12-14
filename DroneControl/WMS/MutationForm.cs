@@ -32,7 +32,7 @@ namespace WMS
             //Make sure a row has been selected first.
             if (dgvProducts.SelectedRows.Count > 0)
             {
-                if(dgvProducts.Columns[e.ColumnIndex].Name == "NewCount")
+                if (dgvProducts.Columns[e.ColumnIndex].Name == "NewCount")
                 {
                     int tempInt;
                     if (!int.TryParse((string)e.FormattedValue, out tempInt) || tempInt < 0)
@@ -50,7 +50,7 @@ namespace WMS
             //Confirmation prompt
             DialogResult result = MessageBox.Show("Are you sure you wish to accept and save these mutations?", "Are you sure?", MessageBoxButtons.YesNo);
 
-            if(result == DialogResult.Yes)
+            if (result == DialogResult.Yes)
             {
                 //Remove mutations with no changes.
                 pendingMutations.RemoveAll(m => m.NewCount == m.OldCount);
@@ -60,7 +60,7 @@ namespace WMS
                     //Store mutations in databse
                     db.Mutations.AddRange(pendingMutations);
 
-                    foreach(Mutation m in pendingMutations)
+                    foreach (Mutation m in pendingMutations)
                     {
                         //Update the product table with new count
                         var existingRecord = db.Products.Find(m.ID);
@@ -72,13 +72,21 @@ namespace WMS
 
                     db.SaveChanges();
                 }
+
+                Close();
             }
-            Close();
+
         }
 
         private void btnDecline_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            pendingMutations.Clear();
+            base.OnClosed(e);
         }
     }
 }

@@ -153,9 +153,6 @@ namespace DroneControl
             }
         }
 
-        /*
-         * Button Click: Start the droneclient and connect to the drone.
-         */
         private void btnConnect_Click(object sender, EventArgs e)
         {
             _droneController.startClient();
@@ -167,9 +164,6 @@ namespace DroneControl
             _droneClient = _droneController.getDroneClient();
         }
 
-        /*
-         * Button Click: Stop the droneclient and disconnect the drone.
-         */
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
             _droneController.stopClient();
@@ -279,6 +273,17 @@ namespace DroneControl
         private void button1_Click(object sender, EventArgs e)
         {
             _droneController.doSmartScan();
+        }
+
+        private void btnMockScan_Click(object sender, EventArgs e)
+        {
+            int scannedId = (int)nudMockScan.Value;
+            wmsForm.productScanned(scannedId);
+        }
+
+        private void btnMockDoneScanning_Click(object sender, EventArgs e)
+        {
+            wmsForm.showMutations();
         }
     }
 }

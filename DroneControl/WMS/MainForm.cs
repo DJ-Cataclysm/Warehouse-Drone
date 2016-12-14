@@ -19,13 +19,7 @@ namespace WMS
             pendingMutations = new List<Mutation>();
         }
 
-        private void btnExampleMutation_Click(object sender, EventArgs e)
-        {
-            prepareMutations();
-            showMutations();
-        }
-
-        public void prepareMutations()
+        private void prepareMutations()
         {
             //Should be called when doing a full cycle scan or smart scan before drone scans anything.
             //Creates empty mutations with the proper ID's and current stock.
@@ -57,6 +51,10 @@ namespace WMS
 
         public void productScanned(int id)
         {
+            if(pendingMutations.Count == 0)
+            {
+                prepareMutations();
+            }
             Mutation mutation = pendingMutations.Find(m => m.ID == id);
             if(mutation != null)
             {

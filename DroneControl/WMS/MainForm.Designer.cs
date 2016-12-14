@@ -33,7 +33,6 @@
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.tsbAddProduct = new System.Windows.Forms.ToolStripButton();
             this.tsbDeleteProduct = new System.Windows.Forms.ToolStripButton();
-            this.btnExampleMutation = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProducts)).BeginInit();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -63,8 +62,7 @@
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbAddProduct,
-            this.tsbDeleteProduct,
-            this.btnExampleMutation});
+            this.tsbDeleteProduct});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(663, 25);
@@ -90,16 +88,6 @@
             this.tsbDeleteProduct.Text = "Delete product";
             this.tsbDeleteProduct.Click += new System.EventHandler(this.tsbDeleteProduct_Click);
             // 
-            // btnExampleMutation
-            // 
-            this.btnExampleMutation.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnExampleMutation.Image = ((System.Drawing.Image)(resources.GetObject("btnExampleMutation.Image")));
-            this.btnExampleMutation.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnExampleMutation.Name = "btnExampleMutation";
-            this.btnExampleMutation.Size = new System.Drawing.Size(125, 22);
-            this.btnExampleMutation.Text = "Do example mutation";
-            this.btnExampleMutation.Click += new System.EventHandler(this.btnExampleMutation_Click);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -124,7 +112,6 @@
         private System.Windows.Forms.ToolStrip toolStrip1;
         private System.Windows.Forms.ToolStripButton tsbAddProduct;
         private System.Windows.Forms.ToolStripButton tsbDeleteProduct;
-        private System.Windows.Forms.ToolStripButton btnExampleMutation;
     }
 }
 
