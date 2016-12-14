@@ -21,15 +21,15 @@ namespace WMS
 
         private void btnExampleMutation_Click(object sender, EventArgs e)
         {
-            prepareMutationList();
-            filterMutationList();
+            prepareMutations();
             showMutations();
         }
 
-        private void prepareMutationList()
+        public void prepareMutations()
         {
             //Should be called when doing a full cycle scan or smart scan before drone scans anything.
             //Creates empty mutations with the proper ID's and current stock.
+            pendingMutations.Clear();
             using (ProductDBContext db = new ProductDBContext())
             {
                 List<Product> products = db.Products.ToList();
@@ -40,7 +40,7 @@ namespace WMS
             }
         }
 
-        private void filterMutationList()
+        private void filterMutations()
         {
             //Used for filtering the list in such a way that only records remain where the OldCount and NewCount do not match.
             //Should be used after finishing the full cycle count.
@@ -49,8 +49,10 @@ namespace WMS
 
         public void showMutations()
         {
+            filterMutations();
             mutationForm = new MutationForm(pendingMutations);
             mutationForm.ShowDialog();
+            refreshDataGridView();
         }
 
         public void productScanned(int id)
@@ -141,10 +143,9 @@ namespace WMS
             if(dgvProducts.SelectedRows.Count > 0)
             {
                 //Find the edited column, trigger different behavior, depending on the column being edited.
+                //Note: Title and description is a string and can therefore not really be invalid.
                 switch (dgvProducts.Columns[e.ColumnIndex].Name)
                 {
-                    case "Title":
-                        return; //User can't really make a mistake with the title.
                     case "LastCheck":
                         //Must be a valid DateTime string
                         DateTime tempDate;
@@ -172,12 +173,8 @@ namespace WMS
                             dgvProducts.CancelEdit();
                         }
                         break;
-                    case "Description":
-                        return; //User can't really make a mistake with the description.
                 }
             }
         }
-
-        
     }
 }

@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WMS
@@ -27,7 +21,7 @@ namespace WMS
             dgvProducts.DataSource = typeof(Mutation);
             dgvProducts.DataSource = pendingMutations;
 
-            //You may only modify the NewCount column.
+            //You may only modify the NewCount (2nd) column.
             dgvProducts.Columns[0].ReadOnly = true;
             dgvProducts.Columns[1].ReadOnly = true;
             dgvProducts.Columns[3].ReadOnly = true;
@@ -49,6 +43,42 @@ namespace WMS
                     }
                 }
             }
+        }
+
+        private void btnAccept_Click(object sender, EventArgs e)
+        {
+            //Confirmation prompt
+            DialogResult result = MessageBox.Show("Are you sure you wish to accept and save these mutations?", "Are you sure?", MessageBoxButtons.YesNo);
+
+            if(result == DialogResult.Yes)
+            {
+                //Remove mutations with no changes.
+                pendingMutations.RemoveAll(m => m.NewCount == m.OldCount);
+
+                using (var db = new ProductDBContext())
+                {
+                    //Store mutations in databse
+                    db.Mutations.AddRange(pendingMutations);
+
+                    foreach(Mutation m in pendingMutations)
+                    {
+                        //Update the product table with new count
+                        var existingRecord = db.Products.Find(m.ID);
+                        if (existingRecord != null)
+                        {
+                            existingRecord.Count = m.NewCount;
+                        }
+                    }
+
+                    db.SaveChanges();
+                }
+            }
+            Close();
+        }
+
+        private void btnDecline_Click(object sender, EventArgs e)
+        {
+            Close();
         }
     }
 }

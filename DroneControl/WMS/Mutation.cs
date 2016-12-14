@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace WMS
 {
@@ -17,6 +13,7 @@ namespace WMS
         public int NewCount { get; set; }
         public int OldCount { get; set; }
 
+        //Generate new mutation for a product
         public Mutation(Product p)
         {
             ID = p.ID;

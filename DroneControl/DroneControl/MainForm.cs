@@ -72,7 +72,9 @@ namespace DroneControl
          */
         protected override void OnClosed(EventArgs e)
         {
-            //droneController.Dispose();
+            _droneController.stopAutopilot();
+            _droneController.stopClient();
+            _droneController.Dispose();
             _videoPacketDecoderWorker.Dispose();
             base.OnClosed(e);
         }

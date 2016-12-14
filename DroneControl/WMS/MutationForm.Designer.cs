@@ -45,6 +45,7 @@
             this.btnAccept.TabIndex = 0;
             this.btnAccept.Text = "Accept changes";
             this.btnAccept.UseVisualStyleBackColor = true;
+            this.btnAccept.Click += new System.EventHandler(this.btnAccept_Click);
             // 
             // panel1
             // 
@@ -65,6 +66,7 @@
             this.btnDecline.TabIndex = 1;
             this.btnDecline.Text = "Decline changes";
             this.btnDecline.UseVisualStyleBackColor = true;
+            this.btnDecline.Click += new System.EventHandler(this.btnDecline_Click);
             // 
             // dgvProducts
             // 
@@ -93,8 +95,9 @@
             this.ClientSize = new System.Drawing.Size(587, 422);
             this.Controls.Add(this.dgvProducts);
             this.Controls.Add(this.panel1);
+            this.MinimumSize = new System.Drawing.Size(320, 320);
             this.Name = "MutationForm";
-            this.Text = "MutationForm";
+            this.Text = "Mutations";
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvProducts)).EndInit();
             this.ResumeLayout(false);
