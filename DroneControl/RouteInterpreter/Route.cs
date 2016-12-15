@@ -8,7 +8,7 @@ namespace RoutePlanner
 {
     public class Route
     {
-        List<Position> positions;
+        List<Position> positions = new List<Position>();
 
         public void addPosition(Position p)
         {

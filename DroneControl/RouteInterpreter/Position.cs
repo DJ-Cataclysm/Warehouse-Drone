@@ -8,7 +8,7 @@ namespace RoutePlanner
 {
     public class Position
     {
-        int x, y, z;
+        public int x, y, z;
 
         public Position(int x, int y, int z)
         {

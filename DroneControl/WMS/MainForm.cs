@@ -17,6 +17,7 @@ namespace WMS
             dgvProducts.AllowUserToAddRows = true;
             refreshDataGridView();
             pendingMutations = new List<Mutation>();
+
         }
 
         private void prepareMutations()
@@ -174,5 +175,8 @@ namespace WMS
                 }
             }
         }
+
+
+
     }
 }

@@ -65,6 +65,9 @@
             this.btnMockScan = new System.Windows.Forms.Button();
             this.lblBarcode = new System.Windows.Forms.Label();
             this.nudMockScan = new System.Windows.Forms.NumericUpDown();
+            this.btnMockDoneScanning = new System.Windows.Forms.Button();
+            this.btnMockScan = new System.Windows.Forms.Button();
+            this.nudMockScan = new System.Windows.Forms.NumericUpDown();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnAutopilotStop = new System.Windows.Forms.Button();
@@ -84,6 +87,7 @@
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
             this.barcode = new System.Windows.Forms.Label();
+            this.MakeRouteButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -458,6 +462,38 @@
             this.nudMockScan.Size = new System.Drawing.Size(120, 20);
             this.nudMockScan.TabIndex = 1;
             // 
+            // btnMockDoneScanning
+            // 
+            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 86);
+            this.btnMockDoneScanning.Name = "btnMockDoneScanning";
+            this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
+            this.btnMockDoneScanning.TabIndex = 3;
+            this.btnMockDoneScanning.Text = "Mock done scanning";
+            this.btnMockDoneScanning.UseVisualStyleBackColor = true;
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            // 
+            // btnMockScan
+            // 
+            this.btnMockScan.Location = new System.Drawing.Point(135, 57);
+            this.btnMockScan.Name = "btnMockScan";
+            this.btnMockScan.Size = new System.Drawing.Size(143, 23);
+            this.btnMockScan.TabIndex = 2;
+            this.btnMockScan.Text = "Mock scan";
+            this.btnMockScan.UseVisualStyleBackColor = true;
+            this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
+            // 
+            // nudMockScan
+            // 
+            this.nudMockScan.Location = new System.Drawing.Point(9, 60);
+            this.nudMockScan.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.nudMockScan.Name = "nudMockScan";
+            this.nudMockScan.Size = new System.Drawing.Size(120, 20);
+            this.nudMockScan.TabIndex = 1;
+            // 
             // btnScanForBarcode
             // 
             this.btnScanForBarcode.Location = new System.Drawing.Point(9, 19);
@@ -652,6 +688,7 @@
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
             // barcode
+            // MakeRouteButton
             // 
             this.barcode.AutoSize = true;
             this.barcode.Location = new System.Drawing.Point(9, 79);
@@ -659,12 +696,20 @@
             this.barcode.Size = new System.Drawing.Size(47, 13);
             this.barcode.TabIndex = 5;
             this.barcode.Text = "Barcode";
+            this.MakeRouteButton.Location = new System.Drawing.Point(832, 596);
+            this.MakeRouteButton.Name = "MakeRouteButton";
+            this.MakeRouteButton.Size = new System.Drawing.Size(75, 23);
+            this.MakeRouteButton.TabIndex = 7;
+            this.MakeRouteButton.Text = "Make Route";
+            this.MakeRouteButton.UseVisualStyleBackColor = true;
+            this.MakeRouteButton.Click += new System.EventHandler(this.MakeRouteButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(971, 662);
+            this.Controls.Add(this.MakeRouteButton);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.gbBarcodeScanning);
@@ -680,6 +725,7 @@
             this.groupBox1.ResumeLayout(false);
             this.gbBarcodeScanning.ResumeLayout(false);
             this.gbBarcodeScanning.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
@@ -746,5 +792,6 @@
         private System.Windows.Forms.Button btnMockDoneScanning;
         private System.Windows.Forms.Button CheckVormen;
         private System.Windows.Forms.Label barcode;
+        private System.Windows.Forms.Button MakeRouteButton;
     }
 }
