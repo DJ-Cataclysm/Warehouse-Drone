@@ -1,4 +1,5 @@
 ﻿using AR.Drone.Client;
+using AR.Drone.Client.Configuration;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using System;
@@ -57,6 +58,10 @@ namespace DroneControl
         public void startClient()
         {
             droneClient.Start();
+
+            var configuration = new Settings();
+            configuration.Video.Channel = VideoChannelType.Vertical;
+            droneClient.Send(configuration);
         }
 
         public void stopClient()
