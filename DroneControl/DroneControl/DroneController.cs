@@ -2,7 +2,11 @@
 using AR.Drone.Client.Configuration;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
+using RoutePlanner;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using WMS;
 
 namespace DroneControl
 {
@@ -20,14 +24,12 @@ namespace DroneControl
             routeInterpreter = new RouteInterpreter(ref autopilotController);
         }
 
-        public void doFullCycle()
+        public void CycleCount()
         {
-            /*
-            Route r = RoutePlan.makeFullCycleRoute();
-            routeInterpreter.interpret(r); //route interpreter enqueues the 
-            //start autopilot
-            //autopilotController.start();
-            */
+            Route route = MakeRoute();
+            routeInterpreter.interpret(route); //Autopilot is fully setup after this
+            // start cycle count
+            autopilotController.Start();
         }
 
         public void doSmartScan()
@@ -88,6 +90,34 @@ namespace DroneControl
         public void Dispose()
         {
             droneClient.Dispose();
+        }
+
+        private Route MakeRoute()
+        {
+            //TODO: make either a smart route or a full cycle count route
+
+            //Console.Write(" clicked the make route button - making route");
+            List<Product> products = new List<Product>();
+
+            using (ProductDBContext db = new ProductDBContext())
+            {
+                products = db.Products.ToList();
+            }
+
+            foreach (Product p in products)
+            {
+                Positions.addPosition(new Position(p.X, p.Y, p.Z));
+            }
+            //Make full cycle route using the positions in the static Positions class
+            return RoutePlan.makeFullCycleRoute();
+
+            /*List<Position> a = r.getPositions();
+            foreach (Position X in a)
+            {
+                Console.Write("position --> X: " + X.x.ToString() + " Y: " + X.y.ToString());
+                Console.WriteLine();
+
+            }*/
         }
     }
 }

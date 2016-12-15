@@ -14,7 +14,6 @@ using System.Windows.Forms;
 using ZXing;
 using WMS;
 using RoutePlanner;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -197,7 +196,7 @@ namespace DroneControl
         {
             //Commands invoegen
             //Start autopilot
-            _droneController.enqueueTest();
+            //_droneController.enqueueTest();
             _droneController.startAutopilot();
             btnAutopilotGo.Enabled = false;
         }
@@ -299,31 +298,9 @@ namespace DroneControl
         }
 
 
-        private void MakeRouteButton_Click(object sender, EventArgs e)
+        private void btnCycleCount_Click(object sender, EventArgs e)
         {
-            Console.Write(" clicked the make route button - making route");
-            List<Product> products = new List<Product>();
-
-            using (ProductDBContext db = new ProductDBContext())
-            {
-                products = db.Products.ToList();
-            }
-            foreach (Product p in products)
-            {
-                int x = p.X;
-                int y = p.Y;
-                int z = p.Z;
-                Position positionToAdd = new Position(x, y, z);
-                Positions.addPosition(positionToAdd);
-            }
-           Route r = RoutePlan.makeFullCycleRoute();
-           List<Position> a = r.getPositions();
-           foreach (Position X in a)
-           {
-               Console.Write("position --> X: " + X.x.ToString()+" Y: "+ X.y.ToString());
-               Console.WriteLine();
-             
-           }
+            _droneController.CycleCount();
         }
 
         private void CheckVormen_Click(object sender, EventArgs e)
