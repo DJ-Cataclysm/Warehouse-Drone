@@ -40,11 +40,14 @@ namespace DroneControl
             //float hoogte = 1f;
             takeOffCommand.execute();
             //turn.execute(headings.right);
-            //goLeft.execute();
-            //goRight.execute();
+            goLeft.execute();
+            goToHeight.execute(2f);
+            goRight.execute();
+            goRight.execute();
+            goToHeight.execute(1f);
             //goForward.execute();
             //turn.execute(headings.back);
-            turn.execute(headings.back);
+            //turn.execute(headings.back);
             //goForward.execute();
             //turn.execute(headings.back);
             //goForward.execute();

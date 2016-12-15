@@ -60,11 +60,12 @@
             this.tmrStateUpdate = new System.Windows.Forms.Timer(this.components);
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
             this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
+            this.CheckVormen = new System.Windows.Forms.Button();
             this.btnMockDoneScanning = new System.Windows.Forms.Button();
             this.btnMockScan = new System.Windows.Forms.Button();
+            this.lblBarcode = new System.Windows.Forms.Label();
             this.nudMockScan = new System.Windows.Forms.NumericUpDown();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
-            this.barcode = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.btnAutopilotStop = new System.Windows.Forms.Button();
             this.btnAutopilotGo = new System.Windows.Forms.Button();
@@ -82,7 +83,7 @@
             this.btnFlatTrim = new System.Windows.Forms.Button();
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
-            this.CheckVormen = new System.Windows.Forms.Button();
+            this.barcode = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -391,9 +392,11 @@
             // 
             // gbBarcodeScanning
             // 
+            this.gbBarcodeScanning.Controls.Add(this.barcode);
             this.gbBarcodeScanning.Controls.Add(this.CheckVormen);
             this.gbBarcodeScanning.Controls.Add(this.btnMockDoneScanning);
             this.gbBarcodeScanning.Controls.Add(this.btnMockScan);
+            this.gbBarcodeScanning.Controls.Add(this.lblBarcode);
             this.gbBarcodeScanning.Controls.Add(this.nudMockScan);
             this.gbBarcodeScanning.Controls.Add(this.btnScanForBarcode);
             this.gbBarcodeScanning.Location = new System.Drawing.Point(678, 412);
@@ -402,6 +405,16 @@
             this.gbBarcodeScanning.TabIndex = 4;
             this.gbBarcodeScanning.TabStop = false;
             this.gbBarcodeScanning.Text = "Barcode Scanning";
+            // 
+            // CheckVormen
+            // 
+            this.CheckVormen.Location = new System.Drawing.Point(9, 49);
+            this.CheckVormen.Name = "CheckVormen";
+            this.CheckVormen.Size = new System.Drawing.Size(269, 23);
+            this.CheckVormen.TabIndex = 4;
+            this.CheckVormen.Text = "Check Voor Vormen";
+            this.CheckVormen.UseVisualStyleBackColor = true;
+            this.CheckVormen.Click += new System.EventHandler(this.CheckVormen_Click);
             // 
             // btnMockDoneScanning
             // 
@@ -422,6 +435,16 @@
             this.btnMockScan.Text = "Mock scan";
             this.btnMockScan.UseVisualStyleBackColor = true;
             this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
+            // 
+            // lblBarcode
+            // 
+            this.lblBarcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblBarcode.AutoSize = true;
+            this.lblBarcode.Location = new System.Drawing.Point(6, 127);
+            this.lblBarcode.Name = "lblBarcode";
+            this.lblBarcode.Size = new System.Drawing.Size(60, 13);
+            this.lblBarcode.TabIndex = 1;
+            this.lblBarcode.Text = "Scanresult:";
             // 
             // nudMockScan
             // 
@@ -444,16 +467,6 @@
             this.btnScanForBarcode.Text = "Scan for barcode";
             this.btnScanForBarcode.UseVisualStyleBackColor = true;
             this.btnScanForBarcode.Click += new System.EventHandler(this.btnScanForBarcode_Click);
-            // 
-            // barcode
-            // 
-            this.barcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.barcode.AutoSize = true;
-            this.barcode.Location = new System.Drawing.Point(491, 431);
-            this.barcode.Name = "barcode";
-            this.barcode.Size = new System.Drawing.Size(57, 13);
-            this.barcode.TabIndex = 1;
-            this.barcode.Text = "Scanresult";
             // 
             // groupBox2
             // 
@@ -638,15 +651,14 @@
             this.btnLand.UseVisualStyleBackColor = true;
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
-            // CheckVormen
+            // barcode
             // 
-            this.CheckVormen.Location = new System.Drawing.Point(9, 49);
-            this.CheckVormen.Name = "CheckVormen";
-            this.CheckVormen.Size = new System.Drawing.Size(269, 23);
-            this.CheckVormen.TabIndex = 4;
-            this.CheckVormen.Text = "Check Voor Vormen";
-            this.CheckVormen.UseVisualStyleBackColor = true;
-            this.CheckVormen.Click += new System.EventHandler(this.CheckVormen_Click);
+            this.barcode.AutoSize = true;
+            this.barcode.Location = new System.Drawing.Point(9, 79);
+            this.barcode.Name = "barcode";
+            this.barcode.Size = new System.Drawing.Size(47, 13);
+            this.barcode.TabIndex = 5;
+            this.barcode.Text = "Barcode";
             // 
             // MainForm
             // 
@@ -655,7 +667,6 @@
             this.ClientSize = new System.Drawing.Size(971, 662);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
-            this.Controls.Add(this.barcode);
             this.Controls.Add(this.gbBarcodeScanning);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.gbTelemetry);
@@ -668,13 +679,13 @@
             this.gbTelemetry.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.gbBarcodeScanning.ResumeLayout(false);
+            this.gbBarcodeScanning.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -712,7 +723,7 @@
         private System.Windows.Forms.Timer tmrVideoUpdate;
         private System.Windows.Forms.GroupBox gbBarcodeScanning;
         private System.Windows.Forms.Button btnScanForBarcode;
-        private System.Windows.Forms.Label barcode;
+        private System.Windows.Forms.Label lblBarcode;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnAutopilotGo;
         private System.Windows.Forms.Button btnEmergency;
@@ -734,5 +745,6 @@
         private System.Windows.Forms.NumericUpDown nudMockScan;
         private System.Windows.Forms.Button btnMockDoneScanning;
         private System.Windows.Forms.Button CheckVormen;
+        private System.Windows.Forms.Label barcode;
     }
 }
