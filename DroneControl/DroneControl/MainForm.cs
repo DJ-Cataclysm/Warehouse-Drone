@@ -284,7 +284,7 @@ namespace DroneControl
             wmsForm.productScanned(scannedId);
         }
 
-        private void btnMockDoneScanning_Click(object sender, EventArgs e)
+        private void btnMockDroneScanning_Click(object sender, EventArgs e)
         {
             wmsForm.showMutations();
         }
