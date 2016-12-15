@@ -22,6 +22,7 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
+        private IBarcodeReader barcodeReader;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -48,6 +49,9 @@ namespace DroneControl
             //Create instance of WMS.
             wmsForm = new WMS.MainForm();
             wmsForm.Show();
+
+            //Create a barcode reader
+            barcodeReader = new BarcodeReader();
         }
 
         /*
@@ -128,6 +132,7 @@ namespace DroneControl
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
             pbVideo.Image = _frameBitmap;
+            scanBarcode();
         }
 
         /*
@@ -177,8 +182,8 @@ namespace DroneControl
          */
         private void btnScanForBarcode_Click(object sender, EventArgs e)
         {
-            string result = scanBarcode();
-            barcode.Text = result;
+            //string result = scanBarcode();
+            //barcode.Text = result;
         }
 
         private void btnAutopilotGo_Click(object sender, EventArgs e)
@@ -254,20 +259,18 @@ namespace DroneControl
         {
             _droneClient.FlatTrim();
         }
-        private string scanBarcode()
+        private void scanBarcode()
         {
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
             // detect and decode the barcode inside the bitmap
-            var result = reader.Decode(_frameBitmap);
+            var result = barcodeReader.Decode(_frameBitmap);
             // return result or error
             if (result != null)
             {
-                return result.Text;
+                lblBarcode.Text = "Scanresult: " + result.Text;
             }
             else
             {
-                return "Geen Barcode Gevonden";
+                lblBarcode.Text = "Scanresult: ";
             }
         }
         private void button1_Click(object sender, EventArgs e)
