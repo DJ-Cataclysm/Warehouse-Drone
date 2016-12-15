@@ -60,6 +60,9 @@
             this.tmrStateUpdate = new System.Windows.Forms.Timer(this.components);
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
             this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
+            this.btnMockDoneScanning = new System.Windows.Forms.Button();
+            this.btnMockScan = new System.Windows.Forms.Button();
+            this.nudMockScan = new System.Windows.Forms.NumericUpDown();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
             this.barcode = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -79,19 +82,17 @@
             this.btnFlatTrim = new System.Windows.Forms.Button();
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
-            this.nudMockScan = new System.Windows.Forms.NumericUpDown();
-            this.btnMockScan = new System.Windows.Forms.Button();
-            this.btnMockDoneScanning = new System.Windows.Forms.Button();
+            this.CheckVormen = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.gbBarcodeScanning.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
             this.groupBox5.SuspendLayout();
             this.groupBox4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).BeginInit();
             this.SuspendLayout();
             // 
             // pbVideo
@@ -390,6 +391,7 @@
             // 
             // gbBarcodeScanning
             // 
+            this.gbBarcodeScanning.Controls.Add(this.CheckVormen);
             this.gbBarcodeScanning.Controls.Add(this.btnMockDoneScanning);
             this.gbBarcodeScanning.Controls.Add(this.btnMockScan);
             this.gbBarcodeScanning.Controls.Add(this.nudMockScan);
@@ -400,6 +402,38 @@
             this.gbBarcodeScanning.TabIndex = 4;
             this.gbBarcodeScanning.TabStop = false;
             this.gbBarcodeScanning.Text = "Barcode Scanning";
+            // 
+            // btnMockDoneScanning
+            // 
+            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 124);
+            this.btnMockDoneScanning.Name = "btnMockDoneScanning";
+            this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
+            this.btnMockDoneScanning.TabIndex = 3;
+            this.btnMockDoneScanning.Text = "Mock done scanning";
+            this.btnMockDoneScanning.UseVisualStyleBackColor = true;
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            // 
+            // btnMockScan
+            // 
+            this.btnMockScan.Location = new System.Drawing.Point(135, 95);
+            this.btnMockScan.Name = "btnMockScan";
+            this.btnMockScan.Size = new System.Drawing.Size(143, 23);
+            this.btnMockScan.TabIndex = 2;
+            this.btnMockScan.Text = "Mock scan";
+            this.btnMockScan.UseVisualStyleBackColor = true;
+            this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
+            // 
+            // nudMockScan
+            // 
+            this.nudMockScan.Location = new System.Drawing.Point(9, 98);
+            this.nudMockScan.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.nudMockScan.Name = "nudMockScan";
+            this.nudMockScan.Size = new System.Drawing.Size(120, 20);
+            this.nudMockScan.TabIndex = 1;
             // 
             // btnScanForBarcode
             // 
@@ -604,37 +638,15 @@
             this.btnLand.UseVisualStyleBackColor = true;
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
-            // nudMockScan
+            // CheckVormen
             // 
-            this.nudMockScan.Location = new System.Drawing.Point(9, 60);
-            this.nudMockScan.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.nudMockScan.Name = "nudMockScan";
-            this.nudMockScan.Size = new System.Drawing.Size(120, 20);
-            this.nudMockScan.TabIndex = 1;
-            // 
-            // btnMockScan
-            // 
-            this.btnMockScan.Location = new System.Drawing.Point(135, 57);
-            this.btnMockScan.Name = "btnMockScan";
-            this.btnMockScan.Size = new System.Drawing.Size(143, 23);
-            this.btnMockScan.TabIndex = 2;
-            this.btnMockScan.Text = "Mock scan";
-            this.btnMockScan.UseVisualStyleBackColor = true;
-            this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
-            // 
-            // btnMockDoneScanning
-            // 
-            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 86);
-            this.btnMockDoneScanning.Name = "btnMockDoneScanning";
-            this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
-            this.btnMockDoneScanning.TabIndex = 3;
-            this.btnMockDoneScanning.Text = "Mock done scanning";
-            this.btnMockDoneScanning.UseVisualStyleBackColor = true;
-            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            this.CheckVormen.Location = new System.Drawing.Point(9, 49);
+            this.CheckVormen.Name = "CheckVormen";
+            this.CheckVormen.Size = new System.Drawing.Size(269, 23);
+            this.CheckVormen.TabIndex = 4;
+            this.CheckVormen.Text = "Check Voor Vormen";
+            this.CheckVormen.UseVisualStyleBackColor = true;
+            this.CheckVormen.Click += new System.EventHandler(this.CheckVormen_Click);
             // 
             // MainForm
             // 
@@ -656,11 +668,11 @@
             this.gbTelemetry.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.gbBarcodeScanning.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox3.ResumeLayout(false);
             this.groupBox5.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.nudMockScan)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -721,5 +733,6 @@
         private System.Windows.Forms.Button btnMockScan;
         private System.Windows.Forms.NumericUpDown nudMockScan;
         private System.Windows.Forms.Button btnMockDoneScanning;
+        private System.Windows.Forms.Button CheckVormen;
     }
 }

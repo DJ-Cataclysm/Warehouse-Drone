@@ -12,22 +12,22 @@ namespace ConsoleApplication2
         {
 
             //a(0) b(1) c(2) d(3) e(4) f(5)
-            int[,] connectieArray = new int[15, 4]{
-                {1, 5, -1, -1 },
-                {0, 6, 2, -1 },
-                {1, 7, 3, -1 },
-                {2, 8, 4, -1 },
-                {3, 9, -1, -1 },
-                {0, 6, 10, -1 },
-                {1, 5, 11, 7 },
-                {6, 2, 8, 12 },
-                {7, 3, 9, 13 },
-                {8, 4, 14, -1 },
-                {5, 11, -1, -1 },
-                {10, 6, 12, -1 },
-                {11, 7, 13, -1 },
-                {12, 8, 14, -1 },
-                {13, 9, -1, -1 }
+            int[,] connectieArray = new int[15, 6]{
+                {1, 5, 6, -1, -1, -1  },
+                {0, 6, 2, -1, -1, -1  },
+                {1, 7, 3, -1, -1, -1  },
+                {2, 8, 4, -1, -1, -1  },
+                {3, 9, 8, -1, -1, -1  },
+                {0, 6, 10, -1, -1, -1  },
+                {1, 5, 11, 7, 10, 0 },
+                {6, 2, 8, 12, -1, -1  },
+                {7, 3, 9, 13, 4, 14  },
+                {8, 4, 14, -1, -1, -1  },
+                {5, 11, 6, -1, -1, -1  },
+                {10, 6, 12, -1, -1, -1  },
+                {11, 7, 13, -1, -1, -1  },
+                {12, 8, 14, -1, -1, -1  },
+                {13, 9, 8, -1, -1, -1  }
             };
 
             //0 - 1 - 2
@@ -73,8 +73,8 @@ namespace ConsoleApplication2
                 else
                 {
                     Console.WriteLine("verbonden met volgende is false, bezig met snijpunten ophalen");
-                    int[] snijpuntA1 = new int[4];
-                    int[] snijpuntA1plus1 = new int[4];
+                    int[] snijpuntA1 = new int[6];
+                    int[] snijpuntA1plus1 = new int[6];
                     Console.WriteLine("snijpunten:");
                     for (int l = 0; l < connectieArray.GetLength(1); l++)
                     {
@@ -88,11 +88,7 @@ namespace ConsoleApplication2
                         }
                     }
 
-                    foreach (int v in snijpuntA1plus1)
-                    {
-                        Console.Write(v);
-                    }
-                    Console.Read();
+                    
 
                     for (int p = m+2; p < start.GetLength(0); p++)
                     {
@@ -121,10 +117,7 @@ namespace ConsoleApplication2
                                             SwapInts(start, r, q + 1);
                                             q++;
                                             r--;
-                                            foreach (int v in start)
-                                            {
-                                                Console.Write(v);
-                                            }
+                                            
                                             Console.Read();
                                             isSwapped = true;
                                         }
@@ -143,11 +136,7 @@ namespace ConsoleApplication2
                                 SwapInts(start, r, q + 1);
                                 q++;
                                 r--;
-                                foreach (int v in start)
-                                {
-                                    Console.Write(v);
-                                }
-                                Console.ReadLine();
+                                
                             }
                         }
                     }
