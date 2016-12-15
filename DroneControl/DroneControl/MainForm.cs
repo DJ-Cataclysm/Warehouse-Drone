@@ -1,9 +1,15 @@
-﻿using AR.Drone.Client;
+﻿using AForge;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
+using AForge.Math.Geometry;
+using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using ZXing;
 
@@ -22,7 +28,6 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
-        private IBarcodeReader barcodeReader;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -32,7 +37,7 @@ namespace DroneControl
             InitializeComponent();
 
             //Start videopacketdecoder worker
-            _videoPacketDecoderWorker = new VideoPacketDecoderWorker(PixelFormat.BGR24, true, OnVideoPacketDecoded);
+            _videoPacketDecoderWorker = new VideoPacketDecoderWorker(AR.Drone.Video.PixelFormat.BGR24, true, OnVideoPacketDecoded);
             _videoPacketDecoderWorker.Start();
 
             //Create a droneclient and attach event handlers
@@ -49,9 +54,6 @@ namespace DroneControl
             //Create instance of WMS.
             wmsForm = new WMS.MainForm();
             wmsForm.Show();
-
-            //Create a barcode reader
-            barcodeReader = new BarcodeReader();
         }
 
         /*
@@ -132,7 +134,6 @@ namespace DroneControl
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
             pbVideo.Image = _frameBitmap;
-            scanBarcode();
         }
 
         /*
@@ -182,8 +183,8 @@ namespace DroneControl
          */
         private void btnScanForBarcode_Click(object sender, EventArgs e)
         {
-            //string result = scanBarcode();
-            //barcode.Text = result;
+            string result = scanBarcode();
+            barcode.Text = result;
         }
 
         private void btnAutopilotGo_Click(object sender, EventArgs e)
@@ -259,18 +260,20 @@ namespace DroneControl
         {
             _droneClient.FlatTrim();
         }
-        private void scanBarcode()
+        private string scanBarcode()
         {
+            // create a barcode reader instance
+            IBarcodeReader reader = new BarcodeReader();
             // detect and decode the barcode inside the bitmap
-            var result = barcodeReader.Decode(_frameBitmap);
+            var result = reader.Decode(_frameBitmap);
             // return result or error
             if (result != null)
             {
-                lblBarcode.Text = "Scanresult: " + result.Text;
+                return result.Text;
             }
             else
             {
-                lblBarcode.Text = "Scanresult: ";
+                return "Geen Barcode Gevonden";
             }
         }
         private void button1_Click(object sender, EventArgs e)
@@ -288,5 +291,104 @@ namespace DroneControl
         {
             wmsForm.showMutations();
         }
+
+        private void CheckVormen_Click(object sender, EventArgs e)
+        {
+            Bitmap myBitmap = _frameBitmap;
+
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+
+            colorFilter.Red = new IntRange(0, 64);
+            colorFilter.Green = new IntRange(0, 64);
+            colorFilter.Blue = new IntRange(0, 64);
+            colorFilter.FillOutsideRange = false;
+
+            colorFilter.ApplyInPlace(bitmapData);
+
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+
+            Graphics g = Graphics.FromImage(myBitmap);
+            Pen redPen = new Pen(Color.Red, 2);
+            Pen yellowPen = new Pen(Color.Yellow, 2);
+            Pen greenPen = new Pen(Color.Green, 2);
+            Pen bluePen = new Pen(Color.Blue, 2);
+
+            for (int i = 0, n = blobs.Length; i < n; i++)
+            {
+                List<IntPoint> edgePoints =
+                    blobCounter.GetBlobsEdgePoints(blobs[i]);
+
+                AForge.DoublePoint center;
+                double radius;
+
+                if (shapeChecker.IsCircle(edgePoints, out center, out radius))
+                {
+                    g.DrawEllipse(yellowPen,
+                        (float)(center.X - radius), (float)(center.Y - radius),
+                        (float)(radius * 2), (float)(radius * 2));
+                }
+                else
+                {
+                    List<IntPoint> corners;
+
+                    if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
+                    {
+                        if (shapeChecker.CheckPolygonSubType(corners) ==
+                            PolygonSubType.Rectangle)
+                        {
+                            g.DrawPolygon(greenPen, ToPointsArray(corners));
+                        }
+                        else
+                        {
+                            g.DrawPolygon(bluePen, ToPointsArray(corners));
+                        }
+                    }
+                    else
+                    {
+                        corners = PointsCloud.FindQuadrilateralCorners(edgePoints);
+                        g.DrawPolygon(redPen, ToPointsArray(corners));
+                    }
+                }
+            }
+
+            
+            redPen.Dispose();
+            greenPen.Dispose();
+            bluePen.Dispose();
+            yellowPen.Dispose();
+            g.Dispose();
+        }
+
+        private System.Drawing.Point[] ToPointsArray(List<IntPoint> points)
+        {
+            System.Drawing.Point[] array = new System.Drawing.Point[points.Count];
+
+            for (int i = 0, n = points.Count; i < n; i++)
+            {
+                array[i] = new System.Drawing.Point(points[i].X, points[i].Y);
+            }
+
+            return array;
+        }
     }
 }
+
