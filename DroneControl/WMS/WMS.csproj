@@ -85,6 +85,10 @@
     <Compile Include="Migrations\201612131551542_MutationsAdded.Designer.cs">
       <DependentUpon>201612131551542_MutationsAdded.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612150807255_ProductPositions.cs" />
+    <Compile Include="Migrations\201612150807255_ProductPositions.Designer.cs">
+      <DependentUpon>201612150807255_ProductPositions.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Mutation.cs" />
     <Compile Include="MutationForm.cs">
@@ -111,6 +115,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612131551542_MutationsAdded.resx">
       <DependentUpon>201612131551542_MutationsAdded.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612150807255_ProductPositions.resx">
+      <DependentUpon>201612150807255_ProductPositions.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MutationForm.resx">
       <DependentUpon>MutationForm.cs</DependentUpon>

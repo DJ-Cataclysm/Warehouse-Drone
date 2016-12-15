@@ -38,7 +38,14 @@
             this.tbDescription = new System.Windows.Forms.TextBox();
             this.btnCreateNewProduct = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
+            this.lblPosX = new System.Windows.Forms.Label();
+            this.nudPosX = new System.Windows.Forms.NumericUpDown();
+            this.nudPosY = new System.Windows.Forms.NumericUpDown();
+            this.nudPosZ = new System.Windows.Forms.NumericUpDown();
             ((System.ComponentModel.ISupportInitialize)(this.nudCount)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosZ)).BeginInit();
             this.SuspendLayout();
             // 
             // lblTitle
@@ -71,7 +78,7 @@
             // lblDescription
             // 
             this.lblDescription.AutoSize = true;
-            this.lblDescription.Location = new System.Drawing.Point(13, 91);
+            this.lblDescription.Location = new System.Drawing.Point(13, 117);
             this.lblDescription.Name = "lblDescription";
             this.lblDescription.Size = new System.Drawing.Size(63, 13);
             this.lblDescription.TabIndex = 3;
@@ -106,7 +113,7 @@
             // 
             // tbDescription
             // 
-            this.tbDescription.Location = new System.Drawing.Point(106, 88);
+            this.tbDescription.Location = new System.Drawing.Point(106, 114);
             this.tbDescription.Multiline = true;
             this.tbDescription.Name = "tbDescription";
             this.tbDescription.Size = new System.Drawing.Size(200, 49);
@@ -115,7 +122,7 @@
             // btnCreateNewProduct
             // 
             this.btnCreateNewProduct.AutoSize = true;
-            this.btnCreateNewProduct.Location = new System.Drawing.Point(196, 156);
+            this.btnCreateNewProduct.Location = new System.Drawing.Point(196, 169);
             this.btnCreateNewProduct.Name = "btnCreateNewProduct";
             this.btnCreateNewProduct.Size = new System.Drawing.Size(110, 23);
             this.btnCreateNewProduct.TabIndex = 8;
@@ -125,7 +132,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(115, 156);
+            this.btnCancel.Location = new System.Drawing.Point(115, 169);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 9;
@@ -133,11 +140,60 @@
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
+            // lblPosX
+            // 
+            this.lblPosX.AutoSize = true;
+            this.lblPosX.Location = new System.Drawing.Point(13, 90);
+            this.lblPosX.Name = "lblPosX";
+            this.lblPosX.Size = new System.Drawing.Size(77, 13);
+            this.lblPosX.TabIndex = 10;
+            this.lblPosX.Text = "Position (x,y,z):";
+            // 
+            // nudPosX
+            // 
+            this.nudPosX.Location = new System.Drawing.Point(106, 88);
+            this.nudPosX.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.nudPosX.Name = "nudPosX";
+            this.nudPosX.Size = new System.Drawing.Size(64, 20);
+            this.nudPosX.TabIndex = 13;
+            // 
+            // nudPosY
+            // 
+            this.nudPosY.Location = new System.Drawing.Point(174, 88);
+            this.nudPosY.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.nudPosY.Name = "nudPosY";
+            this.nudPosY.Size = new System.Drawing.Size(64, 20);
+            this.nudPosY.TabIndex = 14;
+            // 
+            // nudPosZ
+            // 
+            this.nudPosZ.Location = new System.Drawing.Point(242, 88);
+            this.nudPosZ.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.nudPosZ.Name = "nudPosZ";
+            this.nudPosZ.Size = new System.Drawing.Size(64, 20);
+            this.nudPosZ.TabIndex = 15;
+            // 
             // NewProductForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(315, 190);
+            this.ClientSize = new System.Drawing.Size(315, 202);
+            this.Controls.Add(this.nudPosZ);
+            this.Controls.Add(this.nudPosY);
+            this.Controls.Add(this.nudPosX);
+            this.Controls.Add(this.lblPosX);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnCreateNewProduct);
             this.Controls.Add(this.tbDescription);
@@ -154,6 +210,9 @@
             this.Name = "NewProductForm";
             this.Text = "New Product";
             ((System.ComponentModel.ISupportInitialize)(this.nudCount)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nudPosZ)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -171,5 +230,9 @@
         private System.Windows.Forms.TextBox tbDescription;
         private System.Windows.Forms.Button btnCreateNewProduct;
         private System.Windows.Forms.Button btnCancel;
+        private System.Windows.Forms.Label lblPosX;
+        private System.Windows.Forms.NumericUpDown nudPosX;
+        private System.Windows.Forms.NumericUpDown nudPosY;
+        private System.Windows.Forms.NumericUpDown nudPosZ;
     }
 }

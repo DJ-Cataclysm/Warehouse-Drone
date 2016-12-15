@@ -18,6 +18,9 @@ namespace WMS
             {
                 Title = tbTitle.Text,
                 Count = (int)nudCount.Value,
+                X = (int)nudPosX.Value,
+                Y = (int)nudPosY.Value,
+                Z = (int)nudPosZ.Value,
                 Description = tbDescription.Text,
                 LastCheck = dtpLastChecked.Value
             };

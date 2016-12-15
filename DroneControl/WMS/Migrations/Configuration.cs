@@ -16,9 +16,9 @@ namespace WMS.Migrations
         {
             context.Products.AddOrUpdate(
               p => p.ID,
-              new Product { Title = "Banaan", Count = 4, Description="wow!" },
-              new Product { Title = "Peer", Count = 8, Description = "oh!" },
-              new Product { Title = "Appel", Count = 0, Description = "" }
+              new Product { Title = "Banaan", Count = 4, Description="Chiquita", LastCheck = DateTime.Now },
+              new Product { Title = "Peer", Count = 8, Description = "Conference", LastCheck = DateTime.Now },
+              new Product { Title = "Appel", Count = 0, Description = "Golden Delicious", LastCheck = DateTime.Now }
             );
         }
     }

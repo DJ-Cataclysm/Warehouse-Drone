@@ -21,10 +21,19 @@ namespace WMS
             dgvProducts.DataSource = typeof(Mutation);
             dgvProducts.DataSource = pendingMutations;
 
-            //You may only modify the NewCount (2nd) column.
-            dgvProducts.Columns[0].ReadOnly = true;
-            dgvProducts.Columns[1].ReadOnly = true;
-            dgvProducts.Columns[3].ReadOnly = true;
+            //You may only modify the NewCount column.
+            //dgvProducts.Columns;
+            foreach(DataGridViewColumn col in dgvProducts.Columns)
+            {
+                if(col.Name == "NewCount")
+                {
+                    col.ReadOnly = false;
+                }
+                else
+                {
+                    col.ReadOnly = true;
+                }
+            }
         }
 
         private void dgvProducts_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
