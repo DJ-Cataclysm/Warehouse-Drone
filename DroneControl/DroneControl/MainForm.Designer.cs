@@ -428,7 +428,7 @@
             this.btnMockDoneScanning.TabIndex = 3;
             this.btnMockDoneScanning.Text = "Mock done scanning";
             this.btnMockDoneScanning.UseVisualStyleBackColor = true;
-            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDroneScanning_Click);
             // 
             // btnMockScan
             // 
