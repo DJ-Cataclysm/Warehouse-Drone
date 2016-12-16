@@ -15,16 +15,20 @@ namespace DroneControl.Commands
             this.controllerReference = controllerReference;
         }
 
-        public void execute(float heading)
+        public void execute(int degrees)
         {
+            //1750ms for SetYaw(1f) is about 180 degrees
+            float msPerDegree = 9.7222f;
+            long totalTimeForManeuver = (long)(msPerDegree * degrees);
             controllerReference.EnqueueObjective(
-                Objective.Create(6000, 
+                Objective.Create(totalTimeForManeuver,
                     new VelocityX(0.0f),
                     new VelocityY(0.0f),
-                    new AR.Drone.Avionics.Objectives.IntentObtainers.Heading(heading, 1f, true)
+                    new SetYaw(1f)
+                    //new AR.Drone.Avionics.Objectives.IntentObtainers.Heading(heading, 1f, true)
                 )
             );
-            controllerReference.EnqueueObjective(new Hover(2000));
+            controllerReference.EnqueueObjective(new Hover(4000));
         }
     }
 }

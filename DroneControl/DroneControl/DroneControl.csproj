@@ -84,7 +84,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutopilotController.cs" />
-    <Compile Include="Heading.cs" />
     <Compile Include="Commands\GoForward.cs" />
     <Compile Include="Commands\GoLeft.cs" />
     <Compile Include="Commands\GoRight.cs" />

@@ -26,8 +26,9 @@ namespace DroneControl
 
         public void CycleCount()
         {
-            Route route = MakeRoute();
-            routeInterpreter.interpret(route); //Autopilot is fully setup after this
+            //Route route = MakeRoute();
+            //routeInterpreter.interpret(route); //Autopilot is fully setup after this
+            routeInterpreter.testRoute();
             // start cycle count
             autopilotController.Start();
         }

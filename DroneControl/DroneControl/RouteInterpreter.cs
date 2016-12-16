@@ -1,5 +1,6 @@
 ﻿using DroneControl.Commands;
 using RoutePlanner;
+using System;
 using System.Collections.Generic;
 
 namespace DroneControl
@@ -8,7 +9,6 @@ namespace DroneControl
     {
         ICommand goForward, goLeft, goRight, landCommand, takeOffCommand;
         Turn turn;
-        Heading headings;
         GoToHeight goToHeight;
         AutopilotController autopilotController;
 
@@ -76,24 +76,16 @@ namespace DroneControl
             //headings = new Heading(autopilotController.getNavigationData().Yaw);
             //float hoogte = 1f;
             takeOffCommand.execute();
-            //turn.execute(headings.right);
-            //goLeft.execute();
-            //goToHeight.execute(2f);
-            goRight.execute();
-            goRight.execute();
+            goLeft.execute();
             goToHeight.execute(2f);
-            goLeft.execute();
-            goLeft.execute();
-            //goForward.execute();
-            //turn.execute(headings.back);
-            //turn.execute(headings.back);
-            //goForward.execute();
-            //turn.execute(headings.back);
-            //goForward.execute();
-            //turn.execute(headings.right);
-            //goForward.execute();
-            //turn.execute(headings.front);
-            //turn.execute(headings.front);
+            goRight.execute();
+            goRight.execute();
+            turn.execute(180);
+            goForward.execute();
+            goRight.execute();
+            goToHeight.execute(0.5f);
+            turn.execute(180);
+            goForward.execute();
             landCommand.execute();
 
         }
