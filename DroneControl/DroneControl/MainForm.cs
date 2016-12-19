@@ -400,6 +400,11 @@ namespace DroneControl
 
             return array;
         }
+
+        private void btnSmartScan_Click(object sender, EventArgs e)
+        {
+            _droneController.doSmartScan();
+        }
     }
 }
 

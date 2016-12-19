@@ -68,6 +68,7 @@
             this.nudMockScan = new System.Windows.Forms.NumericUpDown();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnCycleCount = new System.Windows.Forms.Button();
             this.btnAutopilotStop = new System.Windows.Forms.Button();
             this.btnAutopilotGo = new System.Windows.Forms.Button();
             this.btnEmergency = new System.Windows.Forms.Button();
@@ -84,7 +85,7 @@
             this.btnFlatTrim = new System.Windows.Forms.Button();
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
-            this.btnCycleCount = new System.Windows.Forms.Button();
+            this.btnSmartScan = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -480,6 +481,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnSmartScan);
             this.groupBox2.Controls.Add(this.btnCycleCount);
             this.groupBox2.Controls.Add(this.btnAutopilotStop);
             this.groupBox2.Controls.Add(this.btnAutopilotGo);
@@ -489,6 +491,16 @@
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Autopilot";
+            // 
+            // btnCycleCount
+            // 
+            this.btnCycleCount.Location = new System.Drawing.Point(139, 19);
+            this.btnCycleCount.Name = "btnCycleCount";
+            this.btnCycleCount.Size = new System.Drawing.Size(75, 23);
+            this.btnCycleCount.TabIndex = 7;
+            this.btnCycleCount.Text = "Cycle count";
+            this.btnCycleCount.UseVisualStyleBackColor = true;
+            this.btnCycleCount.Click += new System.EventHandler(this.btnCycleCount_Click);
             // 
             // btnAutopilotStop
             // 
@@ -662,15 +674,15 @@
             this.btnLand.UseVisualStyleBackColor = true;
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
-            // btnCycleCount
+            // btnSmartScan
             // 
-            this.btnCycleCount.Location = new System.Drawing.Point(139, 19);
-            this.btnCycleCount.Name = "btnCycleCount";
-            this.btnCycleCount.Size = new System.Drawing.Size(75, 23);
-            this.btnCycleCount.TabIndex = 7;
-            this.btnCycleCount.Text = "Cycle count";
-            this.btnCycleCount.UseVisualStyleBackColor = true;
-            this.btnCycleCount.Click += new System.EventHandler(this.btnCycleCount_Click);
+            this.btnSmartScan.Location = new System.Drawing.Point(220, 19);
+            this.btnSmartScan.Name = "btnSmartScan";
+            this.btnSmartScan.Size = new System.Drawing.Size(75, 23);
+            this.btnSmartScan.TabIndex = 8;
+            this.btnSmartScan.Text = "Smart Scan";
+            this.btnSmartScan.UseVisualStyleBackColor = true;
+            this.btnSmartScan.Click += new System.EventHandler(this.btnSmartScan_Click);
             // 
             // MainForm
             // 
@@ -759,5 +771,6 @@
         private System.Windows.Forms.Button CheckVormen;
         private System.Windows.Forms.Label barcode;
         private System.Windows.Forms.Button btnCycleCount;
+        private System.Windows.Forms.Button btnSmartScan;
     }
 }

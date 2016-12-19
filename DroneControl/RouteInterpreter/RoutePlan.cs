@@ -9,10 +9,6 @@ namespace RoutePlanner
 {
     public static class RoutePlan
     {
-        /*
-         * Do fancy shortest-path algorithms here
-         */
-
         public static Route makeFullCycleRoute()
         {
   
@@ -78,9 +74,25 @@ namespace RoutePlanner
             return returnRoute;
         }
 
-        public static Route makeSmartScanRoute()
+        public static Route makeSmartScanRoute(List<Position> itemsToCheck)
         {
-            //TODO: use WMS input and create shortest paths to each required grid point
+            //Find boundary coordinates for use with graph creation by using linq
+            int xLowerBound = itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x;
+            int xUpperBound = itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x;
+            int yLowerBound = itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y;
+            int yUpperBound = itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y ? p : curMin).y;
+            int zLowerBound = itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z;
+            int zUpperBound = itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z;
+
+            Grid grid = new Grid(xLowerBound, xUpperBound, yLowerBound, yUpperBound, zLowerBound, zUpperBound);
+
+
+            //Something something foreach item to check do unweighted then get path
+            grid.unweighted(itemsToCheck[0]);
+
+
+            //TODO: Tie paths together to create smart route
+
             return null;
         }
     }

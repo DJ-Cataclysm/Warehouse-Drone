@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Edge.cs" />
+    <Compile Include="Grid.cs" />
+    <Compile Include="GridPoint.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Positions.cs" />
     <Compile Include="Route.cs" />

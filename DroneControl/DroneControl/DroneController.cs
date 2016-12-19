@@ -35,12 +35,21 @@ namespace DroneControl
 
         public void doSmartScan()
         {
-            /*
-            Route r = RoutePlan.makeSmartScanRoute();
-            routeInterpreter.interpret(r);
+            List<Position> itemsToCheck = new List<Position>()
+            {
+                new Position(0,0,0),
+                new Position(2,0,0),
+                new Position(0,2,2)
+                //new Position(-19,380,-38),
+                //new Position(238,380, 84)
+            };
+
+
+            Route r = RoutePlan.makeSmartScanRoute(itemsToCheck);
+            //routeInterpreter.interpret(r);
             //start autopilot
             //autopilotController.start();
-            */
+            
         }
 
         public void enqueueTest()
