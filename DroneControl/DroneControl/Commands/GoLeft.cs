@@ -15,7 +15,7 @@ namespace DroneControl.Commands
         public void execute()
         {
             controllerReference.EnqueueObjective(
-               Objective.Create(1250,
+               Objective.Create(500,
                    new VelocityX(0.0f),
                    new VelocityY(-1.0f)
                )

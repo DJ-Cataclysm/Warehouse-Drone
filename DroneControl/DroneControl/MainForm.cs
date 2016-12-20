@@ -12,6 +12,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using ZXing;
+using WMS;
+using RoutePlanner;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DroneControl
 {
@@ -195,7 +200,7 @@ namespace DroneControl
         {
             //Commands invoegen
             //Start autopilot
-            _droneController.enqueueTest();
+            //_droneController.enqueueTest();
             _droneController.startAutopilot();
             btnAutopilotGo.Enabled = false;
         }
@@ -291,9 +296,15 @@ namespace DroneControl
             wmsForm.productScanned(scannedId);
         }
 
-        private void btnMockDoneScanning_Click(object sender, EventArgs e)
+        private void btnMockDroneScanning_Click(object sender, EventArgs e)
         {
             wmsForm.showMutations();
+        }
+
+
+        private void btnCycleCount_Click(object sender, EventArgs e)
+        {
+            _droneController.CycleCount();
         }
 
         private void CheckVormen_Click(object sender, EventArgs e)
@@ -459,6 +470,11 @@ namespace DroneControl
             
             redPen.Dispose();
             g.Dispose();
+        }
+
+        private void btnSmartScan_Click(object sender, EventArgs e)
+        {
+            _droneController.doSmartScan();
         }
     }
 }

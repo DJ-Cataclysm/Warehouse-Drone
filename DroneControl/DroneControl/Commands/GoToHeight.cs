@@ -24,6 +24,7 @@ namespace DroneControl.Commands
                    new Altitude(hoogte)
                )
             );
+            controllerReference.EnqueueObjective(new Hover(2000));
         }
     }
 }

@@ -8,13 +8,23 @@ namespace RoutePlanner
 {
     public class Position
     {
-        int x, y, z;
+        public int x, y, z;
 
         public Position(int x, int y, int z)
         {
             this.x = x;
             this.y = y;
             this.z = z;
+        }
+
+        public bool Equals(Position p)
+        {
+            return (x == p.x && y == p.y && z == p.z);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0},{1},{2})", x, y, z);
         }
     }
 }

@@ -60,6 +60,7 @@
             this.tmrStateUpdate = new System.Windows.Forms.Timer(this.components);
             this.tmrVideoUpdate = new System.Windows.Forms.Timer(this.components);
             this.gbBarcodeScanning = new System.Windows.Forms.GroupBox();
+            this.barcode = new System.Windows.Forms.Label();
             this.CheckVormen = new System.Windows.Forms.Button();
             this.btnMockDoneScanning = new System.Windows.Forms.Button();
             this.btnMockScan = new System.Windows.Forms.Button();
@@ -67,6 +68,7 @@
             this.nudMockScan = new System.Windows.Forms.NumericUpDown();
             this.btnScanForBarcode = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.btnCycleCount = new System.Windows.Forms.Button();
             this.btnAutopilotStop = new System.Windows.Forms.Button();
             this.btnAutopilotGo = new System.Windows.Forms.Button();
             this.btnEmergency = new System.Windows.Forms.Button();
@@ -83,7 +85,7 @@
             this.btnFlatTrim = new System.Windows.Forms.Button();
             this.btnTakeoff = new System.Windows.Forms.Button();
             this.btnLand = new System.Windows.Forms.Button();
-            this.barcode = new System.Windows.Forms.Label();
+            this.btnSmartScan = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -401,10 +403,19 @@
             this.gbBarcodeScanning.Controls.Add(this.btnScanForBarcode);
             this.gbBarcodeScanning.Location = new System.Drawing.Point(678, 412);
             this.gbBarcodeScanning.Name = "gbBarcodeScanning";
-            this.gbBarcodeScanning.Size = new System.Drawing.Size(287, 153);
+            this.gbBarcodeScanning.Size = new System.Drawing.Size(287, 171);
             this.gbBarcodeScanning.TabIndex = 4;
             this.gbBarcodeScanning.TabStop = false;
             this.gbBarcodeScanning.Text = "Barcode Scanning";
+            // 
+            // barcode
+            // 
+            this.barcode.AutoSize = true;
+            this.barcode.Location = new System.Drawing.Point(115, 135);
+            this.barcode.Name = "barcode";
+            this.barcode.Size = new System.Drawing.Size(47, 13);
+            this.barcode.TabIndex = 5;
+            this.barcode.Text = "Barcode";
             // 
             // CheckVormen
             // 
@@ -418,17 +429,17 @@
             // 
             // btnMockDoneScanning
             // 
-            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 124);
+            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 107);
             this.btnMockDoneScanning.Name = "btnMockDoneScanning";
             this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
             this.btnMockDoneScanning.TabIndex = 3;
             this.btnMockDoneScanning.Text = "Mock done scanning";
             this.btnMockDoneScanning.UseVisualStyleBackColor = true;
-            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDoneScanning_Click);
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDroneScanning_Click);
             // 
             // btnMockScan
             // 
-            this.btnMockScan.Location = new System.Drawing.Point(135, 95);
+            this.btnMockScan.Location = new System.Drawing.Point(135, 78);
             this.btnMockScan.Name = "btnMockScan";
             this.btnMockScan.Size = new System.Drawing.Size(143, 23);
             this.btnMockScan.TabIndex = 2;
@@ -440,7 +451,7 @@
             // 
             this.lblBarcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblBarcode.AutoSize = true;
-            this.lblBarcode.Location = new System.Drawing.Point(6, 127);
+            this.lblBarcode.Location = new System.Drawing.Point(6, 133);
             this.lblBarcode.Name = "lblBarcode";
             this.lblBarcode.Size = new System.Drawing.Size(60, 13);
             this.lblBarcode.TabIndex = 1;
@@ -448,7 +459,7 @@
             // 
             // nudMockScan
             // 
-            this.nudMockScan.Location = new System.Drawing.Point(9, 98);
+            this.nudMockScan.Location = new System.Drawing.Point(9, 81);
             this.nudMockScan.Maximum = new decimal(new int[] {
             100000,
             0,
@@ -470,6 +481,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.btnSmartScan);
+            this.groupBox2.Controls.Add(this.btnCycleCount);
             this.groupBox2.Controls.Add(this.btnAutopilotStop);
             this.groupBox2.Controls.Add(this.btnAutopilotGo);
             this.groupBox2.Location = new System.Drawing.Point(6, 412);
@@ -478,6 +491,16 @@
             this.groupBox2.TabIndex = 5;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Autopilot";
+            // 
+            // btnCycleCount
+            // 
+            this.btnCycleCount.Location = new System.Drawing.Point(139, 19);
+            this.btnCycleCount.Name = "btnCycleCount";
+            this.btnCycleCount.Size = new System.Drawing.Size(75, 23);
+            this.btnCycleCount.TabIndex = 7;
+            this.btnCycleCount.Text = "Cycle count";
+            this.btnCycleCount.UseVisualStyleBackColor = true;
+            this.btnCycleCount.Click += new System.EventHandler(this.btnCycleCount_Click);
             // 
             // btnAutopilotStop
             // 
@@ -651,14 +674,15 @@
             this.btnLand.UseVisualStyleBackColor = true;
             this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
-            // barcode
+            // btnSmartScan
             // 
-            this.barcode.AutoSize = true;
-            this.barcode.Location = new System.Drawing.Point(9, 79);
-            this.barcode.Name = "barcode";
-            this.barcode.Size = new System.Drawing.Size(47, 13);
-            this.barcode.TabIndex = 5;
-            this.barcode.Text = "Barcode";
+            this.btnSmartScan.Location = new System.Drawing.Point(220, 19);
+            this.btnSmartScan.Name = "btnSmartScan";
+            this.btnSmartScan.Size = new System.Drawing.Size(75, 23);
+            this.btnSmartScan.TabIndex = 8;
+            this.btnSmartScan.Text = "Smart Scan";
+            this.btnSmartScan.UseVisualStyleBackColor = true;
+            this.btnSmartScan.Click += new System.EventHandler(this.btnSmartScan_Click);
             // 
             // MainForm
             // 
@@ -746,5 +770,7 @@
         private System.Windows.Forms.Button btnMockDoneScanning;
         private System.Windows.Forms.Button CheckVormen;
         private System.Windows.Forms.Label barcode;
+        private System.Windows.Forms.Button btnCycleCount;
+        private System.Windows.Forms.Button btnSmartScan;
     }
 }
