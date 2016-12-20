@@ -20,6 +20,7 @@ namespace DroneControl
         Route route;
         TaskCompletionSource<bool> flyTaskComleted;
         TaskCompletionSource<bool> scanTaskComleted;
+        TaskCompletionSource<bool> searchBarcodeTaskCompleted;
         Task barcodeSearching;
         MainForm mainForm;
         public DroneController(MainForm form)
@@ -44,15 +45,15 @@ namespace DroneControl
             await flyTaskComleted.Task;
             routeInterpreter.shortHover.execute();
             Position currentpos = new Position(0, 1, 0);
-            barcodeSearching = searchForBarcode(currentpos);
-            await barcodeSearching;
+           // barcodeSearching = searchForBarcode(currentpos);
+            await searchBarcodeTaskCompleted.Task;
             await Task.Delay(200);
 
             for (int i = 0; i < route.getCount()-1; i++ )
             {
                 flyTaskComleted = new TaskCompletionSource<bool>();
                 scanTaskComleted = new TaskCompletionSource<bool>();
-                barcodeSearching = searchForBarcode(routeList[i]);
+             //   barcodeSearching = searchForBarcode(routeList[i]);
                 //eerste in de route moet takeoff zijn, pakt nu de 2e
 
                 Position current = routeList[i];
@@ -62,7 +63,7 @@ namespace DroneControl
            //     autopilotController.Start();
              
                 await flyTaskComleted.Task;
-                await barcodeSearching;
+               await searchBarcodeTaskCompleted.Task;
 
             }
             routeInterpreter.landCommand.execute();
@@ -72,90 +73,50 @@ namespace DroneControl
         }
         private async Task searchForBarcode(Position i)
         {
-            mainForm.scanningForBarcode = true;
+             searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+                mainForm.scanningForBarcode = true;
             scanTaskComleted = new TaskCompletionSource<bool>();
            flyTaskComleted = new TaskCompletionSource<bool>();
            float currentY = i.y;
-           //factor for changing the height
-           float factor = 1f;
-     
-// omhoog 0,5
-           currentY += (0.05f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-// links 2.5
-           routeInterpreter.barcodeSmallLeft.execute(2500);
-           routeInterpreter.shortHover.execute();
-//omlaag 1
-           currentY -= (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-//rechts 1
-           routeInterpreter.barcodeSmallRight.execute(1000);
-           routeInterpreter.shortHover.execute();
-//omhoog 1
-           currentY += (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-            routeInterpreter.shortHover.execute();
-//rechts 1
-           routeInterpreter.barcodeSmallRight.execute(1000);
-           routeInterpreter.shortHover.execute();
-//omlaag 1
-           currentY -= (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-//rechts 1
-           routeInterpreter.barcodeSmallRight.execute(1000);
-           routeInterpreter.shortHover.execute();
-//omhoog 1
-           currentY += (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-//rechts 1
-           routeInterpreter.barcodeSmallRight.execute(1000);
-           routeInterpreter.shortHover.execute();
-//omlaag 1
-           currentY -= (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-//rechts 1
-           routeInterpreter.barcodeSmallRight.execute(1000);
-           routeInterpreter.shortHover.execute();
-//omhoog 1
-           currentY += (0.1f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-//links 2.5
-           routeInterpreter.barcodeSmallLeft.execute(2500);
-           routeInterpreter.shortHover.execute();
-//omlaag 0.5
-           currentY -= (0.05f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-      
+           float factor = 1.5f;
 
-            //for (int b = 0; b < 15; b++)
-            //{
-            //    flyTaskComleted = new TaskCompletionSource<bool>();
-            //    if (!scanTaskComleted.Task.IsCompleted)
-            //    {
-            //        currentY -= (b * 0.5f * 0.01f);
-            //        routeInterpreter.goToHeight.execute(currentY);
-            //        await flyTaskComleted.Task;
-            //    }
+          //omhoog 0.5
+          currentY += (0.05f * factor);
+          routeInterpreter.goToHeight.execute(currentY);
+         routeInterpreter.shortHover.execute();
+         //omlaag 1
+                   currentY -= (0.1f * factor);
+                   routeInterpreter.goToHeight.execute(currentY);
+                    routeInterpreter.shortHover.execute();
+           //omhoog 0.5
+                    currentY += (0.05f * factor);
+                    routeInterpreter.goToHeight.execute(currentY);
+                    routeInterpreter.shortHover.execute();
+         //links 1
+                routeInterpreter.barcodeSmallLeft.execute(1000);
+                routeInterpreter.shortHover.execute();
+                //rechts2 
+                         routeInterpreter.barcodeSmallRight.execute(2000);
+                         routeInterpreter.shortHover.execute();
+                         //links 1
+                         routeInterpreter.barcodeSmallLeft.execute(1000);
+                         routeInterpreter.shortHover.execute();
 
-            //}
+
+
+         
            if (scanTaskComleted.Task.IsCompleted)
            {
                routeInterpreter.shortHover.execute();
                autopilotController.Stop();
                setFlyTaskCompleted();
+                searchBarcodeTaskCompleted.SetResult(true);
            }
            await flyTaskComleted.Task;
-     
-
+            searchBarcodeTaskCompleted.SetResult(true);
            
-            return;
+
+          
         }
 
         public void setFlyTaskCompleted()
@@ -165,21 +126,12 @@ namespace DroneControl
         
         public void doSmartScan()
         {
-            List<Position> itemsToCheck = new List<Position>()
-            {
-                new Position(0,0,0),
-                new Position(2,0,0),
-                new Position(0,2,2)
-                //new Position(-19,380,-38),
-                //new Position(238,380, 84)
-            };
-
-
-            Route r = RoutePlan.makeSmartScanRoute(itemsToCheck);
-            //routeInterpreter.interpret(r);
+            /*
+            Route r = RoutePlan.makeSmartScanRoute();
+            routeInterpreter.interpret(r);
             //start autopilot
             //autopilotController.start();
-            
+            */
         }
         public void scanForBarcode()
         {
@@ -235,7 +187,7 @@ namespace DroneControl
             droneClient.Start();
 
             var configuration = new Settings();
-            configuration.Video.Channel = VideoChannelType.Vertical;
+            configuration.Video.Channel = VideoChannelType.Horizontal;
             droneClient.Send(configuration);
         }
 
