@@ -3,7 +3,7 @@ using AR.Drone.Avionics.Objectives.IntentObtainers;
 
 namespace DroneControl.Commands
 {
-    class TakeOff : ICommand
+   public  class TakeOff : ICommand
     {
         AutopilotController controllerReference;
 

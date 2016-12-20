@@ -3,24 +3,24 @@ using AR.Drone.Avionics.Objectives.IntentObtainers;
 
 namespace DroneControl.Commands
 {
-   public class GoLeft : ICommand
+    public class BarcodeSmallRight
     {
         AutopilotController controllerReference;
 
-        public GoLeft(ref AutopilotController controllerReference)
+        public BarcodeSmallRight(ref AutopilotController controllerReference)
         {
             this.controllerReference = controllerReference;
         }
 
-        public void execute()
+        public void execute(long time)
         {
             controllerReference.EnqueueObjective(
-               Objective.Create(500,
-                   new VelocityX(0.0f),
-                   new VelocityY(-1.0f)
-               )
+                Objective.Create(time,
+                    new VelocityX(0.0f),
+                    new VelocityY(0.2f)
+                )
             );
-            controllerReference.EnqueueObjective(new Hover(2000));
+    
         }
     }
 }

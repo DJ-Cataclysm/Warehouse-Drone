@@ -1,6 +1,6 @@
 ﻿namespace DroneControl.Commands
 {
-    interface ICommand
+   public interface ICommand
     {
         void execute(); //Used for enqueueing objectives at the AutoPilotController
     }

@@ -1,6 +1,6 @@
 ﻿namespace DroneControl.Commands
 {
-    class Land : ICommand
+    public class Land : ICommand
     {
         AutopilotController controllerReference;
 

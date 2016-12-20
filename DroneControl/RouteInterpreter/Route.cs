@@ -19,5 +19,10 @@ namespace RoutePlanner
         {
             return positions;
         }
+        public int getCount()
+        {
+            return positions.Count;
+        }
+
     }
 }

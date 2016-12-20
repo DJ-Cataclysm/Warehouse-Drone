@@ -33,6 +33,7 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
+        public bool scanningForBarcode { get; set; }
         private bool checkVoorVormen = false;
 
         /*
@@ -47,7 +48,7 @@ namespace DroneControl
             _videoPacketDecoderWorker.Start();
 
             //Create a droneclient and attach event handlers
-            _droneController = new DroneController();
+            _droneController = new DroneController(this);
             _droneController.attachEventHandlers(OnVideoPacketAcquired, OnNavigationDataAcquired);
 
             //Start timers
@@ -138,6 +139,13 @@ namespace DroneControl
             else
             {
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
+            }
+            pbVideo.Image = _frameBitmap;
+
+            // call the scanning event if it is enabled in dronecontroller
+            if (scanningForBarcode)
+            {
+                _droneController.scanForBarcode();
             }
             if (checkVoorVormen)
                 ScanVormen();
@@ -284,6 +292,10 @@ namespace DroneControl
             {
                 return "Geen Barcode Gevonden";
             }
+        }
+        public Bitmap getFrame()
+        {
+            return _frameBitmap;
         }
         private void button1_Click(object sender, EventArgs e)
         {
