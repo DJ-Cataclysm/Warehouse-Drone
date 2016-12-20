@@ -25,6 +25,7 @@ namespace DroneControl
         RouteInterpreter routeInterpreter;
         Route route;
         TaskCompletionSource<bool> flyTaskComleted;
+        TaskCompletionSource<bool> vormTaskCompleted;
         TaskCompletionSource<bool> scanTaskComleted;
         TaskCompletionSource<bool> searchBarcodeTaskCompleted;
         Task barcodeSearching;
@@ -42,6 +43,7 @@ namespace DroneControl
         public async Task CycleCount()
         { 
             flyTaskComleted = new TaskCompletionSource<bool>();
+            vormTaskCompleted = new TaskCompletionSource<bool>();
 
             route = MakeRoute();
             List<Position> routeList = route.getPositions();
@@ -69,6 +71,7 @@ namespace DroneControl
            //     autopilotController.Start();
              
                 await flyTaskComleted.Task;
+                await vormTaskCompleted.Task;
                await searchBarcodeTaskCompleted.Task;
 
             }
@@ -129,7 +132,12 @@ namespace DroneControl
         {
             flyTaskComleted.SetResult(true);
         }
-        
+
+        public void setVormTaskCompleted()
+        {
+            vormTaskCompleted.SetResult(true);
+        }
+
         public void doSmartScan()
         {
             /*
@@ -252,8 +260,10 @@ namespace DroneControl
         }
         public async Task ScanVormen(Bitmap bmp)
         {
+            flyTaskComleted = new TaskCompletionSource<bool>();
+            
             Bitmap myBitmap = bmp;
-            double angleDeg = 0;
+            int angleDeg = 0;
             bool isLeft = true;
 
             // lock image
@@ -320,7 +330,7 @@ namespace DroneControl
                         //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
                         double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
                         double angleRad = Math.Acos(aCos);
-                        angleDeg = angleRad * (180 / Math.PI);
+                        angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 3");
                         if (point3.X > bmp.Width / 2)
                             isLeft = false;
@@ -344,7 +354,7 @@ namespace DroneControl
                         //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
                         double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
                         double angleRad = Math.Acos(aCos);
-                        angleDeg = angleRad * (180 / Math.PI);
+                        angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 2");
                         if (point2.X > bmp.Width / 2)
                             isLeft = false;
@@ -369,7 +379,7 @@ namespace DroneControl
                         //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
                         double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
                         double angleRad = Math.Acos(aCos);
-                        angleDeg = angleRad * (180 / Math.PI);
+                        angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 1");
                         if (point1.X > bmp.Width / 2)
                             isLeft = false;
@@ -384,16 +394,20 @@ namespace DroneControl
             {
                 if (isLeft)
                 {
-                    //Turnright
+                    routeInterpreter.turn.execute(angleDeg);
+                    await flyTaskComleted.Task;
+                    vormTaskCompleted.SetResult(true);
                 }
                 else
                 {
-                    //turnleft
+                    routeInterpreter.turn.execute(360-angleDeg);
+                    await flyTaskComleted.Task;
+                    vormTaskCompleted.SetResult(true);
                 }
             }
             else
             {
-
+                vormTaskCompleted.SetResult(true);
             }
 
             redPen.Dispose();

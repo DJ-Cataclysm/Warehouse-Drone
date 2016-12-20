@@ -6,7 +6,7 @@ namespace DroneControl.Commands
     /*
      * Because the execute method has a parameter, this command does not implement the ICommand interface.
      */
-    class Turn
+    public class Turn
     {
         AutopilotController controllerReference;
 

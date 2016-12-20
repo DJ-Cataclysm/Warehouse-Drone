@@ -11,7 +11,7 @@ namespace DroneControl
        public GoToHeight goToHeight;
        public BarcodeSmallLeft barcodeSmallLeft;
        public BarcodeSmallRight barcodeSmallRight;
-        Turn turn;
+       public Turn turn;
         Heading headings;
         BarcodeSmallUpDown barcodeSmallUpDown;
         AutopilotController autopilotController;
