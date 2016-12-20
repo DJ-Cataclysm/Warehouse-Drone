@@ -33,6 +33,7 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
+        public bool scanningForBarcode { get; set; }
         private bool checkVoorVormen = false;
 
         /*
@@ -191,6 +192,11 @@ namespace DroneControl
         {
             string result = scanBarcode();
             barcode.Text = result;
+        }
+
+        public Bitmap getFrame()
+        {
+            return _frameBitmap;
         }
 
         private void btnAutopilotGo_Click(object sender, EventArgs e)
