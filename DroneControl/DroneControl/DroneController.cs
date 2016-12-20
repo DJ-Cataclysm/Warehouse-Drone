@@ -9,6 +9,12 @@ using System.Linq;
 using WMS;
 using System.Threading.Tasks;
 using ZXing;
+using System.Drawing;
+using System.Drawing.Imaging;
+using AForge.Imaging.Filters;
+using AForge;
+using AForge.Imaging;
+using AForge.Math.Geometry;
 
 namespace DroneControl
 {
@@ -243,6 +249,155 @@ namespace DroneControl
                 Console.WriteLine();
 
             }*/
+        }
+        public async Task ScanVormen(Bitmap bmp)
+        {
+            Bitmap myBitmap = bmp;
+            double angleDeg = 0;
+            bool isLeft = true;
+
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+
+            colorFilter.Red = new IntRange(200, 255);
+            colorFilter.Green = new IntRange(200, 255);
+            colorFilter.Blue = new IntRange(200, 255);
+            colorFilter.FillOutsideRange = true;
+
+            colorFilter.ApplyInPlace(bitmapData);
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+            Graphics g = Graphics.FromImage(myBitmap);
+            Pen redPen = new Pen(Color.Red, 2);
+            // check each object and calculate the deviation from the top of the triangle
+            for (int i = 0, n = blobs.Length; i < n; i++)
+            {
+
+                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
+                List<IntPoint> corners;
+
+                //Check if the blob is a triangle, if so, make Points out of the corners
+                if (shapeChecker.IsTriangle(edgePoints, out corners))
+                {
+                    IntPoint point1 = new IntPoint(corners[1].X, corners[1].Y);
+                    IntPoint point2 = new IntPoint(corners[0].X, corners[0].Y);
+                    IntPoint point3 = new IntPoint(corners[2].X, corners[2].Y);
+                    IntPoint triangularF;
+
+                    //Find out what the top Point of the triangle is, make a Point for the middle of the bottom Vertex and create a point parallel to the drone's direction
+                    //with the same length as the Vertex from the middle Point and the top Point
+                    if (point1.DistanceTo(point3) > point1.DistanceTo(point2) && point2.DistanceTo(point3) > point2.DistanceTo(point1))
+                    {
+                        IntPoint middleF = new IntPoint((point1.X + point2.X) / 2, (point1.Y + point2.Y));
+                        double aLength = point3.DistanceTo(middleF);
+                        if (point3.Y > point2.Y)
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y + (int)Math.Ceiling(aLength));
+                        }
+                        else
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y - (int)Math.Ceiling(aLength));
+                        }
+                        double cLength = point3.DistanceTo(triangularF);
+
+                        //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
+                        double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
+                        double angleRad = Math.Acos(aCos);
+                        angleDeg = angleRad * (180 / Math.PI);
+                        Console.WriteLine(angleDeg + " Point 3");
+                        if (point3.X > bmp.Width / 2)
+                            isLeft = false;
+                        else
+                            isLeft = true;
+                    }
+                    else if (point1.DistanceTo(point2) > point1.DistanceTo(point3) && point3.DistanceTo(point2) > point3.DistanceTo(point1))
+                    {
+                        IntPoint middleF = new IntPoint((point1.X + point3.X) / 2, (point1.Y + point3.Y) / 2);
+                        double aLength = point2.DistanceTo(middleF);
+                        if (point2.Y > point1.Y)
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y + (int)Math.Ceiling(aLength));
+                        }
+                        else
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y - (int)Math.Ceiling(aLength));
+                        }
+                        double cLength = point2.DistanceTo(triangularF);
+
+                        //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
+                        double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
+                        double angleRad = Math.Acos(aCos);
+                        angleDeg = angleRad * (180 / Math.PI);
+                        Console.WriteLine(angleDeg + " Point 2");
+                        if (point2.X > bmp.Width / 2)
+                            isLeft = false;
+                        else
+                            isLeft = true;
+                    }
+                    else
+                    {
+                        IntPoint middleF = new IntPoint((point2.X + point3.X) / 2, (point2.Y + point3.Y) / 2);
+                        double aLength = point1.DistanceTo(middleF);
+                        Console.WriteLine(aLength);
+                        if (point1.Y > point2.Y)
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y + (int)Math.Ceiling(aLength));
+                        }
+                        else
+                        {
+                            triangularF = new IntPoint(middleF.X, middleF.Y - (int)Math.Ceiling(aLength));
+                        }
+                        double cLength = point1.DistanceTo(triangularF);
+
+                        //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
+                        double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
+                        double angleRad = Math.Acos(aCos);
+                        angleDeg = angleRad * (180 / Math.PI);
+                        Console.WriteLine(angleDeg + " Point 1");
+                        if (point1.X > bmp.Width / 2)
+                            isLeft = false;
+                        else
+                            isLeft = true;
+                    }
+                }
+            }
+
+            //If the deviation is too high, reposition
+            if (angleDeg > 3)
+            {
+                if (isLeft)
+                {
+                    //Turnright
+                }
+                else
+                {
+                    //turnleft
+                }
+            }
+            else
+            {
+
+            }
+
+            redPen.Dispose();
+            g.Dispose();
         }
     }
 }
