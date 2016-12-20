@@ -60,7 +60,7 @@ namespace DroneControl
             droneClient.Start();
 
             var configuration = new Settings();
-            configuration.Video.Channel = VideoChannelType.Horizontal;
+            configuration.Video.Channel = VideoChannelType.Vertical;
             droneClient.Send(configuration);
         }
 
