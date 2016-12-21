@@ -211,10 +211,61 @@ namespace DroneControl
         public void startClient()
         {
             droneClient.Start();
-
+            /*
             var configuration = new Settings();
+            configuration.Video.Codec = VideoCodecType.H264_720P;
             configuration.Video.Channel = VideoChannelType.Horizontal;
-            droneClient.Send(configuration);
+            droneClient.Send(configuration);*/
+            Settings settings = new Settings();
+            var sendConfigTask = new Task(() =>
+            {
+
+                if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
+                    settings.Custom.SessionId == "00000000")
+                {
+                    // set new session, application and profile
+                    droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
+
+                    settings.Custom.SessionId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
+                    settings.Custom.ProfileId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
+                    settings.Custom.ApplicationId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+                }
+
+                settings.General.NavdataDemo = false;
+                settings.General.NavdataOptions = NavdataOptions.All;
+
+                settings.Video.BitrateCtrlMode = VideoBitrateControlMode.Dynamic;
+                settings.Video.Bitrate = 1000;
+                settings.Video.MaxBitrate = 2000;
+
+                //settings.Leds.LedAnimation = new LedAnimation(LedAnimationType.BlinkGreenRed, 2.0f, 2);
+                //settings.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.Wave);
+
+                // record video to usb
+                //settings.Video.OnUsb = true;
+                // usage of MP4_360P_H264_720P codec is a requirement for video recording to usb
+                //settings.Video.Codec = VideoCodecType.MP4_360P_H264_720P;
+                // start
+                //settings.Userbox.Command = new UserboxCommand(UserboxCommandType.Start);
+                // stop
+                //settings.Userbox.Command = new UserboxCommand(UserboxCommandType.Stop);
+
+
+                //send all changes in one pice
+                droneClient.Send(settings);
+            });
+            sendConfigTask.Start();
         }
 
         public void stopClient()

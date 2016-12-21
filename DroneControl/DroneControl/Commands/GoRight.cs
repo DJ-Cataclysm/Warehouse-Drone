@@ -15,12 +15,12 @@ namespace DroneControl.Commands
         public void execute()
         {
             controllerReference.EnqueueObjective(
-                Objective.Create(500,
+                Objective.Create(2000,
                     new VelocityX(0.0f),
-                    new VelocityY(1.0f)
+                    new VelocityY(0.5f)
                 )
             );
-            controllerReference.EnqueueObjective(new Hover(2000));
+            controllerReference.EnqueueObjective(new Hover(5000));
         }
     }
 }

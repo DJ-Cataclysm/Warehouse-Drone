@@ -21,7 +21,7 @@ namespace DroneControl.Commands
                Objective.Create(4000,
                    new VelocityX(0.0f),
                    new VelocityY(0.0f),
-                   new Altitude(hoogte * 1.23f)
+                   new Altitude(hoogte)
                )
             );
             controllerReference.EnqueueObjective(new Hover(2000));

@@ -198,7 +198,8 @@ namespace DroneControl
         {
             //Commands invoegen
             //Start autopilot
-            //_droneController.enqueueTest();
+
+            _droneController.enqueueTest();
             _droneController.startAutopilot();
             btnAutopilotGo.Enabled = false;
         }

@@ -92,7 +92,7 @@ namespace DroneControl
             //Enqueue vertical movement (Y-axis)
             if ((deltaY > 0 || deltaY < 0) && target.y < 4 && target.y >= 0)
             {
-                float distanceFromGround = 0.5f;
+                float distanceFromGround = 0.2f;
                 goToHeight.execute(target.y + distanceFromGround);
             }
 
@@ -114,16 +114,24 @@ namespace DroneControl
             //headings = new Heading(autopilotController.getNavigationData().Yaw);
             //float hoogte = 1f;
             takeOffCommand.execute();
+            goToHeight.execute(1.20f);
+            //goLeft.execute();
+            //goToHeight.execute(2.20f);
+            
             goLeft.execute();
-            goToHeight.execute(2f);
+            goLeft.execute();
+            goLeft.execute();
+            goLeft.execute();
+
             goRight.execute();
             goRight.execute();
-            turn.execute(180);
-            goForward.execute();
+            //turn.execute(180);
+            //goForward.execute();
             goRight.execute();
-            goToHeight.execute(0.5f);
-            turn.execute(180);
-            goForward.execute();
+            goRight.execute();
+            //goToHeight.execute(1.20f);
+            //turn.execute(180);
+            //goForward.execute();
             landCommand.execute();
         }
    
