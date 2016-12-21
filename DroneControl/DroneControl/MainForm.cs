@@ -313,7 +313,7 @@ namespace DroneControl
         private void CheckVormen_Click(object sender, EventArgs e)
         {
             checkVoorVormen = false;
-            _droneController.ScanVormen(_frameBitmap);
+            _droneController.ScanVormen();
         }
             
 

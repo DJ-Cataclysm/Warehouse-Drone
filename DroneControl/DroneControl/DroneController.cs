@@ -71,7 +71,7 @@ namespace DroneControl
            //     autopilotController.Start();
              
                 await flyTaskComleted.Task;
-                await vormTaskCompleted.Task;
+                //await vormTaskCompleted.Task;
                await searchBarcodeTaskCompleted.Task;
 
             }
@@ -82,9 +82,9 @@ namespace DroneControl
         }
         private async Task searchForBarcode(Position i)
         {
-             searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
-                mainForm.scanningForBarcode = true;
-            scanTaskComleted = new TaskCompletionSource<bool>();
+           searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+           mainForm.scanningForBarcode = true;
+           scanTaskComleted = new TaskCompletionSource<bool>();
            flyTaskComleted = new TaskCompletionSource<bool>();
            float currentY = i.y;
            float factor = 1.5f;
@@ -92,24 +92,24 @@ namespace DroneControl
           //omhoog 0.5
           currentY += (0.05f * factor);
           routeInterpreter.goToHeight.execute(currentY);
-         routeInterpreter.shortHover.execute();
-         //omlaag 1
-                   currentY -= (0.1f * factor);
-                   routeInterpreter.goToHeight.execute(currentY);
-                    routeInterpreter.shortHover.execute();
+          routeInterpreter.shortHover.execute();
+          //omlaag 1
+          currentY -= (0.1f * factor);
+          routeInterpreter.goToHeight.execute(currentY);
+          routeInterpreter.shortHover.execute();
            //omhoog 0.5
-                    currentY += (0.05f * factor);
-                    routeInterpreter.goToHeight.execute(currentY);
-                    routeInterpreter.shortHover.execute();
-         //links 1
-                routeInterpreter.barcodeSmallLeft.execute(1000);
-                routeInterpreter.shortHover.execute();
-                //rechts2 
-                         routeInterpreter.barcodeSmallRight.execute(2000);
-                         routeInterpreter.shortHover.execute();
-                         //links 1
-                         routeInterpreter.barcodeSmallLeft.execute(1000);
-                         routeInterpreter.shortHover.execute();
+           currentY += (0.05f * factor);
+           routeInterpreter.goToHeight.execute(currentY);
+           routeInterpreter.shortHover.execute();
+           //links 1
+           routeInterpreter.barcodeSmallLeft.execute(1000);
+           routeInterpreter.shortHover.execute();
+           //rechts2 
+           routeInterpreter.barcodeSmallRight.execute(2000);
+           routeInterpreter.shortHover.execute();
+           //links 1
+           routeInterpreter.barcodeSmallLeft.execute(1000);
+           routeInterpreter.shortHover.execute();
 
 
 
@@ -119,7 +119,7 @@ namespace DroneControl
                routeInterpreter.shortHover.execute();
                autopilotController.Stop();
                setFlyTaskCompleted();
-                searchBarcodeTaskCompleted.SetResult(true);
+               searchBarcodeTaskCompleted.SetResult(true);
            }
            await flyTaskComleted.Task;
             searchBarcodeTaskCompleted.SetResult(true);
@@ -258,11 +258,11 @@ namespace DroneControl
 
             }*/
         }
-        public async Task ScanVormen(Bitmap bmp)
+        public async Task ScanVormen()
         {
             flyTaskComleted = new TaskCompletionSource<bool>();
             
-            Bitmap myBitmap = bmp;
+            Bitmap myBitmap = mainForm.getFrame();
             int angleDeg = 0;
             bool isLeft = true;
 
@@ -332,7 +332,7 @@ namespace DroneControl
                         double angleRad = Math.Acos(aCos);
                         angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 3");
-                        if (point3.X > bmp.Width / 2)
+                        if (point3.X > myBitmap.Width / 2)
                             isLeft = false;
                         else
                             isLeft = true;
@@ -356,7 +356,7 @@ namespace DroneControl
                         double angleRad = Math.Acos(aCos);
                         angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 2");
-                        if (point2.X > bmp.Width / 2)
+                        if (point2.X > myBitmap.Width / 2)
                             isLeft = false;
                         else
                             isLeft = true;
@@ -381,7 +381,7 @@ namespace DroneControl
                         double angleRad = Math.Acos(aCos);
                         angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
                         Console.WriteLine(angleDeg + " Point 1");
-                        if (point1.X > bmp.Width / 2)
+                        if (point1.X > myBitmap.Width / 2)
                             isLeft = false;
                         else
                             isLeft = true;
