@@ -96,27 +96,6 @@ namespace DroneControl
            scanTaskComleted = new TaskCompletionSource<bool>();
            flyTaskComleted = new TaskCompletionSource<bool>();
 
-                routeInterpreter.barcodeSmallLeft.execute(1000);
-                routeInterpreter.shortHover.execute();
-                //rechts2 
-                         routeInterpreter.barcodeSmallRight.execute(2000);
-                         routeInterpreter.shortHover.execute();
-                         //links 1
-                         routeInterpreter.barcodeSmallLeft.execute(1000);
-                         routeInterpreter.shortHover.execute();
-          //omhoog 0.5
-          currentY += (0.05f * factor);
-          routeInterpreter.goToHeight.execute(currentY);
-          routeInterpreter.shortHover.execute();
-          //omlaag 1
-          currentY -= (0.1f * factor);
-          routeInterpreter.goToHeight.execute(currentY);
-          routeInterpreter.shortHover.execute();
-           //omhoog 0.5
-           currentY += (0.05f * factor);
-           routeInterpreter.goToHeight.execute(currentY);
-           routeInterpreter.shortHover.execute();
-           //links 1
            routeInterpreter.barcodeSmallLeft.execute(1000);
            routeInterpreter.shortHover.execute();
            //rechts2 
@@ -125,8 +104,6 @@ namespace DroneControl
            //links 1
            routeInterpreter.barcodeSmallLeft.execute(1000);
            routeInterpreter.shortHover.execute();
-
-
 
           isBarcodeCalibration = true;
              
