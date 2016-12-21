@@ -324,7 +324,6 @@ namespace DroneControl
             // step 3 - check objects' type and highlight
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
             Graphics g = Graphics.FromImage(myBitmap);
-            Pen redPen = new Pen(Color.Red, 2);
             // check each object and calculate the deviation from the top of the triangle
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
@@ -377,8 +376,6 @@ namespace DroneControl
             {
                 vormTaskCompleted.SetResult(true);
             }
-
-            redPen.Dispose();
             g.Dispose();
         }
 
