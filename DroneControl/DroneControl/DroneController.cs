@@ -28,7 +28,6 @@ namespace DroneControl
         TaskCompletionSource<bool> vormTaskCompleted;
         TaskCompletionSource<bool> scanTaskComleted;
         TaskCompletionSource<bool> searchBarcodeTaskCompleted;
-        Task barcodeSearching;
         MainForm mainForm;
         bool isLeft;
         public DroneController(MainForm form)
@@ -134,6 +133,8 @@ namespace DroneControl
             flyTaskComleted.SetResult(true);
         }
 
+            
+
         public void setVormTaskCompleted()
         {
             vormTaskCompleted.SetResult(true);
@@ -141,12 +142,24 @@ namespace DroneControl
 
         public void doSmartScan()
         {
-            /*
-            Route r = RoutePlan.makeSmartScanRoute();
+            //TODO: Put items from WMS here
+            List<Position> itemsToCheck = new List<Position>()
+            {
+                new Position(2,0,0),
+                new Position(0,200,1),
+                new Position(0,50,10),
+                new Position(0,89,2),
+                new Position(0,135,10),
+                new Position(0,78,10),
+                new Position(0,50,10),
+                new Position(1,20,5),
+                new Position(0,50,10),
+                new Position(0,5,2)
+            };
+            Route r = RoutePlan.makeSmartScanRoute(itemsToCheck);
             routeInterpreter.interpret(r);
             //start autopilot
             //autopilotController.start();
-            */
         }
         public void scanForBarcode()
         {
@@ -174,7 +187,7 @@ namespace DroneControl
                 return result.Text;
             }
             else { return null; }
-          
+
         }
 
         private void searchBarcode()

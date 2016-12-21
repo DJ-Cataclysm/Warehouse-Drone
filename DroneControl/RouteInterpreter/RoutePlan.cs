@@ -12,7 +12,7 @@ namespace RoutePlanner
         public static Route makeFullCycleRoute()
         {
   
-         // get list of positions
+        // get list of positions
         Route returnRoute = new Route();
         List<Position> positions = Positions.getPositions();
         
@@ -76,7 +76,10 @@ namespace RoutePlanner
 
         public static Route makeSmartScanRoute(List<Position> itemsToCheck)
         {
-            //Find boundary coordinates for use with graph creation by using linq
+            /*
+             * Find boundary coordinates for use with graph creation by using Linq.
+             * Aggregate is used here to loop through the items while keep track of the smallest x/y/z.
+             */
             int xLowerBound = itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x;
             int xUpperBound = itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x;
             int yLowerBound = itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y;
@@ -84,16 +87,30 @@ namespace RoutePlanner
             int zLowerBound = itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z;
             int zUpperBound = itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z;
 
+            //Create grid within bounds
             Grid grid = new Grid(xLowerBound, xUpperBound, yLowerBound, yUpperBound, zLowerBound, zUpperBound);
 
+            //Add drone starting point and endpoint
+            Position startAndEndpoint = new Position(0, 0, 0);
+            Position startPoint = startAndEndpoint;
+            GridPoint nearestNeighbour;
 
-            //Something something foreach item to check do unweighted then get path
-            grid.unweighted(itemsToCheck[0]);
+            //Keep creating routes between startPoint and nearestNeighbour until there are no new items to check.
+            Route route = new Route();
+            while (itemsToCheck.Count > 1)
+            {
+                grid.unweighted(startPoint); //Calculate all distances between startPoint and other points
+                itemsToCheck.RemoveAll(pos => pos.Equals(startPoint));
+                nearestNeighbour = grid.getNearestNeighbour(itemsToCheck);
+                route.addPositions(grid.getPath(nearestNeighbour.position)); //Add to route
+                startPoint = nearestNeighbour.position;
+            }
 
+            //This last step is required to return to (0,0,0)
+            grid.unweighted(startPoint);
+            route.addPositions(grid.getPath(startAndEndpoint));
 
-            //TODO: Tie paths together to create smart route
-
-            return null;
+            return route;
         }
     }
 }
