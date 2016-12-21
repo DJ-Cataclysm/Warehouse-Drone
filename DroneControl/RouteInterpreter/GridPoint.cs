@@ -13,7 +13,6 @@ namespace RoutePlanner
         public GridPoint previous;
         public double distance;
         
-
         public GridPoint(Position position)
         {
             this.position = position;

@@ -30,13 +30,14 @@ namespace DroneControl
             takeOffCommand.execute();
 
             List<Position> positions = new List<Position>();
-            positions.Add(new Position(0, 1, 0));
+            positions.Add(new Position(0, 0, 0));
             positions.AddRange(route.getPositions());
 
-            int deltaX = 0, deltaZ = 0, y = 0;
+            int deltaX = 0, deltaZ = 0, deltaY = 0, y = 0;
             for (int i = 0; i < positions.Count-1; i++)
             {
                 deltaX = positions[i + 1].x - positions[i].x;
+                deltaY = positions[i + 1].y - positions[i].y;
                 deltaZ = positions[i + 1].z - positions[i].z;
                 y = positions[i + 1].y;
 
@@ -57,12 +58,20 @@ namespace DroneControl
                 }
 
                 //Enqueue vertical movement (Y-axis)
-                if (y > 0 || y < 0)
+                if ((deltaY > 0 || deltaY < 0) && y < 4 && y >= 0)
                 {
-                    goToHeight.execute(y);
+                    float distanceFromGround = 0.5f;
+                    goToHeight.execute(y + distanceFromGround);
                 }
 
                 //TODO:Enqueue turns and forward movement (Z-axis)
+                //Currently limited to either 0 or 1
+                if(deltaZ != 0)
+                {
+                    //Turn around and go forward
+                    turn.execute(180);
+                    goForward.execute();
+                }
             }
 
             //Enqueue landing

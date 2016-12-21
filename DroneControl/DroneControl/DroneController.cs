@@ -35,21 +35,28 @@ namespace DroneControl
 
         public void doSmartScan()
         {
+
+            //TODO: Put items from WMS here
             List<Position> itemsToCheck = new List<Position>()
             {
-                new Position(0,0,0),
                 new Position(2,0,0),
-                new Position(0,2,2)
-                //new Position(-19,380,-38),
-                //new Position(238,380, 84)
+                new Position(0,200,1),
+                new Position(0,50,10),
+                new Position(0,89,2),
+                new Position(0,135,10),
+                new Position(0,78,10),
+                new Position(0,50,10),
+                new Position(1,20,5),
+                new Position(0,50,10),
+                new Position(0,5,2)
             };
 
 
             Route r = RoutePlan.makeSmartScanRoute(itemsToCheck);
-            //routeInterpreter.interpret(r);
+            routeInterpreter.interpret(r);
             //start autopilot
-            //autopilotController.start();
-            
+            autopilotController.Start();
+
         }
 
         public void enqueueTest()

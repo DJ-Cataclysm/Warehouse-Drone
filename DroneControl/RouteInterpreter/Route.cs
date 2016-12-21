@@ -15,6 +15,11 @@ namespace RoutePlanner
             positions.Add(p);
         }
 
+        public void addPositions(ICollection<Position> positions)
+        {
+            this.positions.AddRange(positions);
+        }
+
         public List<Position> getPositions()
         {
             return positions;

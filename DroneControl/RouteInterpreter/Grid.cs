@@ -11,24 +11,24 @@ namespace RoutePlanner
         public static double INFINITY = double.MaxValue;
         private Dictionary<Position, GridPoint> gridPointMap = new Dictionary<Position, GridPoint>(); 
 
-        public Grid(int xLowerbound, int xUpperBound, int yLowerbound, int yUpperbound, int zLowerBound, int zUpperBound)
+        public Grid(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound, int zLowerBound, int zUpperBound)
         {
-            //HashSet<GridPoint> gridPointsToBeInMap = new HashSet<GridPoint>();
-
-            //We will need to create a grid point for every possible position within the bounds.
-            for(int x = xLowerbound; x < xUpperBound; x++)
+            /*
+             * We will need to create a grid point for every possible position within the bounds.
+             * Unfortunately this will cause a massive performance drop at sufficiently high numbers because of the nested loops.
+             */
+            for (int x = xLowerBound; x <= xUpperBound; x++)
             {
-                for (int y = xLowerbound; y < xUpperBound; y++)
+                for (int y = yLowerBound; y <= yUpperBound; y++)
                 {
-                    for (int z = xLowerbound; z < xUpperBound; z++)
+                    for (int z = zLowerBound; z <= zUpperBound; z++)
                     {
-                        //gridPointsToBeInMap.Add(new GridPoint(new Position(x, y, z)));
                         Position curPos = new Position(x, y, z);
                         gridPointMap.Add(curPos, new GridPoint(curPos));
                     }
                 }
             }
-
+            //Connect all adjacent gridpoints with eachother
             AddAdjacencies();
         }
 
@@ -39,12 +39,23 @@ namespace RoutePlanner
                 //Check for adjacent gridpoints (6 sides)
                 List<Position> adjacent = new List<Position>()
                         {
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x - 1) && (p.y == position.y) && (p.z == position.z)), // Left
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x + 1) && (p.y == position.y) && (p.z == position.z)), // Right
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x) && (p.y == position.y - 1) && (p.z == position.z)), // Down
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x) && (p.y == position.y + 1) && (p.z == position.z)), // Up
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x) && (p.y == position.y) && (p.z == position.z - 1)), // Front
-                            gridPointMap.Keys.FirstOrDefault(p => (p.x == position.x) && (p.y == position.y) && (p.z == position.z + 1)) // Back
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x - 1) && (p.y == position.y) && (p.z == position.z)), // Left
+
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x + 1) && (p.y == position.y) && (p.z == position.z)), // Right
+
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x) && (p.y == position.y - 1) && (p.z == position.z)), // Down
+
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x) && (p.y == position.y + 1) && (p.z == position.z)), // Up
+
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x) && (p.y == position.y) && (p.z == position.z - 1)), // Front
+
+                            gridPointMap.Keys.FirstOrDefault(
+                                p => (p.x == position.x) && (p.y == position.y) && (p.z == position.z + 1)) // Back
                         };
 
                 foreach (Position adjPos in adjacent)
@@ -64,21 +75,10 @@ namespace RoutePlanner
             a.adjacentGridPoints.Add(new Edge(b));
         }
 
-
         //Looks for existing GridPoint in Grid
         private GridPoint getGridPoint(Position position)
         {
-            GridPoint gp;
-            try
-            {
-                gp = gridPointMap[position];
-            }
-            catch (KeyNotFoundException)
-            {
-                gp = new GridPoint(position);
-                gridPointMap[position] = gp;
-            }
-            return gp;
+            return gridPointMap.FirstOrDefault(p => p.Key.Equals(position)).Value;
         }
 
         private void clearAll()
@@ -89,37 +89,24 @@ namespace RoutePlanner
             }
         }
 
-        public void printGraph()
-        {
-            Dictionary<Position, GridPoint>.Enumerator e = gridPointMap.GetEnumerator();
-
-            while (e.MoveNext())
-            {
-                Console.WriteLine("Node {0}:", e.Current.Key);
-                foreach (Edge edge in e.Current.Value.adjacentGridPoints)
-                {
-                    Console.WriteLine("Edge {0} -> {1}, cost: {2}", e.Current.Key, edge.destination.position);
-                }
-                Console.WriteLine("--------");
-            }
-
-        }
-
-
-        //Calculates shortest route to start from every other gridPoint
         public void unweighted(Position startPosition)
         {
+            /*
+             * Calculates shortest route to start from every other gridPoint using
+             * non recursive Breadth-First Search (BFS) with a queue.
+             */
             clearAll();
-            GridPoint start = gridPointMap.First(p => p.Key.Equals(startPosition)).Value;
+            GridPoint start = getGridPoint(startPosition);
             if (start == null)
             {
                 throw new Exception("Start vertex not found");
             }
 
             Queue<GridPoint> q = new Queue<GridPoint>();
-            q.Enqueue(start);
+            q.Enqueue(start); //use start as root, and thus distance = 0
             start.distance = 0;
-
+            
+            //Continue as long as the queue is not empty
             while (q.Count != 0)
             {
                 GridPoint v = q.Dequeue();
@@ -128,12 +115,41 @@ namespace RoutePlanner
                     GridPoint w = e.destination;
                     if (w.distance == INFINITY)
                     {
+                        //Set distance and add reference for use with getPath()
                         w.distance = v.distance + 1;
                         w.previous = v;
-                        q.Enqueue(w);
+                        q.Enqueue(w); //Enqueue each edge endpoint
                     }
                 }
             }
+        }
+
+        public GridPoint getNearestNeighbour(List<Position> possibleDestinations)
+        {
+            /*
+             * Finds the nearest neighbouring destination and returns that route.
+             * We put each possible destination in a list and in that list we find
+             * the destination with the minimum distance.
+             */
+            List<GridPoint> gridPoints = new List<GridPoint>();
+            foreach(Position possibleDestination in possibleDestinations)
+            {
+                gridPoints.Add(getGridPoint(possibleDestination));
+            }
+            return gridPoints.Aggregate((c, d) => c.distance < d.distance ? c : d);
+        }
+
+        public List<Position> getPath(Position destination)
+        {
+            List<Position> shortestPath = new List<Position>();
+            GridPoint traversal = getGridPoint(destination); //Find GridPoint object tied to the Position
+            while(traversal.previous != null)
+            {
+                //Put in the front of the list because we work from the back to the front
+                shortestPath.Insert(0, traversal.position);
+                traversal = traversal.previous;
+            }
+            return shortestPath;
         }
     }
 }
