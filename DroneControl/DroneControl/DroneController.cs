@@ -51,7 +51,6 @@ namespace DroneControl
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
             routeInterpreter.takeOffTrim();
-
           
             routeInterpreter.shortHover.execute();
             //Position currentpos = new Position(0, 1, 0);
@@ -67,7 +66,7 @@ namespace DroneControl
                 //    Console.Write("Starting Autopilot");
                 //}
                 flyTaskComleted = new TaskCompletionSource<bool>();
-                scanTaskComleted = new TaskCompletionSource<bool>();
+                //scanTaskComleted = new TaskCompletionSource<bool>();
              //   barcodeSearching = searchForBarcode(routeList[i]);
                 //eerste in de route moet takeoff zijn, pakt nu de 2e
 
@@ -79,9 +78,14 @@ namespace DroneControl
 
                 Console.Write("flying to target");
                 await flyTaskComleted.Task;
-                searchForBarcode(current);
+                isBarcodeCalibration = true;
+                mainForm.scanningForBarcode = true;
+                Console.WriteLine(isBarcodeCalibration);
+                await searchForBarcode(current);
+                isBarcodeCalibration = false;
+                mainForm.scanningForBarcode = false;
                 //await vormTaskCompleted.Task;
-               await searchBarcodeTaskCompleted.Task;
+                //await searchBarcodeTaskCompleted.Task;
 
             }
             routeInterpreter.landCommand.execute();
@@ -91,22 +95,20 @@ namespace DroneControl
         }
         private async Task searchForBarcode(Position i)
         {
-           searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
-           mainForm.scanningForBarcode = true;
-           scanTaskComleted = new TaskCompletionSource<bool>();
-           flyTaskComleted = new TaskCompletionSource<bool>();
 
-           routeInterpreter.barcodeSmallLeft.execute(1000);
-           routeInterpreter.shortHover.execute();
-           //rechts2 
-           routeInterpreter.barcodeSmallRight.execute(2000);
-           routeInterpreter.shortHover.execute();
-           //links 1
-           routeInterpreter.barcodeSmallLeft.execute(1000);
-           routeInterpreter.shortHover.execute();
+            searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+          
+            //scanTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskComleted = new TaskCompletionSource<bool>();
 
-          isBarcodeCalibration = true;
-             
+            routeInterpreter.barcodeSmallLeft.execute(1000);
+            routeInterpreter.shortHover.execute();
+            //rechts2 
+            routeInterpreter.barcodeSmallRight.execute(2000);
+            routeInterpreter.shortHover.execute();
+            //links 1
+            routeInterpreter.barcodeSmallLeft.execute(1000);
+            routeInterpreter.shortHover.execute();
            await flyTaskComleted.Task;
             searchBarcodeTaskCompleted.SetResult(true);
            
@@ -155,7 +157,7 @@ namespace DroneControl
             if (barcode != null)
             {
                 Console.WriteLine("Barcode gevoden " + barcode);
-                scanTaskComleted.SetResult(true);
+                //scanTaskComleted.SetResult(true);
                 mainForm.scanningForBarcode = false;
 
                 if (isBarcodeCalibration)
