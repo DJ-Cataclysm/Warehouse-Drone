@@ -64,5 +64,9 @@ namespace DroneControl
         {
             return _droneClient.NavigationData;
         }
+        public void clearObjectives()
+        {
+            _autopilot.ClearObjectives();
+        }
     }
 }

@@ -43,7 +43,9 @@ namespace DroneControl
         }
 
         public async Task CycleCount()
-        { 
+        {
+            
+         
             flyTaskComleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
@@ -59,6 +61,7 @@ namespace DroneControl
             await flyTaskComleted.Task;
             for (int i = 0; i < route.getCount()-1; i++ )
             {
+              
                 Console.Write(" ga door met loop");
                 //if (!autopilotController.isAutopilotActive())
                 //{
@@ -163,10 +166,10 @@ namespace DroneControl
                 if (isBarcodeCalibration)
                 {
                     isBarcodeCalibration = false;
-                    setFlyTaskCompleted();
+                    autopilotController.clearObjectives();
                     routeInterpreter.shortHover.execute();
-                    autopilotController.Stop();
-                    autopilotController.Start();
+                  
+                    //autopilotController.Start();
                     Console.WriteLine("<< BARCODE CALIBRATION STOPPED >> " + barcode);
                     
                 }
