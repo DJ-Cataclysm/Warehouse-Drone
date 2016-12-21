@@ -300,24 +300,6 @@ namespace DroneControl
             _droneController.CycleCount();
         }
 
-        private void CheckVormen_Click(object sender, EventArgs e)
-        {
-            //_droneController.ScanVormen(_frameBitmap);
-        }
-            
-
-        public Point[] ToPointsArray(List<IntPoint> points)
-        {
-            Point[] array = new Point[points.Count];
-
-            for (int i = 0, n = points.Count; i < n; i++)
-            {
-                array[i] = new Point(points[i].X, points[i].Y);
-            }
-
-            return array;
-        }
-
         
 
         private void btnSmartScan_Click(object sender, EventArgs e)
