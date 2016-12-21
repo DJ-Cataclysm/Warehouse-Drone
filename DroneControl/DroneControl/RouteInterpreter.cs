@@ -7,12 +7,11 @@ namespace DroneControl
 {
     public class RouteInterpreter
     {
-       public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover;
-       public GoToHeight goToHeight;
-       public BarcodeSmallLeft barcodeSmallLeft;
-       public BarcodeSmallRight barcodeSmallRight;
-       public Turn turn;
-        Heading headings;
+        public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover;
+        public GoToHeight goToHeight;
+        public BarcodeSmallLeft barcodeSmallLeft;
+        public BarcodeSmallRight barcodeSmallRight;
+        public Turn turn;
         BarcodeSmallUpDown barcodeSmallUpDown;
         AutopilotController autopilotController;
 

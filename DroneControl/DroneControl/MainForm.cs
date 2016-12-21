@@ -1,7 +1,4 @@
 ﻿using AForge;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
-using AForge.Math.Geometry;
 using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
@@ -9,14 +6,8 @@ using AR.Drone.Video;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
 using ZXing;
-using WMS;
-using RoutePlanner;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DroneControl
 {
@@ -34,7 +25,6 @@ namespace DroneControl
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
         public bool scanningForBarcode { get; set; }
-        private bool checkVoorVormen = false;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -312,18 +302,17 @@ namespace DroneControl
 
         private void CheckVormen_Click(object sender, EventArgs e)
         {
-            checkVoorVormen = false;
             _droneController.ScanVormen(_frameBitmap);
         }
             
 
-        public System.Drawing.Point[] ToPointsArray(List<IntPoint> points)
+        public Point[] ToPointsArray(List<IntPoint> points)
         {
-            System.Drawing.Point[] array = new System.Drawing.Point[points.Count];
+            Point[] array = new Point[points.Count];
 
             for (int i = 0, n = points.Count; i < n; i++)
             {
-                array[i] = new System.Drawing.Point(points[i].X, points[i].Y);
+                array[i] = new Point(points[i].X, points[i].Y);
             }
 
             return array;
