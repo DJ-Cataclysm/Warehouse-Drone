@@ -84,6 +84,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AutopilotController.cs" />
+    <Compile Include="Commands\BarcodeSmallLeft.cs" />
+    <Compile Include="Commands\BarcodeSmallRight.cs" />
+    <Compile Include="Commands\BarcodeSmallUpDown.cs" />
+    <Compile Include="Commands\ShortHover.cs" />
     <Compile Include="Commands\GoForward.cs" />
     <Compile Include="Commands\GoLeft.cs" />
     <Compile Include="Commands\GoRight.cs" />

@@ -7,9 +7,13 @@ namespace DroneControl
 {
     public class RouteInterpreter
     {
-        ICommand goForward, goLeft, goRight, landCommand, takeOffCommand;
-        Turn turn;
-        GoToHeight goToHeight;
+       public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover;
+       public GoToHeight goToHeight;
+       public BarcodeSmallLeft barcodeSmallLeft;
+       public BarcodeSmallRight barcodeSmallRight;
+       public Turn turn;
+        Heading headings;
+        BarcodeSmallUpDown barcodeSmallUpDown;
         AutopilotController autopilotController;
 
         public RouteInterpreter(ref AutopilotController autopilotController)
@@ -21,9 +25,15 @@ namespace DroneControl
             goToHeight = new GoToHeight(ref autopilotController);
             landCommand = new Land(ref autopilotController);
             takeOffCommand = new TakeOff(ref autopilotController);
+            barcodeSmallLeft = new BarcodeSmallLeft(ref autopilotController);
+            barcodeSmallRight = new BarcodeSmallRight(ref autopilotController);
+            barcodeSmallUpDown = new BarcodeSmallUpDown(ref autopilotController);
+            shortHover = new ShortHover(ref autopilotController);
+
+
             turn = new Turn(ref autopilotController);
         }
-
+        
         public void interpret(Route route)
         {
             //Enqueue takeoff
@@ -77,7 +87,38 @@ namespace DroneControl
             //Enqueue landing
             landCommand.execute();
         }
+        public void flyToCoordinate(Position current, Position target)
+        {
+            int deltaX;
+            int y;
+            int deltaZ;
 
+            deltaX = target.x- current.x;
+            deltaZ = target.z - current.z;
+            y = target.y;
+
+            //Enqueue horizontal movement (X-axis)
+            if (deltaX > 0)
+            {
+                for (int timesRight = 0; timesRight < deltaX; timesRight++)
+                {
+                    goRight.execute();
+                }
+            }
+            else if (deltaX < 0)
+            {
+                for (int timesLeft = 0; timesLeft > deltaX; timesLeft--)
+                {
+                    goLeft.execute();
+                }
+            }
+
+            //Enqueue vertical movement (Y-axis)
+            if (y > 0 || y < 0)
+            {
+                goToHeight.execute(y);
+            }
+        }
         public void testRoute()
         {
             //Remove this method in release
@@ -97,6 +138,11 @@ namespace DroneControl
             goForward.execute();
             landCommand.execute();
 
+        }
+   
+        public void takeOffTrim()
+        {
+            takeOffCommand.execute();
         }
     }
 }

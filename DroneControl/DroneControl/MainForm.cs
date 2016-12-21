@@ -33,6 +33,8 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
+        public bool scanningForBarcode { get; set; }
+        private bool checkVoorVormen = false;
 
         /*
          * Constructor: creating the form and creating the droneclient.
@@ -46,7 +48,7 @@ namespace DroneControl
             _videoPacketDecoderWorker.Start();
 
             //Create a droneclient and attach event handlers
-            _droneController = new DroneController();
+            _droneController = new DroneController(this);
             _droneController.attachEventHandlers(OnVideoPacketAcquired, OnNavigationDataAcquired);
 
             //Start timers
@@ -138,7 +140,7 @@ namespace DroneControl
             {
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
-            pbVideo.Image = _frameBitmap;
+                pbVideo.Image = _frameBitmap;
         }
 
         /*
@@ -190,6 +192,11 @@ namespace DroneControl
         {
             string result = scanBarcode();
             barcode.Text = result;
+        }
+
+        public Bitmap getFrame()
+        {
+            return _frameBitmap;
         }
 
         private void btnAutopilotGo_Click(object sender, EventArgs e)
@@ -305,91 +312,12 @@ namespace DroneControl
 
         private void CheckVormen_Click(object sender, EventArgs e)
         {
-            Bitmap myBitmap = _frameBitmap;
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-
-            colorFilter.Red = new IntRange(0, 64);
-            colorFilter.Green = new IntRange(0, 64);
-            colorFilter.Blue = new IntRange(0, 64);
-            colorFilter.FillOutsideRange = false;
-
-            colorFilter.ApplyInPlace(bitmapData);
-
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-
-            Graphics g = Graphics.FromImage(myBitmap);
-            Pen redPen = new Pen(Color.Red, 2);
-            Pen yellowPen = new Pen(Color.Yellow, 2);
-            Pen greenPen = new Pen(Color.Green, 2);
-            Pen bluePen = new Pen(Color.Blue, 2);
-
-            for (int i = 0, n = blobs.Length; i < n; i++)
-            {
-                List<IntPoint> edgePoints =
-                    blobCounter.GetBlobsEdgePoints(blobs[i]);
-
-                AForge.DoublePoint center;
-                double radius;
-
-                if (shapeChecker.IsCircle(edgePoints, out center, out radius))
-                {
-                    g.DrawEllipse(yellowPen,
-                        (float)(center.X - radius), (float)(center.Y - radius),
-                        (float)(radius * 2), (float)(radius * 2));
-                }
-                else
-                {
-                    List<IntPoint> corners;
-
-                    if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
-                    {
-                        if (shapeChecker.CheckPolygonSubType(corners) ==
-                            PolygonSubType.Rectangle)
-                        {
-                            g.DrawPolygon(greenPen, ToPointsArray(corners));
-                        }
-                        else
-                        {
-                            g.DrawPolygon(bluePen, ToPointsArray(corners));
-                        }
-                    }
-                    else
-                    {
-                        corners = PointsCloud.FindQuadrilateralCorners(edgePoints);
-                        g.DrawPolygon(redPen, ToPointsArray(corners));
-                    }
-                }
-            }
-
-            
-            redPen.Dispose();
-            greenPen.Dispose();
-            bluePen.Dispose();
-            yellowPen.Dispose();
-            g.Dispose();
+            checkVoorVormen = false;
+            _droneController.ScanVormen(_frameBitmap);
         }
+            
 
-        private System.Drawing.Point[] ToPointsArray(List<IntPoint> points)
+        public System.Drawing.Point[] ToPointsArray(List<IntPoint> points)
         {
             System.Drawing.Point[] array = new System.Drawing.Point[points.Count];
 
@@ -400,6 +328,8 @@ namespace DroneControl
 
             return array;
         }
+
+        
 
         private void btnSmartScan_Click(object sender, EventArgs e)
         {

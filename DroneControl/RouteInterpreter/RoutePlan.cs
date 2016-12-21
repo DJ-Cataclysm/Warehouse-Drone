@@ -27,7 +27,7 @@ namespace RoutePlanner
         {
             if (pos.y >yAsMax)
             {
-                yAsMax = pos.y;
+                yAsMax = pos.y; 
             }
         }
 

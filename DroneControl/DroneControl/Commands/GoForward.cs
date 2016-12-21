@@ -4,7 +4,7 @@ using AR.Drone.Avionics.Objectives.IntentObtainers;
 
 namespace DroneControl.Commands
 {
-    class GoForward : ICommand
+    public class GoForward : ICommand
     {
         AutopilotController controllerReference;
 

@@ -460,6 +460,39 @@
             // nudMockScan
             // 
             this.nudMockScan.Location = new System.Drawing.Point(9, 81);
+            this.nudMockScan.Location = new System.Drawing.Point(9, 98);
+            this.nudMockScan.Maximum = new decimal(new int[] {
+            100000,
+            0,
+            0,
+            0});
+            this.nudMockScan.Name = "nudMockScan";
+            this.nudMockScan.Size = new System.Drawing.Size(120, 20);
+            this.nudMockScan.TabIndex = 1;
+            // 
+            // btnMockDoneScanning
+            // 
+            this.btnMockDoneScanning.Location = new System.Drawing.Point(9, 86);
+            this.btnMockDoneScanning.Name = "btnMockDoneScanning";
+            this.btnMockDoneScanning.Size = new System.Drawing.Size(269, 23);
+            this.btnMockDoneScanning.TabIndex = 3;
+            this.btnMockDoneScanning.Text = "Mock done scanning";
+            this.btnMockDoneScanning.UseVisualStyleBackColor = true;
+            this.btnMockDoneScanning.Click += new System.EventHandler(this.btnMockDroneScanning_Click);
+            // 
+            // btnMockScan
+            // 
+            this.btnMockScan.Location = new System.Drawing.Point(135, 57);
+            this.btnMockScan.Name = "btnMockScan";
+            this.btnMockScan.Size = new System.Drawing.Size(143, 23);
+            this.btnMockScan.TabIndex = 2;
+            this.btnMockScan.Text = "Mock scan";
+            this.btnMockScan.UseVisualStyleBackColor = true;
+            this.btnMockScan.Click += new System.EventHandler(this.btnMockScan_Click);
+            // 
+            // nudMockScan
+            // 
+            this.nudMockScan.Location = new System.Drawing.Point(9, 60);
             this.nudMockScan.Maximum = new decimal(new int[] {
             100000,
             0,
