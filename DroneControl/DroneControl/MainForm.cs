@@ -26,6 +26,7 @@ namespace DroneControl
         private WMS.MainForm wmsForm;
         public bool scanningForBarcode { get; set; }
 
+
         /*
          * Constructor: creating the form and creating the droneclient.
          */
