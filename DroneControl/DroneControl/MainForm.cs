@@ -310,13 +310,6 @@ namespace DroneControl
             _droneController.CycleCount();
         }
 
-        private void CheckVormen_Click(object sender, EventArgs e)
-        {
-            checkVoorVormen = false;
-            _droneController.ScanVormen();
-        }
-            
-
         public System.Drawing.Point[] ToPointsArray(List<IntPoint> points)
         {
             System.Drawing.Point[] array = new System.Drawing.Point[points.Count];
