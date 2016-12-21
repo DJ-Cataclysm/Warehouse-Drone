@@ -15,7 +15,7 @@ namespace DroneControl.Commands
         public void execute()
         {
 
-            controllerReference.EnqueueObjective(new Hover(200));
+            controllerReference.EnqueueObjective(new Hover(400));
         }
     }
 }

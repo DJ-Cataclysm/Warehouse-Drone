@@ -131,6 +131,10 @@ namespace DroneControl
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
                 pbVideo.Image = _frameBitmap;
+                if (scanningForBarcode)
+                {
+                    _droneController.scanForBarcode();
+                }
         }
 
         /*

@@ -44,7 +44,15 @@ namespace DroneControl
             //
             
         }
-    
+        public bool isAutopilotActive()
+        {
+            if (_autopilot.Active)
+            {
+                return true;
+
+            }
+            else { return false; }
+        }
 
         public void Stop()
         {

@@ -14,6 +14,9 @@ namespace RoutePlanner
   
         // get list of positions
         Route returnRoute = new Route();
+        Position beginPos = new Position(0, 0, 0);
+        returnRoute.addPosition(beginPos);
+
         List<Position> positions = Positions.getPositions();
         
        
@@ -32,7 +35,7 @@ namespace RoutePlanner
         }
 
         //sort the list so that each row gets reversed
-        bool reverse = false;
+        bool reverse = true;
         for (int i = 0; i <= yAsMax; i++)
         {
             List<Position> templist = new List<Position>();
@@ -54,13 +57,11 @@ namespace RoutePlanner
              templist = templist.OrderByDescending(Position => Position.x).ToList(); // van groot naar klein 
             
         
-            foreach (Position p in templist)
-            {
-                Console.Write(p.x.ToString() + " ");
-            }
+         
             }
             foreach(Position p in templist){
                 returnRoute.addPosition(p);
+                Console.Write("pos x: " + p.x.ToString() + "pos y:" + p.y.ToString() + " ---");
             }
 
             if (reverse == true)
@@ -70,7 +71,7 @@ namespace RoutePlanner
             else { reverse = true; }
 
         }
-
+     
             return returnRoute;
         }
 

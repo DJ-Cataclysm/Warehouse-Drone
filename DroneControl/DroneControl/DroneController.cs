@@ -14,7 +14,7 @@ using System.Drawing.Imaging;
 using AForge.Imaging.Filters;
 using AForge;
 using AForge.Imaging;
-using AForge.Math.Geometry;
+using AForge.Math.Geometry; 
 
 namespace DroneControl
 {
@@ -29,6 +29,8 @@ namespace DroneControl
         TaskCompletionSource<bool> scanTaskComleted;
         TaskCompletionSource<bool> searchBarcodeTaskCompleted;
         MainForm mainForm;
+        bool isBarcodeCalibration;
+        public event EventHandler<bool>eted;
         bool isLeft;
         public DroneController(MainForm form)
         {
@@ -50,15 +52,20 @@ namespace DroneControl
             autopilotController.Start();
             routeInterpreter.takeOffTrim();
 
-            await flyTaskComleted.Task;
+          
             routeInterpreter.shortHover.execute();
-            Position currentpos = new Position(0, 1, 0);
-           // barcodeSearching = searchForBarcode(currentpos);
-            await searchBarcodeTaskCompleted.Task;
-            await Task.Delay(200);
-
+            //Position currentpos = new Position(0, 1, 0);
+            // searchForBarcode(currentpos);
+            //await searchBarcodeTaskCompleted.Task
+            await flyTaskComleted.Task;
             for (int i = 0; i < route.getCount()-1; i++ )
             {
+                Console.Write(" ga door met loop");
+                //if (!autopilotController.isAutopilotActive())
+                //{
+                //    autopilotController.Start();
+                //    Console.Write("Starting Autopilot");
+                //}
                 flyTaskComleted = new TaskCompletionSource<bool>();
                 scanTaskComleted = new TaskCompletionSource<bool>();
              //   barcodeSearching = searchForBarcode(routeList[i]);
@@ -69,8 +76,10 @@ namespace DroneControl
 
                 routeInterpreter.flyToCoordinate(current, target);
            //     autopilotController.Start();
-             
+
+                Console.Write("flying to target");
                 await flyTaskComleted.Task;
+                searchForBarcode(current);
                 //await vormTaskCompleted.Task;
                await searchBarcodeTaskCompleted.Task;
 
@@ -86,9 +95,15 @@ namespace DroneControl
            mainForm.scanningForBarcode = true;
            scanTaskComleted = new TaskCompletionSource<bool>();
            flyTaskComleted = new TaskCompletionSource<bool>();
-           float currentY = i.y;
-           float factor = 1.5f;
 
+                routeInterpreter.barcodeSmallLeft.execute(1000);
+                routeInterpreter.shortHover.execute();
+                //rechts2 
+                         routeInterpreter.barcodeSmallRight.execute(2000);
+                         routeInterpreter.shortHover.execute();
+                         //links 1
+                         routeInterpreter.barcodeSmallLeft.execute(1000);
+                         routeInterpreter.shortHover.execute();
           //omhoog 0.5
           currentY += (0.05f * factor);
           routeInterpreter.goToHeight.execute(currentY);
@@ -113,14 +128,8 @@ namespace DroneControl
 
 
 
-         
-           if (scanTaskComleted.Task.IsCompleted)
-           {
-               routeInterpreter.shortHover.execute();
-               autopilotController.Stop();
-               setFlyTaskCompleted();
-               searchBarcodeTaskCompleted.SetResult(true);
-           }
+          isBarcodeCalibration = true;
+             
            await flyTaskComleted.Task;
             searchBarcodeTaskCompleted.SetResult(true);
            
@@ -130,7 +139,8 @@ namespace DroneControl
 
         public void setFlyTaskCompleted()
         {
-            flyTaskComleted.SetResult(true);
+       
+            flyTaskComleted.TrySetResult(true);
         }
 
             
@@ -170,6 +180,17 @@ namespace DroneControl
                 Console.WriteLine("Barcode gevoden " + barcode);
                 scanTaskComleted.SetResult(true);
                 mainForm.scanningForBarcode = false;
+
+                if (isBarcodeCalibration)
+                {
+                    isBarcodeCalibration = false;
+                    setFlyTaskCompleted();
+                    routeInterpreter.shortHover.execute();
+                    autopilotController.Stop();
+                    autopilotController.Start();
+                    Console.WriteLine("<< BARCODE CALIBRATION STOPPED >> " + barcode);
+                    
+                }
             }
         }
 
@@ -187,11 +208,6 @@ namespace DroneControl
                 return result.Text;
             }
             else { return null; }
-
-        }
-
-        private void searchBarcode()
-        {
 
         }
 
