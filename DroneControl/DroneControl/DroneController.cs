@@ -133,7 +133,7 @@ namespace DroneControl
             routeInterpreter.goBackwardsCalibration.execute();
             routeInterpreter.goForwardCalibration.execute();
 
-            await flyTaskComleted.Task;
+            await flyTaskCompleted.Task;
         }
         public void setFlyTaskCompleted()
         {
