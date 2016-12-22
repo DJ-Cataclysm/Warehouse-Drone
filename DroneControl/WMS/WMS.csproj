@@ -94,6 +94,10 @@
     <Compile Include="Migrations\201612210932101_Afwijking.Designer.cs">
       <DependentUpon>201612210932101_Afwijking.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201612220833374_NameChange.cs" />
+    <Compile Include="Migrations\201612220833374_NameChange.Designer.cs">
+      <DependentUpon>201612220833374_NameChange.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Mutation.cs" />
     <Compile Include="MutationForm.cs">
@@ -126,6 +130,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612210932101_Afwijking.resx">
       <DependentUpon>201612210932101_Afwijking.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201612220833374_NameChange.resx">
+      <DependentUpon>201612220833374_NameChange.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MutationForm.resx">
       <DependentUpon>MutationForm.cs</DependentUpon>

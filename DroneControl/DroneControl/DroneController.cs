@@ -135,6 +135,9 @@ namespace DroneControl
         public void doSmartScan()
         {
             //TODO: Put items from WMS here
+            ProductDBContext RiskProducts = new ProductDBContext();
+            
+
             List<Position> itemsToCheck = new List<Position>()
             {
                 new Position(2,0,0),
@@ -293,6 +296,27 @@ namespace DroneControl
         {
             droneClient.Dispose();
         }
+        /*
+        private Route MakeSmartRoute()
+        {
+            List<Product> products = new List<Product>();
+            List<Mutation> mutations = new List<Mutation>();
+
+            using (ProductDBContext db = new ProductDBContext())
+            {
+                products = db.Products.ToList();
+                mutations = db.Mutations.ToList();
+            }
+
+            foreach (Product p in products)
+            {
+                if (p.ID == )
+
+                Positions.addPosition(new Position(p.X, p.Y, p.Z));
+            }
+
+            return RoutePlan.makeSmartScanRoute();
+        }*/
 
         private Route MakeRoute()
         {
