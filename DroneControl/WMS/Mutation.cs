@@ -12,6 +12,7 @@ namespace WMS
         public DateTime MutationDate { get; set; }
         public int NewCount { get; set; }
         public int OldCount { get; set; }
+        public double Afwijking { get; set; }
 
         //Generate new mutation for a product
         public Mutation(Product p)
@@ -20,6 +21,7 @@ namespace WMS
             MutationDate = DateTime.Now;
             NewCount = 0;
             OldCount = p.Count;
+            Afwijking = (OldCount / 100) * NewCount; 
         }
     }
 }

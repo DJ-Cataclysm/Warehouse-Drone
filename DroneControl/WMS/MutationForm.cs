@@ -75,6 +75,7 @@ namespace WMS
                         var existingRecord = db.Products.Find(m.ID);
                         if (existingRecord != null)
                         {
+                            existingRecord.Afwijking = m.Afwijking;
                             existingRecord.Count = m.NewCount;
                             existingRecord.LastCheck = DateTime.Now;
                         }
