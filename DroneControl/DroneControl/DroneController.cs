@@ -100,7 +100,7 @@ namespace DroneControl
 
             }
             routeInterpreter.landCommand.execute();
-
+            //mainForm.wmsForm.showMutations();
             // start cycle count
            
         }
@@ -216,7 +216,7 @@ namespace DroneControl
             }
             routeInterpreter.landCommand.execute();
             //autopilotController.Stop();
-            System.Windows.Forms.MessageBox.Show("Finished with smart scan!");
+            mainForm.wmsForm.showMutations();
         }
 
         public void scanForBarcode()
@@ -227,6 +227,9 @@ namespace DroneControl
             {
                 Console.WriteLine("Barcode gevoden " + barcode);
                 //scanTaskComleted.SetResult(true);
+                int id = int.MaxValue;
+                int.TryParse(barcode, out id);
+                mainForm.wmsForm.productScanned(id);
                 mainForm.scanningForBarcode = false;
 
                 if (isBarcodeCalibration)

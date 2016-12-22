@@ -27,7 +27,7 @@ namespace DroneControl
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
-        private WMS.MainForm wmsForm;
+        public WMS.MainForm wmsForm { get; }
         public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
         public bool isDroneReady { get; set; }
@@ -326,7 +326,7 @@ namespace DroneControl
         private void btnMockScan_Click(object sender, EventArgs e)
         {
             int scannedId = (int)nudMockScan.Value;
-            wmsForm.productScanned(scannedId);
+            
         }
 
         private void btnMockDroneScanning_Click(object sender, EventArgs e)
