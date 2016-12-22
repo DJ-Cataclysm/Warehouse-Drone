@@ -131,7 +131,7 @@ namespace DroneControl
 
             if (_frameBitmap == null)
             {
-               _frameBitmap = VideoHelper.CreateBitmap(ref _frame);
+               _frameBitmap = VideoHelper.CreateBitmap(ref _frame); 
             }
             else
             {
@@ -405,6 +405,11 @@ namespace DroneControl
         private void gbVideoFeed_Enter(object sender, EventArgs e)
         {
         
+        }
+
+        private void pbVideo_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

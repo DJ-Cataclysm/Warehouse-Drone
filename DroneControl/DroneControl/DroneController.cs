@@ -44,7 +44,7 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
-
+            
             flyTaskComleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
@@ -52,6 +52,14 @@ namespace DroneControl
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
+
+            // lijn vinden
+            mainForm.isDroneReady = true;
+            await Task.Delay(500);
+            if (droneCalibrationDirection != 0)
+            {
+                await calibration();
+            }
 
             routeInterpreter.shortHover.execute();
             await flyTaskComleted.Task;
@@ -74,6 +82,7 @@ namespace DroneControl
 
                 //voor en achter calibratie
                 mainForm.isDroneReady = true;
+                await Task.Delay(200);
                 if (droneCalibrationDirection != 0)
                 {
                     await calibration();
@@ -115,6 +124,17 @@ namespace DroneControl
             searchBarcodeTaskCompleted.SetResult(true);
         }
 
+        public async Task findLine()
+        {
+            searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+
+            routeInterpreter.goForwardCalibration.execute();
+            routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.goForwardCalibration.execute();
+
+            await flyTaskComleted.Task;
+        }
         public void setFlyTaskCompleted()
         {
             flyTaskComleted.TrySetResult(true);

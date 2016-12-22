@@ -105,6 +105,7 @@
             this.pbVideo.Size = new System.Drawing.Size(640, 360);
             this.pbVideo.TabIndex = 0;
             this.pbVideo.TabStop = false;
+            this.pbVideo.Click += new System.EventHandler(this.pbVideo_Click);
             // 
             // gbVideoFeed
             // 
