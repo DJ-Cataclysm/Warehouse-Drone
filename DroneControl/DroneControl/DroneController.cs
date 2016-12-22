@@ -32,6 +32,7 @@ namespace DroneControl
         bool isBarcodeCalibration;
         public event EventHandler<bool>eted;
         bool isLeft;
+        public int droneCalibrationDirection { set; get; }
         public DroneController(MainForm form)
         {
             //The IP-address is always the default gateway when connected to the drone WiFi.
@@ -53,23 +54,14 @@ namespace DroneControl
             routeInterpreter.takeOffCommand.execute();
 
             routeInterpreter.shortHover.execute();
-            //Position currentpos = new Position(0, 1, 0);
-            // searchForBarcode(currentpos);
-            //await searchBarcodeTaskCompleted.Task
             await flyTaskComleted.Task;
+
             for (int i = 0; i < route.getCount()-1; i++ )
             {
               
                 Console.Write(" ga door met loop");
-                //if (!autopilotController.isAutopilotActive())
-                //{
-                //    autopilotController.Start();
-                //    Console.Write("Starting Autopilot");
-                //}
+
                 flyTaskComleted = new TaskCompletionSource<bool>();
-                //scanTaskComleted = new TaskCompletionSource<bool>();
-             //   barcodeSearching = searchForBarcode(routeList[i]);
-                //eerste in de route moet takeoff zijn, pakt nu de 2e
 
                 Position current = routeList[i];
                 Position target = routeList[i+1];
@@ -79,14 +71,23 @@ namespace DroneControl
 
                 Console.Write("flying to target");
                 await flyTaskComleted.Task;
+
+                //voor en achter calibratie
+                mainForm.isDroneReady = true;
+                if (droneCalibrationDirection != 0)
+                {
+                    await calibration();
+                }
+
+                //barcode calibratie
                 isBarcodeCalibration = true;
                 mainForm.scanningForBarcode = true;
                 Console.WriteLine(isBarcodeCalibration);
                 await searchForBarcode(current);
                 isBarcodeCalibration = false;
                 mainForm.scanningForBarcode = false;
-                //await vormTaskCompleted.Task;
-                //await searchBarcodeTaskCompleted.Task;
+
+
 
             }
             routeInterpreter.landCommand.execute();
@@ -119,7 +120,32 @@ namespace DroneControl
             flyTaskComleted.TrySetResult(true);
         }
 
-            
+
+        public async Task calibration(){
+            flyTaskComleted = new TaskCompletionSource<bool>();
+
+            //moet naar voren
+            if(droneCalibrationDirection == 1){
+               routeInterpreter.goForwardCalibration.execute();
+                routeInterpreter.goBackwardsCalibration.execute();
+
+            }
+            //moet naar achter
+            if (droneCalibrationDirection == -1)
+            {
+                routeInterpreter.goBackwardsCalibration.execute();
+                routeInterpreter.goForwardCalibration.execute();
+            }
+
+            await flyTaskComleted.Task;
+            mainForm.isDroneReady = false;
+    }  
+
+        public void stopCurrentTasks(){
+
+            autopilotController.clearObjectives();
+            routeInterpreter.shortHover.execute();
+        }
 
         public void setVormTaskCompleted()
         {
@@ -159,8 +185,7 @@ namespace DroneControl
                 if (isBarcodeCalibration)
                 {
                     isBarcodeCalibration = false;
-                    autopilotController.clearObjectives();
-                    routeInterpreter.shortHover.execute();
+                     stopCurrentTasks();
                   
                     //autopilotController.Start();
                     Console.WriteLine("<< BARCODE CALIBRATION STOPPED >> " + barcode);

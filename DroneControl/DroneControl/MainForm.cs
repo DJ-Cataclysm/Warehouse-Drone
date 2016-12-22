@@ -28,8 +28,9 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
-        public int hasToCalibrate { get; set; } = 0;
+        public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
+        public bool isDroneReady { get; set; }
 
 
         /*
@@ -144,6 +145,23 @@ namespace DroneControl
             if(hasToCalibrate == 0)
             {
               checkAfwijking(_frameBitmap);
+
+            if (isDroneReady){
+              _droneController.stopCurrentTasks();
+              isDroneReady = false;
+            }
+            }
+
+            //moet vooruit vliegen om te calibreren
+            if (hasToCalibrate == 1 && isDroneReady)
+            {
+                _droneController.droneCalibrationDirection = 1;
+            }
+
+            //moet achteruit vliegen om te calibreren
+            if (hasToCalibrate == -1 && isDroneReady)
+            {
+                _droneController.droneCalibrationDirection = -1;
             }
             
         }
@@ -382,6 +400,11 @@ namespace DroneControl
                 }
             }
             g.Dispose();
+        }
+
+        private void gbVideoFeed_Enter(object sender, EventArgs e)
+        {
+        
         }
     }
 }

@@ -115,6 +115,7 @@
             this.gbVideoFeed.TabIndex = 1;
             this.gbVideoFeed.TabStop = false;
             this.gbVideoFeed.Text = "Video Feed";
+            this.gbVideoFeed.Enter += new System.EventHandler(this.gbVideoFeed_Enter);
             // 
             // gbTelemetry
             // 

@@ -38,8 +38,6 @@ namespace DroneControl
 
         {
 
-            Console.WriteLine("next------");
-
             droneController.setFlyTaskCompleted();
             //
             
