@@ -317,6 +317,9 @@ namespace DroneControl
 
         private Route MakeSmartScanRoute()
         {
+            /*
+             * Find all products exceeding the deviation threshhold and plot a route between those products.
+             */
             double threshold = 0; //Products exceeding the deviation threshold will be smartscanned.
             List<Product> products = new List<Product>();
 
