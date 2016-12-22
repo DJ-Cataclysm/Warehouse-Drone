@@ -51,6 +51,14 @@ namespace DroneControl
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
+            routeInterpreter.shortHover.execute();
+            // lijn vinden
+
+            mainForm.isDroneReady = true;
+            await Task.Delay(200);
+
+            await findLine();
+            mainForm.isDroneReady = false;
 
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
@@ -73,10 +81,12 @@ namespace DroneControl
 
                 //voor en achter calibratie
                 mainForm.isDroneReady = true;
+                await Task.Delay(200);
                 if (droneCalibrationDirection != 0)
                 {
                     await calibration();
                 }
+                mainForm.isDroneReady = false;
 
                 //barcode calibratie
                 isBarcodeCalibration = true;
@@ -114,6 +124,17 @@ namespace DroneControl
             searchBarcodeTaskCompleted.SetResult(true);
         }
 
+        public async Task findLine()
+        {
+            searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+
+            routeInterpreter.goForwardCalibration.execute();
+            routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.goForwardCalibration.execute();
+
+            await flyTaskComleted.Task;
+        }
         public void setFlyTaskCompleted()
         {
             flyTaskCompleted.TrySetResult(true);
@@ -278,6 +299,11 @@ namespace DroneControl
                     droneClient.AckControlAndWaitForConfirmation();
 
                     settings.Custom.ApplicationId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
+                    settings.Video.Channel = VideoChannelType.Vertical;
                     droneClient.Send(settings);
 
                     droneClient.AckControlAndWaitForConfirmation();
