@@ -30,8 +30,8 @@ namespace DroneControl
         public WMS.MainForm wmsForm { get; }
         public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
-        public bool isDroneReady { get; set; }
-        private bool lineFound = false;
+        public bool scanningForLine { get; set; }
+        public bool lineFound { get; set; }
 
 
         /*
@@ -39,7 +39,10 @@ namespace DroneControl
          */
         public MainForm()
         {
+            
             InitializeComponent();
+
+            lineFound = false;
 
             //Start videopacketdecoder worker
             _videoPacketDecoderWorker = new VideoPacketDecoderWorker(AR.Drone.Video.PixelFormat.BGR24, true, OnVideoPacketDecoded);
@@ -144,32 +147,26 @@ namespace DroneControl
               _droneController.scanForBarcode();
             }
 
-            if (isDroneReady && !lineFound) {
-                zoekLijn(_frameBitmap);
+            if (scanningForLine) {
+               _droneController.zoekLijn();
             }
             
             
             
-            if(hasToCalibrate == 0 && lineFound)
+            if(hasToCalibrate == 0)
             {
               checkAfwijking(_frameBitmap);
-
-                if (isDroneReady)
-                {
-                    _droneController.stopCurrentTasks();
-                    isDroneReady = false;
-                }
             }
 
             
             //moet vooruit vliegen om te calibreren
-            if (hasToCalibrate == 1 && isDroneReady && lineFound)
+            if (hasToCalibrate == 1 && scanningForLine)
             {
                 _droneController.droneCalibrationDirection = 1;
             }
 
             //moet achteruit vliegen om te calibreren
-            if (hasToCalibrate == -1 && isDroneReady && lineFound)
+            if (hasToCalibrate == -1 && scanningForLine)
             {
                 _droneController.droneCalibrationDirection = -1;
             }
@@ -408,59 +405,7 @@ namespace DroneControl
             g.Dispose();
         }
 
-        private void zoekLijn(Bitmap frame)
-        {
-            Bitmap myBitmap = frame;
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-
-            colorFilter.Red = new IntRange(0, 64);
-            colorFilter.Green = new IntRange(0, 64);
-            colorFilter.Blue = new IntRange(0, 64);
-            colorFilter.FillOutsideRange = false;
-
-            colorFilter.ApplyInPlace(bitmapData);
-
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-
-            Graphics g = Graphics.FromImage(myBitmap);
-
-            // check each object and draw triangle around objects, which
-            // are recognized as triangles
-            for (int i = 0, n = blobs.Length; i < n; i++)
-            {
-                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
-                List<IntPoint> corners;
-
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
-                {
-                    lineFound = true;
-                    Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
-                    _droneController.stopCurrentTasks();
-                    isDroneReady = false;
-                }
-            }
-            g.Dispose();
-        }
+       
 
 
 

@@ -705,7 +705,7 @@
 
         #endregion
 
-        private System.Windows.Forms.PictureBox pbVideo;
+        public System.Windows.Forms.PictureBox pbVideo;
         private System.Windows.Forms.GroupBox gbVideoFeed;
         private System.Windows.Forms.GroupBox gbTelemetry;
         private System.Windows.Forms.Label lblWifi;

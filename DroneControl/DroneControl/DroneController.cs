@@ -27,10 +27,9 @@ namespace DroneControl
         TaskCompletionSource<bool> flyTaskCompleted;
         TaskCompletionSource<bool> vormTaskCompleted;
         TaskCompletionSource<bool> scanTaskComleted;
-        TaskCompletionSource<bool> searchBarcodeTaskCompleted;
         MainForm mainForm;
         bool isBarcodeCalibration;
-        public event EventHandler<bool>eted;
+        bool isLineCalibration;
         bool isLeft;
         public int droneCalibrationDirection { set; get; }
         public DroneController(MainForm form)
@@ -52,16 +51,26 @@ namespace DroneControl
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
+            await flyTaskComleted.Task;
+
             // lijn vinden
 
-            mainForm.isDroneReady = true;
-            await Task.Delay(200);
-
+            isLineCalibration = true;
+            mainForm.scanningForLine = true;
             await findLine();
-            mainForm.isDroneReady = false;
+            isLineCalibration = false;
+            mainForm.scanningForLine = false;
 
-            routeInterpreter.shortHover.execute();
-            await flyTaskCompleted.Task;
+
+            //flyTaskComleted = new TaskCompletionSource<bool>();
+            //mainForm.isDroneReady = true;
+            //await Task.Delay(200);
+
+            //await findLine();
+            //mainForm.isDroneReady = false;
+            //autopilotController.Start();
+            //routeInterpreter.shortHover.execute();
+            //await flyTaskComleted.Task;
 
             for (int i = 0; i < route.getCount()-1; i++ )
             {
@@ -80,21 +89,22 @@ namespace DroneControl
                 await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
-                mainForm.isDroneReady = true;
-                await Task.Delay(200);
-                if (droneCalibrationDirection != 0)
-                {
-                    await calibration();
-                }
-                mainForm.isDroneReady = false;
 
+                isLineCalibration = true;
+                mainForm.scanningForLine = true;
+                await calibration();
+                isLineCalibration = false;
+                mainForm.scanningForLine = false;
+
+                
                 //barcode calibratie
-                isBarcodeCalibration = true;
-                mainForm.scanningForBarcode = true;
-                Console.WriteLine(isBarcodeCalibration);
-                await searchForBarcode(current);
-                isBarcodeCalibration = false;
-                mainForm.scanningForBarcode = false;
+                switchCamera(1);
+              isBarcodeCalibration = true;
+          mainForm.scanningForBarcode = true;
+            await searchForBarcode(current);
+            isBarcodeCalibration = false;
+            mainForm.scanningForBarcode = false;
+                switchCamera(2);
 
 
 
@@ -107,10 +117,8 @@ namespace DroneControl
         private async Task searchForBarcode(Position i)
         {
 
-            searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
-          
-            //scanTaskComleted = new TaskCompletionSource<bool>();
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+
+            flyTaskComleted = new TaskCompletionSource<bool>();
 
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
@@ -120,18 +128,22 @@ namespace DroneControl
             //links 1
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-           await flyTaskCompleted.Task;
-            searchBarcodeTaskCompleted.SetResult(true);
+           await flyTaskComleted.Task;
+   
         }
 
         public async Task findLine()
         {
-            searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
+            flyTaskComleted = new TaskCompletionSource<bool>();
 
             routeInterpreter.goForwardCalibration.execute();
+            routeInterpreter.shortHover.execute();
             routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.shortHover.execute();
             routeInterpreter.goBackwardsCalibration.execute();
+            routeInterpreter.shortHover.execute();
             routeInterpreter.goForwardCalibration.execute();
+            routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
         }
@@ -147,23 +159,28 @@ namespace DroneControl
             //moet naar voren
             if(droneCalibrationDirection == 1){
                routeInterpreter.goForwardCalibration.execute();
+               routeInterpreter.shortHover.execute();
                 routeInterpreter.goBackwardsCalibration.execute();
+                routeInterpreter.shortHover.execute();
 
             }
             //moet naar achter
             if (droneCalibrationDirection == -1)
             {
                 routeInterpreter.goBackwardsCalibration.execute();
+                routeInterpreter.shortHover.execute();
                 routeInterpreter.goForwardCalibration.execute();
+                routeInterpreter.shortHover.execute();
             }
 
-            await flyTaskCompleted.Task;
-            mainForm.isDroneReady = false;
+            await flyTaskComleted.Task;
     }  
 
         public void stopCurrentTasks(){
-
+            Console.WriteLine("*** STOPPING (clearing objectives");
             autopilotController.clearObjectives();
+            //autopilotController.Stop();
+            //setFlyTaskCompleted();
             routeInterpreter.shortHover.execute();
         }
 
@@ -271,6 +288,54 @@ namespace DroneControl
             droneClient.Emergency();
         }
 
+        public void switchCamera(int oneForFrontTwoForBottom)
+        {
+            //Send basic configuration
+            Settings settings = new Settings();
+            var sendConfigTask = new Task(() =>
+            {
+
+                if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
+                    settings.Custom.SessionId == "00000000")
+                {
+                    // set new session, application and profile
+                    droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
+
+                    settings.Custom.SessionId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
+                    settings.Custom.ProfileId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
+                    settings.Custom.ApplicationId = Settings.NewId();
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+                 if (oneForFrontTwoForBottom == 1){
+                        settings.Video.Channel = VideoChannelType.Horizontal;
+                        droneClient.Send(settings);
+                 }
+                        if (oneForFrontTwoForBottom == 2){
+                        settings.Video.Channel = VideoChannelType.Vertical;
+                        droneClient.Send(settings);
+                 }
+                    
+
+                    droneClient.AckControlAndWaitForConfirmation();
+                }
+
+                droneClient.Send(settings);
+            });
+            sendConfigTask.Start();
+
+       
+
+        }
+
         public DroneClient getDroneClient()
         {
             return droneClient;
@@ -305,7 +370,7 @@ namespace DroneControl
                     droneClient.Send(settings);
 
                     droneClient.AckControlAndWaitForConfirmation();
-
+                    
                     settings.Video.Channel = VideoChannelType.Vertical;
                     droneClient.Send(settings);
 
@@ -511,6 +576,77 @@ namespace DroneControl
                 isLeft = true;
 
             return angleDeg;
+        }
+
+
+        public void zoekLijn()
+        {
+            Bitmap myBitmap = mainForm.getFrame();
+
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+
+            colorFilter.Red = new IntRange(225, 255);
+            colorFilter.Green = new IntRange(225, 255);
+            colorFilter.Blue = new IntRange(225, 255);
+            colorFilter.FillOutsideRange = true;
+
+            colorFilter.ApplyInPlace(bitmapData);
+
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+
+            Graphics g = Graphics.FromImage(myBitmap);
+
+            // check each object and draw triangle around objects, which
+            // are recognized as triangles
+            for (int i = 0, n = blobs.Length; i < n; i++)
+            {
+                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
+                List<IntPoint> corners;
+
+                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
+                {
+                    foreach (IntPoint corner in corners)
+                    {
+                        Console.WriteLine(corner);
+                    }
+                    mainForm.lineFound = true;
+                    mainForm.scanningForLine = false;
+                    Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
+
+
+                    if (isLineCalibration)
+                    {
+                        isLineCalibration = false;
+                        stopCurrentTasks();
+
+                        //autopilotController.Start();
+                        Console.WriteLine(">>>>> Lijn gevonden STOP de movement >>>>>>>>>>>>");
+
+                    }
+
+                }
+            }
+            mainForm.pbVideo.Image = myBitmap;
+            g.Dispose();
         }
     }
 }
