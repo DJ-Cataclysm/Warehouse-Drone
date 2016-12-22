@@ -39,21 +39,19 @@ namespace DroneControl
             autopilotController = new AutopilotController(droneClient, this);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
             mainForm = form;
-            
         }
 
         public async Task CycleCount()
         {
-            
-         
+
             flyTaskComleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
             route = MakeRoute();
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
-            routeInterpreter.takeOffTrim();
-          
+            routeInterpreter.takeOffCommand.execute();
+
             routeInterpreter.shortHover.execute();
             //Position currentpos = new Position(0, 1, 0);
             // searchForBarcode(currentpos);
@@ -114,14 +112,10 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
            await flyTaskComleted.Task;
             searchBarcodeTaskCompleted.SetResult(true);
-           
-
-          
         }
 
         public void setFlyTaskCompleted()
         {
-       
             flyTaskComleted.TrySetResult(true);
         }
 

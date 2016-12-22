@@ -117,27 +117,10 @@ namespace DroneControl
             goToHeight.execute(1.20f);
             //goLeft.execute();
             //goToHeight.execute(2.20f);
-            
-            goLeft.execute();
-            goLeft.execute();
-            goLeft.execute();
-            goLeft.execute();
-
-            goRight.execute();
-            goRight.execute();
-            //turn.execute(180);
-            //goForward.execute();
-            goRight.execute();
-            goRight.execute();
             //goToHeight.execute(1.20f);
             //turn.execute(180);
             //goForward.execute();
             landCommand.execute();
-        }
-   
-        public void takeOffTrim()
-        {
-            takeOffCommand.execute();
         }
     }
 }
