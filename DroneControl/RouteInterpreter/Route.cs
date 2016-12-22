@@ -13,6 +13,7 @@ namespace RoutePlanner
         public void addPosition(Position p)
         {
             positions.Add(p);
+            
         }
 
         public void addPositions(ICollection<Position> positions)

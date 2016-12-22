@@ -312,10 +312,6 @@ namespace DroneControl
                 return "Geen Barcode Gevonden";
             }
         }
-        private void button1_Click(object sender, EventArgs e)
-        {
-            _droneController.doSmartScan();
-        }
 
         private void btnMockScan_Click(object sender, EventArgs e)
         {
@@ -338,7 +334,7 @@ namespace DroneControl
 
         private void btnSmartScan_Click(object sender, EventArgs e)
         {
-            _droneController.doSmartScan();
+            _droneController.SmartScan();
         }
 
         private void checkAfwijking(Bitmap frame)

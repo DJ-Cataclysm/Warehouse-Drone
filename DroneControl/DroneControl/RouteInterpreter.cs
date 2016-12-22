@@ -118,11 +118,8 @@ namespace DroneControl
             //float hoogte = 1f;
             takeOffCommand.execute();
             goToHeight.execute(1.20f);
-            //goLeft.execute();
-            //goToHeight.execute(2.20f);
-            //goToHeight.execute(1.20f);
-            //turn.execute(180);
-            //goForward.execute();
+            goToHeight.execute(2.20f);
+            goRight.execute();
             landCommand.execute();
         }
     }

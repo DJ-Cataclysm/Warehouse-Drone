@@ -9,18 +9,37 @@ namespace RoutePlanner
     public class Position
     {
         public int x, y, z;
+        public bool isTargetPosition;
 
-        public Position(int x, int y, int z)
+        public Position(int x, int y, int z, bool isTargetPosition = false)
         {
             this.x = x;
             this.y = y;
             this.z = z;
+            this.isTargetPosition = isTargetPosition;
         }
 
-        public bool Equals(Position p)
+        public override bool Equals(object obj)
         {
-            return (x == p.x && y == p.y && z == p.z);
+            var position = obj as Position;
+
+            if(position == null)
+            {
+                return false;
+            }
+
+            return (x == position.x && y == position.y && z == position.z);
         }
+
+        public override int GetHashCode()
+        {
+            int hash = 13;
+            hash = (hash * 7) + x.GetHashCode();
+            hash = (hash * 7) + y.GetHashCode();
+            hash = (hash * 7) + z.GetHashCode();
+            return hash;
+        }
+
 
         public override string ToString()
         {

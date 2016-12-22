@@ -24,7 +24,7 @@ namespace DroneControl
         DroneClient droneClient;
         RouteInterpreter routeInterpreter;
         Route route;
-        TaskCompletionSource<bool> flyTaskComleted;
+        TaskCompletionSource<bool> flyTaskCompleted;
         TaskCompletionSource<bool> vormTaskCompleted;
         TaskCompletionSource<bool> scanTaskComleted;
         TaskCompletionSource<bool> searchBarcodeTaskCompleted;
@@ -44,8 +44,7 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
-
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
             route = MakeCycleCountRoute();
@@ -54,14 +53,14 @@ namespace DroneControl
             routeInterpreter.takeOffCommand.execute();
 
             routeInterpreter.shortHover.execute();
-            await flyTaskComleted.Task;
+            await flyTaskCompleted.Task;
 
             for (int i = 0; i < route.getCount()-1; i++ )
             {
               
                 Console.Write(" ga door met loop");
 
-                flyTaskComleted = new TaskCompletionSource<bool>();
+                flyTaskCompleted = new TaskCompletionSource<bool>();
 
                 Position current = routeList[i];
                 Position target = routeList[i+1];
@@ -70,7 +69,7 @@ namespace DroneControl
            //     autopilotController.Start();
 
                 Console.Write("flying to target");
-                await flyTaskComleted.Task;
+                await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
                 mainForm.isDroneReady = true;
@@ -101,7 +100,7 @@ namespace DroneControl
             searchBarcodeTaskCompleted = new TaskCompletionSource<bool>();
           
             //scanTaskComleted = new TaskCompletionSource<bool>();
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
 
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
@@ -111,18 +110,18 @@ namespace DroneControl
             //links 1
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-           await flyTaskComleted.Task;
+           await flyTaskCompleted.Task;
             searchBarcodeTaskCompleted.SetResult(true);
         }
 
         public void setFlyTaskCompleted()
         {
-            flyTaskComleted.TrySetResult(true);
+            flyTaskCompleted.TrySetResult(true);
         }
 
 
         public async Task calibration(){
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
 
             //moet naar voren
             if(droneCalibrationDirection == 1){
@@ -137,7 +136,7 @@ namespace DroneControl
                 routeInterpreter.goForwardCalibration.execute();
             }
 
-            await flyTaskComleted.Task;
+            await flyTaskCompleted.Task;
             mainForm.isDroneReady = false;
     }  
 
@@ -151,27 +150,54 @@ namespace DroneControl
         {
             vormTaskCompleted.SetResult(true);
         }
-
-        public void doSmartScan()
+        
+        public async Task SmartScan()
         {
-            /*List<Position> itemsToCheck = new List<Position>()
+            Route route = MakeSmartScanRoute();
+            List<Position> routeList = route.getPositions();
+
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+
+            autopilotController.Start();
+            routeInterpreter.takeOffCommand.execute();
+
+            await flyTaskCompleted.Task; //Begin when drone is in the air and ready to fly the route
+
+            for (int i = 0; i < route.getCount() - 1; i++)
             {
-                new Position(2,0,0),
-                new Position(0,200,1),
-                new Position(0,50,10),
-                new Position(0,89,2),
-                new Position(0,135,10),
-                new Position(0,78,10),
-                new Position(0,50,10),
-                new Position(1,20,5),
-                new Position(0,50,10),
-                new Position(0,5,2)
-            };*/
-            Route r = MakeSmartScanRoute();
-            routeInterpreter.interpret(r);
-            //start autopilot
-            //autopilotController.start();
+                flyTaskCompleted = new TaskCompletionSource<bool>();
+
+                Position current = routeList[i];
+                Position target = routeList[i + 1];
+
+                routeInterpreter.flyToCoordinate(current, target);
+
+                await flyTaskCompleted.Task;
+
+                //voor en achter calibratie
+                /*
+                mainForm.isDroneReady = true;
+                if (droneCalibrationDirection != 0)
+                {
+                    await calibration();
+                }*/
+
+                //barcode calibratie
+                if (target.isTargetPosition)
+                {
+                    isBarcodeCalibration = true;
+                    mainForm.scanningForBarcode = true;
+                    await searchForBarcode(current);
+                    isBarcodeCalibration = false;
+                    mainForm.scanningForBarcode = false;
+                }
+                
+            }
+            routeInterpreter.landCommand.execute();
+            //autopilotController.Stop();
+            System.Windows.Forms.MessageBox.Show("Finished with smart scan!");
         }
+
         public void scanForBarcode()
         {
             string barcode = null;
@@ -325,13 +351,13 @@ namespace DroneControl
 
             using (ProductDBContext db = new ProductDBContext())
             {
-                products = products.Where(p => p.Deviation > threshold).ToList();
+                products = db.Products.Where(p => p.Deviation > threshold).ToList();
             }
 
             List<Position> itemsToCheck = new List<Position>();
             foreach(Product p in products)
             {
-                itemsToCheck.Add(new Position(p.X, p.Y, p.Z));
+                itemsToCheck.Add(new Position(p.X, p.Y, p.Z, true));
             }
 
             return RoutePlan.makeSmartScanRoute(itemsToCheck);
@@ -339,7 +365,7 @@ namespace DroneControl
 
         public async Task ScanVormen()
         {
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
             
             Bitmap myBitmap = mainForm.getFrame();
             int angleDeg = 0;
@@ -411,13 +437,13 @@ namespace DroneControl
                 if (isLeft)
                 {
                     routeInterpreter.turn.execute(angleDeg);
-                    await flyTaskComleted.Task;
+                    await flyTaskCompleted.Task;
                     vormTaskCompleted.SetResult(true);
                 }
                 else
                 {
                     routeInterpreter.turn.execute(360-angleDeg);
-                    await flyTaskComleted.Task;
+                    await flyTaskCompleted.Task;
                     vormTaskCompleted.SetResult(true);
                 }
             }

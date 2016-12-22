@@ -11,7 +11,7 @@ namespace RoutePlanner
         public static double INFINITY = double.MaxValue;
         private Dictionary<Position, GridPoint> gridPointMap = new Dictionary<Position, GridPoint>(); 
 
-        public Grid(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound, int zLowerBound, int zUpperBound)
+        public Grid(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound, int zLowerBound, int zUpperBound, List<Position> itemsToCheck)
         {
             /*
              * We will need to create a grid point for every possible position within the bounds.
@@ -28,6 +28,13 @@ namespace RoutePlanner
                     }
                 }
             }
+
+            //Mark destinations
+            foreach(Position itemToCheck in itemsToCheck)
+            {
+                gridPointMap[itemToCheck].position.isTargetPosition = true;
+            }
+
             //Connect all adjacent gridpoints with eachother
             AddAdjacencies();
         }

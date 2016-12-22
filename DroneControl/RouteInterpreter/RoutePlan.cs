@@ -88,8 +88,20 @@ namespace RoutePlanner
             int zLowerBound = itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z;
             int zUpperBound = itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z;
 
+            if (xLowerBound > 0) { xLowerBound = 0; }
+            if (yLowerBound > 0) { yLowerBound = 0; }
+            if (zLowerBound > 0) { zLowerBound = 0; }
+
             //Create grid within bounds
-            Grid grid = new Grid(xLowerBound, xUpperBound, yLowerBound, yUpperBound, zLowerBound, zUpperBound);
+            Grid grid = new Grid(
+                xLowerBound, 
+                xUpperBound, 
+                yLowerBound, 
+                yUpperBound, 
+                zLowerBound, 
+                zUpperBound, 
+                itemsToCheck
+            );
 
             //Add drone starting point and endpoint
             Position startAndEndpoint = new Position(0, 0, 0);
@@ -98,12 +110,15 @@ namespace RoutePlanner
 
             //Keep creating routes between startPoint and nearestNeighbour until there are no new items to check.
             Route route = new Route();
-            while (itemsToCheck.Count > 1)
+            route.addPosition(startPoint);
+            while (itemsToCheck.Count >= 1)
             {
                 grid.unweighted(startPoint); //Calculate all distances between startPoint and other points
                 itemsToCheck.RemoveAll(pos => pos.Equals(startPoint));
+                if(itemsToCheck.Count == 0) { break; }
                 nearestNeighbour = grid.getNearestNeighbour(itemsToCheck);
                 route.addPositions(grid.getPath(nearestNeighbour.position)); //Add to route
+                
                 startPoint = nearestNeighbour.position;
             }
 
