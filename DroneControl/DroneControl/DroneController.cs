@@ -251,6 +251,11 @@ namespace DroneControl
 
                     droneClient.AckControlAndWaitForConfirmation();
 
+                    settings.Video.Channel = VideoChannelType.Vertical;
+                    droneClient.Send(settings);
+
+                    droneClient.AckControlAndWaitForConfirmation();
+
                     settings.Custom.ApplicationId = Settings.NewId();
                     droneClient.Send(settings);
 
