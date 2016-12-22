@@ -134,9 +134,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Commands\App.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\AR.Drone\AR.Drone.Avionics\AR.Drone.Avionics.csproj">
       <Project>{19B1D7B1-C46F-4A87-A674-3350BF372A74}</Project>
       <Name>AR.Drone.Avionics</Name>
