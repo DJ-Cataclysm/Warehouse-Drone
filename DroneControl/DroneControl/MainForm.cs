@@ -459,6 +459,7 @@ namespace DroneControl
                 if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
                 {
                     lineFound = true;
+                    Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
                 }
             }
             g.Dispose();
