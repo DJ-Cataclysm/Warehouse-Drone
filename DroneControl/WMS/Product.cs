@@ -11,7 +11,7 @@ namespace WMS
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
-        public double Afwijking { get; set; }
+        public double Deviation { get; set; }
         public string Description { get; set; }
     }
 }

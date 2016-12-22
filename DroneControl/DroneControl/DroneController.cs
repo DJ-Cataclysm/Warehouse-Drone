@@ -269,6 +269,11 @@ namespace DroneControl
         {
             droneClient.Dispose();
         }
+        /*
+        private Route MakeSmartRoute()
+        {
+            List<Product> products = new List<Product>();
+            List<Mutation> mutations = new List<Mutation>();
 
         private Route MakeCycleCountRoute()
         {
