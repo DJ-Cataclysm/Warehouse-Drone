@@ -31,6 +31,7 @@ namespace DroneControl
         public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
         public bool isDroneReady { get; set; }
+        private bool lineFound = false;
 
 
         /*
@@ -142,7 +143,16 @@ namespace DroneControl
             {
               _droneController.scanForBarcode();
             }
-            if(hasToCalibrate == 0)
+
+            if (isDroneReady && !lineFound) {
+                zoekLijn(_frameBitmap);
+                _droneController.stopCurrentTasks();
+                isDroneReady = false;
+            }
+            
+            
+            
+            if(hasToCalibrate == 0 && lineFound)
             {
               checkAfwijking(_frameBitmap);
 
@@ -152,14 +162,15 @@ namespace DroneControl
             }
             }
 
+            
             //moet vooruit vliegen om te calibreren
-            if (hasToCalibrate == 1 && isDroneReady)
+            if (hasToCalibrate == 1 && isDroneReady && lineFound)
             {
                 _droneController.droneCalibrationDirection = 1;
             }
 
             //moet achteruit vliegen om te calibreren
-            if (hasToCalibrate == -1 && isDroneReady)
+            if (hasToCalibrate == -1 && isDroneReady && lineFound)
             {
                 _droneController.droneCalibrationDirection = -1;
             }
@@ -401,6 +412,60 @@ namespace DroneControl
             }
             g.Dispose();
         }
+
+        private void zoekLijn(Bitmap frame)
+        {
+            Bitmap myBitmap = frame;
+
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+
+            colorFilter.Red = new IntRange(0, 64);
+            colorFilter.Green = new IntRange(0, 64);
+            colorFilter.Blue = new IntRange(0, 64);
+            colorFilter.FillOutsideRange = false;
+
+            colorFilter.ApplyInPlace(bitmapData);
+
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+
+            Graphics g = Graphics.FromImage(myBitmap);
+
+            // check each object and draw triangle around objects, which
+            // are recognized as triangles
+            for (int i = 0, n = blobs.Length; i < n; i++)
+            {
+                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
+                List<IntPoint> corners;
+
+                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
+                {
+                    lineFound = true;
+                }
+            }
+            g.Dispose();
+        }
+
+
+
 
         private void gbVideoFeed_Enter(object sender, EventArgs e)
         {

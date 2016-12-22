@@ -54,12 +54,12 @@ namespace DroneControl
             routeInterpreter.takeOffCommand.execute();
 
             // lijn vinden
+
             mainForm.isDroneReady = true;
-            await Task.Delay(500);
-            if (droneCalibrationDirection != 0)
-            {
-                await calibration();
-            }
+            await Task.Delay(200);
+
+            await findLine();
+            mainForm.isDroneReady = false;
 
             routeInterpreter.shortHover.execute();
             await flyTaskComleted.Task;
@@ -87,6 +87,7 @@ namespace DroneControl
                 {
                     await calibration();
                 }
+                mainForm.isDroneReady = false;
 
                 //barcode calibratie
                 isBarcodeCalibration = true;
