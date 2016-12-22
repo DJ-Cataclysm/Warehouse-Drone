@@ -175,13 +175,5 @@ namespace WMS
                 }
             }
         }
-
-        private void dgvProducts_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-
-
     }
 }

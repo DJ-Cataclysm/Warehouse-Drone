@@ -22,7 +22,6 @@ namespace WMS
             dgvProducts.DataSource = pendingMutations;
 
             //You may only modify the NewCount column.
-            //dgvProducts.Columns;
             foreach(DataGridViewColumn col in dgvProducts.Columns)
             {
                 if(col.Name == "NewCount")
@@ -66,7 +65,7 @@ namespace WMS
 
                 using (var db = new ProductDBContext())
                 {
-                    //Store mutations in databse
+                    //Store mutations in database
                     db.Mutations.AddRange(pendingMutations);
 
                     foreach (Mutation m in pendingMutations)
@@ -80,10 +79,8 @@ namespace WMS
                             existingRecord.LastCheck = DateTime.Now;
                         }
                     }
-
                     db.SaveChanges();
                 }
-
                 Close();
             }
 

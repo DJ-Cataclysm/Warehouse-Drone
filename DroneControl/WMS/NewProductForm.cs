@@ -32,13 +32,11 @@ namespace WMS
                 db.SaveChanges();
             }
             
-            //Release resources used by this component.
             Close();
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            //Release resources used by this component.
             Close();
         }
     }

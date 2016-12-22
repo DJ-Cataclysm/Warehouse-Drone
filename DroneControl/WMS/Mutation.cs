@@ -6,6 +6,7 @@ namespace WMS
 {
     public class Mutation
     {
+        //Compound primary key of ID and MutationDate
         [Key, Column(Order = 0)]
         public int ID { get; set; }
         [Key, Column(Order = 1)]
