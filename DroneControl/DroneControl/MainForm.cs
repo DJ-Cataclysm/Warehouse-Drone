@@ -1,4 +1,7 @@
 ﻿using AForge;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
+using AForge.Math.Geometry;
 using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
@@ -6,6 +9,7 @@ using AR.Drone.Video;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 using ZXing;
 
@@ -24,6 +28,7 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         private WMS.MainForm wmsForm;
+        public int hasToCalibrate { get; set; } = 0;
         public bool scanningForBarcode { get; set; }
 
 
@@ -131,11 +136,16 @@ namespace DroneControl
             {
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
-                pbVideo.Image = _frameBitmap;
-                if (scanningForBarcode)
-                {
-                    _droneController.scanForBarcode();
-                }
+            pbVideo.Image = _frameBitmap;
+            if (scanningForBarcode)
+            {
+              _droneController.scanForBarcode();
+            }
+            if(hasToCalibrate == 0)
+            {
+              checkAfwijking(_frameBitmap);
+            }
+            
         }
 
         /*
@@ -311,6 +321,67 @@ namespace DroneControl
         private void btnSmartScan_Click(object sender, EventArgs e)
         {
             _droneController.doSmartScan();
+        }
+
+        private void checkAfwijking(Bitmap frame)
+        {
+            Bitmap myBitmap = frame;
+
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+
+            colorFilter.Red = new IntRange(0, 64);
+            colorFilter.Green = new IntRange(0, 64);
+            colorFilter.Blue = new IntRange(0, 64);
+            colorFilter.FillOutsideRange = false;
+
+            colorFilter.ApplyInPlace(bitmapData);
+
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+
+            Graphics g = Graphics.FromImage(myBitmap);
+
+            // check each object and draw triangle around objects, which
+            // are recognized as triangles
+            for (int i = 0, n = blobs.Length; i < n; i++)
+            {
+                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
+                List<IntPoint> corners;
+
+                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
+                {
+                    foreach (IntPoint corner in corners)
+                    {
+                        if (corner.Y >= pbVideo.Height-40)
+                        {
+                            hasToCalibrate = 1;
+                        }
+                        else if (corner.Y <= 40)
+                        {
+                            hasToCalibrate = -1;
+                        }
+                    }
+                }
+            }
+            g.Dispose();
         }
     }
 }
