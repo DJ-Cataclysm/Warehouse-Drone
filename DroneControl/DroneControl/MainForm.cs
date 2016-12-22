@@ -146,8 +146,6 @@ namespace DroneControl
 
             if (isDroneReady && !lineFound) {
                 zoekLijn(_frameBitmap);
-                _droneController.stopCurrentTasks();
-                isDroneReady = false;
             }
             
             
@@ -156,10 +154,11 @@ namespace DroneControl
             {
               checkAfwijking(_frameBitmap);
 
-            if (isDroneReady){
-              _droneController.stopCurrentTasks();
-              isDroneReady = false;
-            }
+                if (isDroneReady)
+                {
+                    _droneController.stopCurrentTasks();
+                    isDroneReady = false;
+                }
             }
 
             
@@ -174,7 +173,7 @@ namespace DroneControl
             {
                 _droneController.droneCalibrationDirection = -1;
             }
-            
+        
         }
 
         /*
@@ -460,6 +459,8 @@ namespace DroneControl
                 {
                     lineFound = true;
                     Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
+                    _droneController.stopCurrentTasks();
+                    isDroneReady = false;
                 }
             }
             g.Dispose();

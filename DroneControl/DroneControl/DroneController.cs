@@ -52,7 +52,7 @@ namespace DroneControl
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
-
+            routeInterpreter.shortHover.execute();
             // lijn vinden
 
             mainForm.isDroneReady = true;
