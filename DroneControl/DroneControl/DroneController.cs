@@ -47,7 +47,7 @@ namespace DroneControl
             flyTaskComleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
-            route = MakeRoute();
+            route = MakeCycleCountRoute();
             List<Position> routeList = route.getPositions();
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
@@ -128,8 +128,7 @@ namespace DroneControl
 
         public void doSmartScan()
         {
-            //TODO: Put items from WMS here
-            List<Position> itemsToCheck = new List<Position>()
+            /*List<Position> itemsToCheck = new List<Position>()
             {
                 new Position(2,0,0),
                 new Position(0,200,1),
@@ -141,8 +140,8 @@ namespace DroneControl
                 new Position(1,20,5),
                 new Position(0,50,10),
                 new Position(0,5,2)
-            };
-            Route r = RoutePlan.makeSmartScanRoute(itemsToCheck);
+            };*/
+            Route r = MakeSmartScanRoute();
             routeInterpreter.interpret(r);
             //start autopilot
             //autopilotController.start();
@@ -205,11 +204,8 @@ namespace DroneControl
         public void startClient()
         {
             droneClient.Start();
-            /*
-            var configuration = new Settings();
-            configuration.Video.Codec = VideoCodecType.H264_720P;
-            configuration.Video.Channel = VideoChannelType.Horizontal;
-            droneClient.Send(configuration);*/
+
+            //Send basic configuration
             Settings settings = new Settings();
             var sendConfigTask = new Task(() =>
             {
@@ -243,20 +239,6 @@ namespace DroneControl
                 settings.Video.Bitrate = 1000;
                 settings.Video.MaxBitrate = 2000;
 
-                //settings.Leds.LedAnimation = new LedAnimation(LedAnimationType.BlinkGreenRed, 2.0f, 2);
-                //settings.Control.FlightAnimation = new FlightAnimation(FlightAnimationType.Wave);
-
-                // record video to usb
-                //settings.Video.OnUsb = true;
-                // usage of MP4_360P_H264_720P codec is a requirement for video recording to usb
-                //settings.Video.Codec = VideoCodecType.MP4_360P_H264_720P;
-                // start
-                //settings.Userbox.Command = new UserboxCommand(UserboxCommandType.Start);
-                // stop
-                //settings.Userbox.Command = new UserboxCommand(UserboxCommandType.Stop);
-
-
-                //send all changes in one pice
                 droneClient.Send(settings);
             });
             sendConfigTask.Start();
@@ -288,11 +270,11 @@ namespace DroneControl
             droneClient.Dispose();
         }
 
-        private Route MakeRoute()
+        private Route MakeCycleCountRoute()
         {
-            //TODO: make either a smart route or a full cycle count route
-
-            //Console.Write(" clicked the make route button - making route");
+            /*
+             * Find all products, create a position per product and then plot a route between those positions.
+             */
             List<Product> products = new List<Product>();
 
             using (ProductDBContext db = new ProductDBContext())
@@ -306,15 +288,27 @@ namespace DroneControl
             }
             //Make full cycle route using the positions in the static Positions class
             return RoutePlan.makeFullCycleRoute();
-
-            /*List<Position> a = r.getPositions();
-            foreach (Position X in a)
-            {
-                Console.Write("position --> X: " + X.x.ToString() + " Y: " + X.y.ToString());
-                Console.WriteLine();
-
-            }*/
         }
+
+        private Route MakeSmartScanRoute()
+        {
+            double threshold = 0; //Products exceeding the deviation threshold will be smartscanned.
+            List<Product> products = new List<Product>();
+
+            using (ProductDBContext db = new ProductDBContext())
+            {
+                products = products.Where(p => p.Afwijking > threshold).ToList();
+            }
+
+            List<Position> itemsToCheck = new List<Position>();
+            foreach(Product p in products)
+            {
+                itemsToCheck.Add(new Position(p.X, p.Y, p.Z));
+            }
+
+            return RoutePlan.makeSmartScanRoute(itemsToCheck);
+        }
+
         public async Task ScanVormen()
         {
             flyTaskComleted = new TaskCompletionSource<bool>();
