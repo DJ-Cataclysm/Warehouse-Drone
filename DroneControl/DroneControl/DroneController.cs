@@ -294,11 +294,6 @@ namespace DroneControl
         {
             droneClient.Dispose();
         }
-        /*
-        private Route MakeSmartRoute()
-        {
-            List<Product> products = new List<Product>();
-            List<Mutation> mutations = new List<Mutation>();
 
         private Route MakeCycleCountRoute()
         {
@@ -327,7 +322,7 @@ namespace DroneControl
 
             using (ProductDBContext db = new ProductDBContext())
             {
-                products = products.Where(p => p.Afwijking > threshold).ToList();
+                products = products.Where(p => p.Deviation > threshold).ToList();
             }
 
             List<Position> itemsToCheck = new List<Position>();
