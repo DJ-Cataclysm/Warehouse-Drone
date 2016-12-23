@@ -46,7 +46,7 @@ namespace RoutePlanner
                 }
                 
             }
-            if (reverse == false){
+            if (!reverse){
 
                 templist = templist.OrderBy(Position => Position.x).ToList(); // van klein naar groot
                 foreach (Position p in templist)
@@ -64,11 +64,7 @@ namespace RoutePlanner
                 Console.Write("pos x: " + p.x.ToString() + "pos y:" + p.y.ToString() + " ---");
             }
 
-            if (reverse == true)
-            {
-                reverse = false;
-            }
-            else { reverse = true; }
+            reverse = !reverse;
 
         }
      

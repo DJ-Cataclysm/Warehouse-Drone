@@ -89,7 +89,6 @@ namespace DroneControl
                 await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
-
                 isLineCalibration = true;
                 mainForm.scanningForLine = true;
                 await calibration();
@@ -537,7 +536,7 @@ namespace DroneControl
         }
 
 
-        public void zoekLijn()
+        public async Task zoekLijn()
         {
             Bitmap myBitmap = mainForm.getFrame();
 
@@ -594,6 +593,7 @@ namespace DroneControl
                     if (isLineCalibration)
                     {
                         isLineCalibration = false;
+                        await Task.Delay(1000);
                         stopCurrentTasks();
 
                         //autopilotController.Start();
