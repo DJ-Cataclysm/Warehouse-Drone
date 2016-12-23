@@ -34,7 +34,7 @@ namespace DroneControl
         bool isLeft;
         public int droneCalibrationDirection { set; get; }
         int turnDegrees;
-        bool stopActionsTurning;
+ 
 
         public DroneController(MainForm form)
          
@@ -72,10 +72,11 @@ namespace DroneControl
             Console.WriteLine("[START] hoek callibratie");
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
-            stopActionsTurning = false;
+        
 
             routeInterpreter.shortHover.execute();
-            await Task.Delay(5000);
+            await Task.Delay(300);
+
             await turnCalibration();
             isAngleCalibration = false;
             mainForm.scanningForAngle  = false;
@@ -578,11 +579,14 @@ namespace DroneControl
                 } 
             }
 
-       turnDegrees = angleDeg;
+            if (angleDeg != 0)
+            {
+                turnDegrees = angleDeg;
+            }
        Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
            if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
                    Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
-          if (isAngleCalibration && stopActionsTurning)
+          if (isAngleCalibration)
                     {
                         isAngleCalibration = false;
                       
