@@ -34,7 +34,7 @@ namespace DroneControl
         bool isLeft;
         public int droneCalibrationDirection { set; get; }
         int turnDegrees;
-
+        bool stopActionsTurning;
 
         public DroneController(MainForm form)
          
@@ -59,25 +59,27 @@ namespace DroneControl
             await flyTaskCompleted.Task;
 
             // lijn vinden
-
+            Console.WriteLine("[START] lijn vinden");
             isLineCalibration = true;
             mainForm.scanningForLine = true;
             await findLine();
             isLineCalibration = false;
             mainForm.scanningForLine = false;
-
+            Console.WriteLine("[STOP] lijn vinden");
 
             // hoek calibratie
 
-           
+            Console.WriteLine("[START] hoek callibratie");
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
-            routeInterpreter.shortHover.execute();
+            stopActionsTurning = false;
 
+            routeInterpreter.shortHover.execute();
+            await Task.Delay(5000);
             await turnCalibration();
             isAngleCalibration = false;
             mainForm.scanningForAngle  = false;
-
+            Console.WriteLine("[STOP] hoek callibratie");
             //flyTaskComleted = new TaskCompletionSource<bool>();
             //mainForm.isDroneReady = true;
             //await Task.Delay(200);
@@ -101,7 +103,6 @@ namespace DroneControl
                 routeInterpreter.flyToCoordinate(current, target);
            //     autopilotController.Start();
 
-                Console.Write("flying to target");
                 await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
@@ -220,7 +221,7 @@ namespace DroneControl
        
 
         public void stopCurrentTasks(){
-            Console.WriteLine("*** STOPPING (clearing objectives");
+            Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
             //autopilotController.Stop();
             //setFlyTaskCompleted();
@@ -298,7 +299,7 @@ namespace DroneControl
                      stopCurrentTasks();
                   
                     //autopilotController.Start();
-                    Console.WriteLine("<< BARCODE CALIBRATION STOPPED >> " + barcode);
+                    Console.WriteLine("[barcode] stop barcode calibratie , gevonden barcode: " + barcode);
                     
                 }
             }
@@ -578,10 +579,10 @@ namespace DroneControl
             }
 
        turnDegrees = angleDeg;
-
+       Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
            if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
-
-          if (isAngleCalibration)
+                   Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
+          if (isAngleCalibration && stopActionsTurning)
                     {
                         isAngleCalibration = false;
                       
@@ -645,7 +646,7 @@ namespace DroneControl
                     }
                     mainForm.lineFound = true;
                     mainForm.scanningForLine = false;
-                    Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
+                    Console.WriteLine("[line] Lijn gevonden");
 
 
                     if (isLineCalibration)
@@ -655,7 +656,7 @@ namespace DroneControl
                         stopCurrentTasks();
 
                         //autopilotController.Start();
-                        Console.WriteLine(">>>>> Lijn gevonden STOP de movement >>>>>>>>>>>>");
+                        Console.WriteLine("[line] 700 ms gewacht ; lijnvinden gestopt");
 
                     }
 
