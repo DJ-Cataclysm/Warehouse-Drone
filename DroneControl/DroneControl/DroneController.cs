@@ -68,10 +68,12 @@ namespace DroneControl
 
 
             // hoek calibratie
-            routeInterpreter.shortHover.execute();
 
+           
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
+            routeInterpreter.shortHover.execute();
+
             await turnCalibration();
             isAngleCalibration = false;
             mainForm.scanningForAngle  = false;
@@ -109,7 +111,16 @@ namespace DroneControl
                 isLineCalibration = false;
                 mainForm.scanningForLine = false;
 
-                
+                // hoek calibratie
+                routeInterpreter.shortHover.execute();
+
+                isAngleCalibration = true;
+                mainForm.scanningForAngle = true;
+                await turnCalibration();
+                isAngleCalibration = false;
+                mainForm.scanningForAngle = false;
+
+
                 //barcode calibratie
                 switchCamera(1);
               isBarcodeCalibration = true;
@@ -502,9 +513,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(225, 255);
-            colorFilter.Green = new IntRange(225, 255);
-            colorFilter.Blue = new IntRange(225, 255);
+            colorFilter.Red = new IntRange(150, 255);
+            colorFilter.Green = new IntRange(150, 255);
+            colorFilter.Blue = new IntRange(150, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
@@ -568,7 +579,7 @@ namespace DroneControl
 
        turnDegrees = angleDeg;
 
-           if (turnDegrees >-5 && turnDegrees < 10){
+           if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
 
           if (isAngleCalibration)
                     {
@@ -576,7 +587,7 @@ namespace DroneControl
                       
                         stopCurrentTasks();
 
-                        Console.WriteLine("[angle] Correcte angle --> Doorgaan!");
+                        Console.WriteLine(turnDegrees + " [angle] Correcte angle --> Doorgaan!");
 
                     }
            }
@@ -640,7 +651,7 @@ namespace DroneControl
                     if (isLineCalibration)
                     {
                         isLineCalibration = false;
-                        await Task.Delay(1000);
+                        await Task.Delay(700);
                         stopCurrentTasks();
 
                         //autopilotController.Start();
