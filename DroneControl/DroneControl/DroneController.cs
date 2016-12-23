@@ -514,9 +514,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(150, 255);
-            colorFilter.Green = new IntRange(150, 255);
-            colorFilter.Blue = new IntRange(150, 255);
+            colorFilter.Red = new IntRange(160, 255);
+            colorFilter.Green = new IntRange(160, 255);
+            colorFilter.Blue = new IntRange(160, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
@@ -607,9 +607,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(225, 255);
-            colorFilter.Green = new IntRange(225, 255);
-            colorFilter.Blue = new IntRange(225, 255);
+            colorFilter.Red = new IntRange(180, 255);
+            colorFilter.Green = new IntRange(180, 255);
+            colorFilter.Blue = new IntRange(180, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
