@@ -30,9 +30,14 @@ namespace DroneControl
         MainForm mainForm;
         bool isBarcodeCalibration;
         bool isLineCalibration;
+        bool isAngleCalibration;
         bool isLeft;
         public int droneCalibrationDirection { set; get; }
+        int turnDegrees;
+
+
         public DroneController(MainForm form)
+         
         {
             //The IP-address is always the default gateway when connected to the drone WiFi.
             droneClient = new DroneClient("192.168.1.1"); 
@@ -61,6 +66,15 @@ namespace DroneControl
             isLineCalibration = false;
             mainForm.scanningForLine = false;
 
+
+            // hoek calibratie
+            routeInterpreter.shortHover.execute();
+
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+            await turnCalibration();
+            isAngleCalibration = false;
+            mainForm.scanningForAngle  = false;
 
             //flyTaskComleted = new TaskCompletionSource<bool>();
             //mainForm.isDroneReady = true;
@@ -173,7 +187,26 @@ namespace DroneControl
             }
 
             await flyTaskCompleted.Task;
-    }  
+    }
+
+        public async Task turnCalibration()
+        { 
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            
+
+           
+            if (turnDegrees < -5 || turnDegrees > 5)
+            {
+               routeInterpreter.turn.execute(turnDegrees);
+               Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
+
+            }
+           
+
+                      await flyTaskCompleted.Task;
+
+        }
+       
 
         public void stopCurrentTasks(){
             Console.WriteLine("*** STOPPING (clearing objectives");
@@ -456,7 +489,7 @@ namespace DroneControl
             return RoutePlan.makeSmartScanRoute(itemsToCheck);
         }
 
-        private int calculateAngle()
+        public void calculateAngle()
         {
             Bitmap myBitmap = mainForm.getFrame();
             int angleDeg = 0;
@@ -529,10 +562,24 @@ namespace DroneControl
                     double aCos = ((aLength * aLength) + (cLength * cLength) - (bLength * bLength)) / ((2 * aLength) * cLength);
                     double angleRad = Math.Acos(aCos);
                     angleDeg = ((int)Math.Ceiling(angleRad * (180 / Math.PI))) - 90;
-                    Console.WriteLine(angleDeg);
+                   
                 } 
             }
-            return angleDeg;
+
+       turnDegrees = angleDeg;
+
+           if (turnDegrees >-5 && turnDegrees < 10){
+
+          if (isAngleCalibration)
+                    {
+                        isAngleCalibration = false;
+                      
+                        stopCurrentTasks();
+
+                        Console.WriteLine("[angle] Correcte angle --> Doorgaan!");
+
+                    }
+           }
         }
 
 
