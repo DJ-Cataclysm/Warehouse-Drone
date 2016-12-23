@@ -51,7 +51,7 @@ namespace DroneControl
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
-            await flyTaskComleted.Task;
+            await flyTaskCompleted.Task;
 
             // lijn vinden
 
@@ -118,7 +118,7 @@ namespace DroneControl
         {
 
 
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
 
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
@@ -128,13 +128,13 @@ namespace DroneControl
             //links 1
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-           await flyTaskComleted.Task;
+           await flyTaskCompleted.Task;
    
         }
 
         public async Task findLine()
         {
-            flyTaskComleted = new TaskCompletionSource<bool>();
+            flyTaskCompleted = new TaskCompletionSource<bool>();
 
             routeInterpreter.goForwardCalibration.execute();
             routeInterpreter.shortHover.execute();
@@ -173,7 +173,7 @@ namespace DroneControl
                 routeInterpreter.shortHover.execute();
             }
 
-            await flyTaskComleted.Task;
+            await flyTaskCompleted.Task;
     }  
 
         public void stopCurrentTasks(){

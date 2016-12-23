@@ -90,7 +90,6 @@
     <Compile Include="Commands\GoBackwardsCalibration.cs" />
     <Compile Include="Commands\GoForwardCalibration.cs" />
     <Compile Include="Commands\ShortHover.cs" />
-    <Compile Include="Heading.cs" />
     <Compile Include="Commands\GoForward.cs" />
     <Compile Include="Commands\GoLeft.cs" />
     <Compile Include="Commands\GoRight.cs" />
