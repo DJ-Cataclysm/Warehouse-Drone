@@ -515,9 +515,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(160, 255);
-            colorFilter.Green = new IntRange(160, 255);
-            colorFilter.Blue = new IntRange(160, 255);
+            colorFilter.Red = new IntRange(150, 255);
+            colorFilter.Green = new IntRange(150, 255);
+            colorFilter.Blue = new IntRange(150, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
@@ -545,8 +545,9 @@ namespace DroneControl
             {
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
+                
 
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
+                if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
                 {
                     double longestDistanceTo = 0;
                     int longestCorner1 = 0;
@@ -612,7 +613,7 @@ namespace DroneControl
             ColorFiltering colorFilter = new ColorFiltering();
 
             colorFilter.Red = new IntRange(180, 255);
-            colorFilter.Green = new IntRange(180, 255);
+            colorFilter.Green = new IntRange(160, 255);
             colorFilter.Blue = new IntRange(180, 255);
             colorFilter.FillOutsideRange = true;
 
