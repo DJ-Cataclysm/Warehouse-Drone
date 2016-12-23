@@ -117,9 +117,9 @@ namespace DroneControl
             //headings = new Heading(autopilotController.getNavigationData().Yaw);
             //float hoogte = 1f;
             takeOffCommand.execute();
-            goToHeight.execute(1.20f);
-            goToHeight.execute(2.20f);
-            goRight.execute();
+            goToHeight.execute(2f);
+            turn.execute(-180);
+            turn.execute(180);
             landCommand.execute();
         }
     }

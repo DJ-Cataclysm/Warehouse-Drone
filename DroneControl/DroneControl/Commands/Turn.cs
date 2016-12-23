@@ -23,6 +23,7 @@ namespace DroneControl.Commands
             if(degrees < 0)
             {
                 velocity *= -1;
+                degrees *= -1;
             }
             long totalTimeForManeuver = (long)(msPerDegree * degrees);
             controllerReference.EnqueueObjective(
@@ -30,6 +31,7 @@ namespace DroneControl.Commands
                     new VelocityX(0.0f),
                     new VelocityY(0.0f),
                     new SetYaw(velocity)
+                    
                     //new AR.Drone.Avionics.Objectives.IntentObtainers.Heading(heading, 1f, true)
                 )
             );
