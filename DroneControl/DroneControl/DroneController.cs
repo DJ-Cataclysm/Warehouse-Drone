@@ -58,6 +58,11 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
 
+            //flyTaskCompleted = new TaskCompletionSource<bool>();
+            //routeInterpreter.turn.execute(-180);
+            //await flyTaskCompleted.Task;
+
+
             // lijn vinden
             Console.WriteLine("[START] lijn vinden");
             isLineCalibration = true;
@@ -569,14 +574,26 @@ namespace DroneControl
                     IntPoint middleF = new IntPoint((corners[longestCorner1].X + corners[longestCorner2].X) / 2, (corners[longestCorner1].Y + corners[longestCorner2].Y));
                     IntPoint top = new IntPoint(middleF.X, middleF.Y + 20);
                     double aLength = top.DistanceTo(middleF);
-                    double bLength = middleF.DistanceTo(corners[longestCorner2]);
-                    double cLength = top.DistanceTo(corners[longestCorner2]);
+                    double bLength;
+                    double cLength;
+                    if (middleF.X > myBitmap.Width / 2)
+                    {
+                        bLength = middleF.DistanceTo(corners[longestCorner1]);
+                        cLength = top.DistanceTo(corners[longestCorner1]);
+                    }
+                    else
+                    {
+                        bLength = middleF.DistanceTo(corners[longestCorner2]);
+                        cLength = top.DistanceTo(corners[longestCorner2]);
+                    }
+                    
 
                     //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
                     double aCos = ((aLength * aLength) + (cLength * cLength) - (bLength * bLength)) / ((2 * aLength) * cLength);
                     double angleRad = Math.Acos(aCos);
                     angleDeg = ((int)Math.Ceiling(angleRad * (180 / Math.PI))) - 90;
-                   
+                    if (middleF.X > myBitmap.Width / 2)
+                        angleDeg = Math.Abs(angleDeg);
                 } 
             }
 
@@ -587,11 +604,12 @@ namespace DroneControl
        Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
            if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
                    Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
+
           if (isAngleCalibration)
                     {
-                        isAngleCalibration = false;
+                        //isAngleCalibration = false;
                       
-                        stopCurrentTasks();
+                        //stopCurrentTasks();
 
                         Console.WriteLine(turnDegrees + " [angle] Correcte angle --> Doorgaan!");
 
