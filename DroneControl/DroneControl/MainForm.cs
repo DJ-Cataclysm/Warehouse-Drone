@@ -27,11 +27,12 @@ namespace DroneControl
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
-        public WMS.MainForm wmsForm { get; }
+        public WMS.MainForm wmsForm { get; set; }
         public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
         public bool scanningForLine { get; set; }
         public bool lineFound { get; set; }
+        public bool scanningForAngle { get; set; }
 
 
         /*
@@ -149,6 +150,11 @@ namespace DroneControl
 
             if (scanningForLine) {
                _droneController.zoekLijn();
+            }
+
+            if (scanningForAngle)
+            {
+                _droneController.calculateAngle();
             }
             
             

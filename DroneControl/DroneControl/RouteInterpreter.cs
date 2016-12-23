@@ -31,6 +31,7 @@ namespace DroneControl
             shortHover = new ShortHover(ref autopilotController);
             goBackwardsCalibration = new GoBackwardsCalibration(ref autopilotController);
             goForwardCalibration = new GoForwardCalibration(ref autopilotController);
+            turn = new Turn(ref autopilotController);
 
 
 

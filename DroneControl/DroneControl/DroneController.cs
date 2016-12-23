@@ -30,9 +30,14 @@ namespace DroneControl
         MainForm mainForm;
         bool isBarcodeCalibration;
         bool isLineCalibration;
+        bool isAngleCalibration;
         bool isLeft;
         public int droneCalibrationDirection { set; get; }
+        int turnDegrees;
+ 
+
         public DroneController(MainForm form)
+         
         {
             //The IP-address is always the default gateway when connected to the drone WiFi.
             droneClient = new DroneClient("192.168.1.1"); 
@@ -53,15 +58,34 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
 
-            // lijn vinden
+            //flyTaskCompleted = new TaskCompletionSource<bool>();
+            //routeInterpreter.turn.execute(-180);
+            //await flyTaskCompleted.Task;
 
+
+            // lijn vinden
+            Console.WriteLine("[START] lijn vinden");
             isLineCalibration = true;
             mainForm.scanningForLine = true;
             await findLine();
             isLineCalibration = false;
             mainForm.scanningForLine = false;
+            Console.WriteLine("[STOP] lijn vinden");
 
+            // hoek calibratie
 
+            Console.WriteLine("[START] hoek callibratie");
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+        
+
+            routeInterpreter.shortHover.execute();
+            await Task.Delay(300);
+
+            await turnCalibration();
+            isAngleCalibration = false;
+            mainForm.scanningForAngle  = false;
+            Console.WriteLine("[STOP] hoek callibratie");
             //flyTaskComleted = new TaskCompletionSource<bool>();
             //mainForm.isDroneReady = true;
             //await Task.Delay(200);
@@ -85,18 +109,25 @@ namespace DroneControl
                 routeInterpreter.flyToCoordinate(current, target);
            //     autopilotController.Start();
 
-                Console.Write("flying to target");
                 await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
-
                 isLineCalibration = true;
                 mainForm.scanningForLine = true;
                 await calibration();
                 isLineCalibration = false;
                 mainForm.scanningForLine = false;
 
-                
+                // hoek calibratie
+                routeInterpreter.shortHover.execute();
+
+                isAngleCalibration = true;
+                mainForm.scanningForAngle = true;
+                await turnCalibration();
+                isAngleCalibration = false;
+                mainForm.scanningForAngle = false;
+
+
                 //barcode calibratie
                 switchCamera(1);
               isBarcodeCalibration = true;
@@ -174,10 +205,29 @@ namespace DroneControl
             }
 
             await flyTaskCompleted.Task;
-    }  
+    }
+
+        public async Task turnCalibration()
+        { 
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            
+
+           
+            if (turnDegrees < -5 || turnDegrees > 5)
+            {
+               routeInterpreter.turn.execute(turnDegrees);
+               Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
+
+            }
+           
+
+                      await flyTaskCompleted.Task;
+
+        }
+       
 
         public void stopCurrentTasks(){
-            Console.WriteLine("*** STOPPING (clearing objectives");
+            Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
             //autopilotController.Stop();
             //setFlyTaskCompleted();
@@ -255,7 +305,7 @@ namespace DroneControl
                      stopCurrentTasks();
                   
                     //autopilotController.Start();
-                    Console.WriteLine("<< BARCODE CALIBRATION STOPPED >> " + barcode);
+                    Console.WriteLine("[barcode] stop barcode calibratie , gevonden barcode: " + barcode);
                     
                 }
             }
@@ -457,10 +507,8 @@ namespace DroneControl
             return RoutePlan.makeSmartScanRoute(itemsToCheck);
         }
 
-        public async Task ScanVormen()
+        public void calculateAngle()
         {
-            flyTaskCompleted = new TaskCompletionSource<bool>();
-            
             Bitmap myBitmap = mainForm.getFrame();
             int angleDeg = 0;
 
@@ -472,12 +520,13 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(200, 255);
-            colorFilter.Green = new IntRange(200, 255);
-            colorFilter.Blue = new IntRange(200, 255);
+            colorFilter.Red = new IntRange(150, 255);
+            colorFilter.Green = new IntRange(150, 255);
+            colorFilter.Blue = new IntRange(150, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
+
 
             // step 2 - locating objects
             BlobCounter blobCounter = new BlobCounter();
@@ -492,94 +541,84 @@ namespace DroneControl
 
             // step 3 - check objects' type and highlight
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+
             Graphics g = Graphics.FromImage(myBitmap);
-            // check each object and calculate the deviation from the top of the triangle
+
+            // check each object and draw triangle around objects, which
+            // are recognized as triangles
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
-
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
+                
 
-                //Check if the blob is a triangle, if so, make Points out of the corners
-                if (shapeChecker.IsTriangle(edgePoints, out corners))
+                if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
                 {
-                    IntPoint point1 = new IntPoint(corners[1].X, corners[1].Y);
-                    IntPoint point2 = new IntPoint(corners[0].X, corners[0].Y);
-                    IntPoint point3 = new IntPoint(corners[2].X, corners[2].Y);
-                    int middle = myBitmap.Width / 2;
-
-                    //Find out what the top Point of the triangle is, make a Point for the middle of the bottom Vertex and create a point parallel to the drone's direction
-                    //with the same length as the Vertex from the middle Point and the top Point
-                    if (point1.DistanceTo(point3) > point1.DistanceTo(point2) && point2.DistanceTo(point3) > point2.DistanceTo(point1))
+                    double longestDistanceTo = 0;
+                    int longestCorner1 = 0;
+                    int longestCorner2 = 0;
+                    for (int a = 0; a < corners.Count; a++)
                     {
-                        angleDeg = calculateAngle(point3, point1, point2, middle);
+                        for (int b = 1; b < corners.Count-1; b++)
+                        {
+                            double currentDistanceTo = corners[a].DistanceTo(corners[b]);
+                            if (currentDistanceTo > longestDistanceTo)
+                            {
+                                longestDistanceTo = currentDistanceTo;
+                                longestCorner1 = a;
+                                longestCorner2 = b;
+                            }
+                        }
                     }
-                    else if (point1.DistanceTo(point2) > point1.DistanceTo(point3) && point3.DistanceTo(point2) > point3.DistanceTo(point1))
+
+                    IntPoint middleF = new IntPoint((corners[longestCorner1].X + corners[longestCorner2].X) / 2, (corners[longestCorner1].Y + corners[longestCorner2].Y));
+                    IntPoint top = new IntPoint(middleF.X, middleF.Y + 20);
+                    double aLength = top.DistanceTo(middleF);
+                    double bLength;
+                    double cLength;
+                    if (middleF.X > myBitmap.Width / 2)
                     {
-                        angleDeg = calculateAngle(point2, point3, point1, middle);
+                        bLength = middleF.DistanceTo(corners[longestCorner1]);
+                        cLength = top.DistanceTo(corners[longestCorner1]);
                     }
                     else
                     {
-                        angleDeg = calculateAngle(point1, point2, point3, middle);
+                        bLength = middleF.DistanceTo(corners[longestCorner2]);
+                        cLength = top.DistanceTo(corners[longestCorner2]);
                     }
-                }
+                    
+
+                    //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
+                    double aCos = ((aLength * aLength) + (cLength * cLength) - (bLength * bLength)) / ((2 * aLength) * cLength);
+                    double angleRad = Math.Acos(aCos);
+                    angleDeg = ((int)Math.Ceiling(angleRad * (180 / Math.PI))) - 90;
+                    if (middleF.X > myBitmap.Width / 2)
+                        angleDeg = Math.Abs(angleDeg);
+                } 
             }
 
-            //If the deviation is too high, reposition
-            if (angleDeg > 3)
+            if (angleDeg != 0)
             {
-                if (isLeft)
-                {
-                    routeInterpreter.turn.execute(angleDeg);
-                    await flyTaskCompleted.Task;
-                    vormTaskCompleted.SetResult(true);
-                }
-                else
-                {
-                    routeInterpreter.turn.execute(360-angleDeg);
-                    await flyTaskCompleted.Task;
-                    vormTaskCompleted.SetResult(true);
-                }
+                turnDegrees = angleDeg;
             }
-            else
-            {
-                vormTaskCompleted.SetResult(true);
-            }
-            g.Dispose();
-        }
+       Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
+           if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
+                   Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
 
-        private int calculateAngle(IntPoint top, IntPoint left, IntPoint right, int middleView)
-        {
-            int angleDeg = 0;
-            IntPoint triangularF;
+          if (isAngleCalibration)
+                    {
+                        //isAngleCalibration = false;
+                      
+                        //stopCurrentTasks();
 
-            IntPoint middleF = new IntPoint((left.X + right.X) / 2, (left.Y + right.Y));
-            double aLength = top.DistanceTo(middleF);
-            if (top.Y > right.Y)
-            {
-                triangularF = new IntPoint(middleF.X, middleF.Y + (int)Math.Ceiling(aLength));
-            }
-            else
-            {
-                triangularF = new IntPoint(middleF.X, middleF.Y - (int)Math.Ceiling(aLength));
-            }
-            double cLength = top.DistanceTo(triangularF);
+                        Console.WriteLine(turnDegrees + " [angle] Correcte angle --> Doorgaan!");
 
-            //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
-            double aCos = ((aLength * aLength) + (aLength * aLength) - (cLength * cLength)) / ((2 * aLength) * aLength);
-            double angleRad = Math.Acos(aCos);
-            angleDeg = (int)Math.Ceiling(angleRad * (180 / Math.PI));
-            Console.WriteLine(angleDeg + " Point 3");
-            if (top.X > middleView)
-                isLeft = false;
-            else
-                isLeft = true;
-
-            return angleDeg;
+                    }
+           }
         }
 
 
-        public void zoekLijn()
+        public async Task zoekLijn()
         {
             Bitmap myBitmap = mainForm.getFrame();
 
@@ -591,9 +630,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(225, 255);
-            colorFilter.Green = new IntRange(225, 255);
-            colorFilter.Blue = new IntRange(225, 255);
+            colorFilter.Red = new IntRange(180, 255);
+            colorFilter.Green = new IntRange(160, 255);
+            colorFilter.Blue = new IntRange(180, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
@@ -630,16 +669,17 @@ namespace DroneControl
                     }
                     mainForm.lineFound = true;
                     mainForm.scanningForLine = false;
-                    Console.WriteLine(">>>>> Lijn gevonden <<<<<<");
+                    Console.WriteLine("[line] Lijn gevonden");
 
 
                     if (isLineCalibration)
                     {
                         isLineCalibration = false;
+                        await Task.Delay(700);
                         stopCurrentTasks();
 
                         //autopilotController.Start();
-                        Console.WriteLine(">>>>> Lijn gevonden STOP de movement >>>>>>>>>>>>");
+                        Console.WriteLine("[line] 700 ms gewacht ; lijnvinden gestopt");
 
                     }
 
