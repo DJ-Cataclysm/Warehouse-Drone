@@ -208,8 +208,7 @@ namespace DroneControl
             lblConnectionStatus.Text = "Connected";
             btnConnect.Enabled = false;
             btnDisconnect.Enabled = true;
-            btnAutopilotGo.Enabled = true;
-            btnAutopilotStop.Enabled = true;
+            btnEmergency.Enabled = true;
             _droneClient = _droneController.getDroneClient();
         }
 
@@ -224,27 +223,10 @@ namespace DroneControl
         /*
          * Button Click: Scan current stored frame for barcodes.
          */
-        private void btnScanForBarcode_Click(object sender, EventArgs e)
-        {
-            string result = scanBarcode();
-            barcode.Text = result;
-        }
-
         public Bitmap getFrame()
         {
             return _frameBitmap;
         }
-
-        private void btnAutopilotGo_Click(object sender, EventArgs e)
-        {
-            //Commands invoegen
-            //Start autopilot
-
-            _droneController.enqueueTest();
-            _droneController.startAutopilot();
-            btnAutopilotGo.Enabled = false;
-        }
-
 
         /*
          * These buttons are used in manually controlling the drone. This functionality will not be in the release.
@@ -254,61 +236,6 @@ namespace DroneControl
             _droneController.emergency();
         }
 
-        private void btnAutopilotStop_Click(object sender, EventArgs e)
-        {
-            _droneController.startAutopilot();
-            btnAutopilotGo.Enabled = true;
-        }
-
-        private void btnForward_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, pitch: -0.05f);
-        }
-
-        private void btnBackward_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, pitch: 0.05f);
-        }
-
-        private void btnHover_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, 0, 0, 0, 0);
-        }
-
-        private void btnLeft_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, roll: -0.05f);
-        }
-
-        private void btnRight_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Progressive, roll: 0.05f);
-        }
-
-        private void btnRotateLeft_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, yaw: -0.2f);
-        }
-
-        private void btnRotateRight_Click(object sender, EventArgs e)
-        {
-            _droneClient.Progress(AR.Drone.Client.Command.FlightMode.Hover, yaw: 0.2f);
-        }
-
-        private void btnTakeoff_Click(object sender, EventArgs e)
-        {
-            _droneClient.Takeoff();
-        }
-
-        private void btnLand_Click(object sender, EventArgs e)
-        {
-            _droneClient.Land();
-        }
-
-        private void btnFlatTrim_Click(object sender, EventArgs e)
-        {
-            _droneClient.FlatTrim();
-        }
         private string scanBarcode()
         {
             // create a barcode reader instance
@@ -325,18 +252,6 @@ namespace DroneControl
                 return "Geen Barcode Gevonden";
             }
         }
-
-        private void btnMockScan_Click(object sender, EventArgs e)
-        {
-            int scannedId = (int)nudMockScan.Value;
-            
-        }
-
-        private void btnMockDroneScanning_Click(object sender, EventArgs e)
-        {
-            wmsForm.showMutations();
-        }
-
 
         private void btnCycleCount_Click(object sender, EventArgs e)
         {
@@ -410,12 +325,7 @@ namespace DroneControl
             }
             g.Dispose();
         }
-
-       
-
-
-
-
+        
         private void gbVideoFeed_Enter(object sender, EventArgs e)
         {
         
