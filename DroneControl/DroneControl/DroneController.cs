@@ -48,6 +48,7 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
+            // Maak de route, start de drone
             flyTaskCompleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
@@ -57,10 +58,6 @@ namespace DroneControl
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
-
-            //flyTaskCompleted = new TaskCompletionSource<bool>();
-            //routeInterpreter.turn.execute(-180);
-            //await flyTaskCompleted.Task;
 
 
             // lijn vinden
@@ -73,42 +70,27 @@ namespace DroneControl
             Console.WriteLine("[STOP] lijn vinden");
 
             // hoek calibratie
-
             Console.WriteLine("[START] hoek callibratie");
             isAngleCalibration = true;
-            mainForm.scanningForAngle = true;
-        
-
+            mainForm.scanningForAngle = true;  
             routeInterpreter.shortHover.execute();
             await Task.Delay(300);
-
             await turnCalibration();
             isAngleCalibration = false;
             mainForm.scanningForAngle  = false;
             Console.WriteLine("[STOP] hoek callibratie");
-            //flyTaskComleted = new TaskCompletionSource<bool>();
-            //mainForm.isDroneReady = true;
-            //await Task.Delay(200);
 
-            //await findLine();
-            //mainForm.isDroneReady = false;
-            //autopilotController.Start();
-            //routeInterpreter.shortHover.execute();
-            //await flyTaskComleted.Task;
-
+            //na het opstijgen en calibreren, loop door de gemaakte route
             for (int i = 0; i < route.getCount()-1; i++ )
             {
               
                 Console.Write(" ga door met loop");
 
+                //vlieg naar de volgende positie
                 flyTaskCompleted = new TaskCompletionSource<bool>();
-
                 Position current = routeList[i];
                 Position target = routeList[i+1];
-
                 routeInterpreter.flyToCoordinate(current, target);
-           //     autopilotController.Start();
-
                 await flyTaskCompleted.Task;
 
                 //voor en achter calibratie
@@ -120,7 +102,6 @@ namespace DroneControl
 
                 // hoek calibratie
                 routeInterpreter.shortHover.execute();
-
                 isAngleCalibration = true;
                 mainForm.scanningForAngle = true;
                 await turnCalibration();
@@ -140,23 +121,23 @@ namespace DroneControl
 
 
             }
+            //einde route, landen.
             routeInterpreter.landCommand.execute();
             //mainForm.wmsForm.showMutations();
-            // start cycle count
            
         }
+
+        //zoek naar een barcode door naar links en naar rechts te vliegen. 
         private async Task searchForBarcode(Position i)
         {
-
-
             flyTaskCompleted = new TaskCompletionSource<bool>();
-
+            //1 maal links
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-            //rechts2 
+            //2 maal rechts
             routeInterpreter.barcodeSmallRight.execute(2000);
             routeInterpreter.shortHover.execute();
-            //links 1
+            //1 maal links
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
            await flyTaskCompleted.Task;
@@ -207,30 +188,23 @@ namespace DroneControl
             await flyTaskCompleted.Task;
     }
 
+        //calibreren van hoek
         public async Task turnCalibration()
         { 
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            
-
            
             if (turnDegrees < -5 || turnDegrees > 5)
             {
                routeInterpreter.turn.execute(turnDegrees);
                Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
-
             }
-           
-
-                      await flyTaskCompleted.Task;
-
+          await flyTaskCompleted.Task;
         }
        
 
         public void stopCurrentTasks(){
             Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
-            //autopilotController.Stop();
-            //setFlyTaskCompleted();
             routeInterpreter.shortHover.execute();
         }
 
