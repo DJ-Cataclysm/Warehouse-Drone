@@ -18,8 +18,8 @@ namespace DroneControl.Commands
         public void execute(int degrees)
         {
             //1750ms for SetYaw(1f) is about 180 degrees
-            float msPerDegree = 9.7222f;
-            float velocity = 1f;
+            float msPerDegree = 9.7222f *5;
+            float velocity = 0.2f;
             if(degrees < 0)
             {
                 velocity *= -1;
