@@ -67,31 +67,7 @@ namespace RoutePlanner
 
         public static Route makeSmartScanRoute(List<Position> itemsToCheck)
         {
-            /*
-             * Find boundary coordinates for use with graph creation by using Linq.
-             * Aggregate is used here to loop through the items while keep track of the smallest x/y/z.
-             */
-            int xLowerBound = itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x;
-            int xUpperBound = itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x;
-            int yLowerBound = itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y;
-            int yUpperBound = itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y ? p : curMin).y;
-            int zLowerBound = itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z;
-            int zUpperBound = itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z;
-
-            if (xLowerBound > 0) { xLowerBound = 0; }
-            if (yLowerBound > 0) { yLowerBound = 0; }
-            if (zLowerBound > 0) { zLowerBound = 0; }
-
-            //Create grid within bounds
-            Grid grid = new Grid(
-                xLowerBound, 
-                xUpperBound, 
-                yLowerBound, 
-                yUpperBound, 
-                zLowerBound, 
-                zUpperBound, 
-                itemsToCheck
-            );
+            Grid grid = new Grid(itemsToCheck);
 
             //Add drone starting point and endpoint
             Position startAndEndpoint = new Position(0, 0, 0);

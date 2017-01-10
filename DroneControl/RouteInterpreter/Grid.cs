@@ -11,17 +11,33 @@ namespace RoutePlanner
         public static double INFINITY = double.MaxValue;
         private Dictionary<Position, GridPoint> gridPointMap = new Dictionary<Position, GridPoint>(); 
 
-        public Grid(int xLowerBound, int xUpperBound, int yLowerBound, int yUpperBound, int zLowerBound, int zUpperBound, List<Position> itemsToCheck)
+        public Grid(List<Position> itemsToCheck)
         {
+            /*
+             * Find boundary coordinates for use with graph creation by using Linq.
+             * Aggregate is used here to loop through the items while keep track of the smallest x/y/z.
+             */
+            int xMin = itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x;
+            int xMax = itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x;
+            int yMin = itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y;
+            int yMax = itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y ? p : curMin).y;
+            int zMin = itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z;
+            int zMax = itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z;
+
+            if (xMin > 0) { xMin = 0; }
+            if (yMin > 0) { yMin = 0; }
+            if (zMin > 0) { zMin = 0; }
+
+
             /*
              * We will need to create a grid point for every possible position within the bounds.
              * Unfortunately this will cause a massive performance drop at sufficiently high numbers because of the nested loops.
              */
-            for (int x = xLowerBound; x <= xUpperBound; x++)
+            for (int x = xMin; x <= xMax; x++)
             {
-                for (int y = yLowerBound; y <= yUpperBound; y++)
+                for (int y = yMin; y <= yMax; y++)
                 {
-                    for (int z = zLowerBound; z <= zUpperBound; z++)
+                    for (int z = zMin; z <= zMax; z++)
                     {
                         Position curPos = new Position(x, y, z);
                         gridPointMap.Add(curPos, new GridPoint(curPos));
