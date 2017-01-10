@@ -456,7 +456,7 @@ namespace DroneControl
                 Positions.addPosition(new Position(p.X, p.Y, p.Z));
             }
             //Make full cycle route using the positions in the static Positions class
-            return RoutePlan.makeFullCycleRoute();
+            return RoutePlan.makeCycleCountRoute();
         }
 
         private Route MakeSmartScanRoute()

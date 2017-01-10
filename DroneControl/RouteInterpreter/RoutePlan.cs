@@ -9,65 +9,59 @@ namespace RoutePlanner
 {
     public static class RoutePlan
     {
-        public static Route makeFullCycleRoute()
+        public static Route makeCycleCountRoute()
         {
-  
-        // get list of positions
-        Route returnRoute = new Route();
-        Position beginPos = new Position(0, 0, 0);
-        returnRoute.addPosition(beginPos);
+            /*
+             * Create a cycle count route using a zig-zag algorithm.
+             * First find all the unique Z coordinates, then find maximum Y value for coordinates with specified Z.
+             * In a loop, order all positions matching Y and Z, either ascending or descending depending on direction.
+             * Then add those positions to the final route. Each iteration we reverse the direction.
+             * We end up with a Route object ordered in such a way that the RouteInterpreter can plot a course through 
+             * the whole warehouse and scan every position.
+             */
 
-        List<Position> positions = Positions.getPositions();
-        
-       
-        //get maximum height
-        if (positions.Count == 0)
-        {
-            throw new InvalidOperationException("Empty list");
-        }
-        int yAsMax = -1;
-        foreach (Position pos in positions)
-        {
-            if (pos.y >yAsMax)
+            List<Position> positions = Positions.getPositions();
+
+            if (positions.Count == 0)
             {
-                yAsMax = pos.y; 
+                throw new InvalidOperationException("Empty list");
             }
-        }
 
-        //sort the list so that each row gets reversed
-        bool reverse = true;
-        for (int i = 0; i <= yAsMax; i++)
-        {
-            List<Position> templist = new List<Position>();
-            foreach (Position p in positions)
+            Route returnRoute = new Route();
+            returnRoute.addPosition(new Position(0, 0, 0)); //Add beginning position
+
+            List<int> allZCoords = positions.Select(p => p.z).Distinct().ToList(); //Find all distinct z values
+            allZCoords.Sort(); //Sort this list ascending if not already done
+
+            foreach(int z in allZCoords)
             {
-                if( p.y == i){
-                    templist.Add(p);
-                }
-                
-            }
-            if (!reverse){
+                //get maximum y value within the current z coordinate.
+                int yAxisMax = positions.Aggregate((curMin, p) => p.y > curMin.y  && p.z == z? p : curMin).y; 
 
-                templist = templist.OrderBy(Position => Position.x).ToList(); // van klein naar groot
-                foreach (Position p in templist)
+                //Sort the list so that each row gets reversed
+                bool reverse = true;
+                for (int i = 0; i <= yAxisMax; i++)
                 {
-                    Console.Write(p.x.ToString() + " ");
+                    List<Position> positionsToAdd = new List<Position>();
+
+                    //Add positions whose y value matches i, and whose z value matches current z coordinate.
+                    positionsToAdd.AddRange(positions.Where(p => p.y == i && p.z == z)); 
+
+                    if (reverse)
+                    {
+                        positionsToAdd = positionsToAdd.OrderByDescending(Position => Position.x).ToList(); // descending 
+                    }
+                    else
+                    {
+                        positionsToAdd = positionsToAdd.OrderBy(Position => Position.x).ToList(); // ascending
+                    }
+
+                    returnRoute.addPositions(positionsToAdd);
+
+                    reverse = !reverse;
                 }
-            }else{
-             templist = templist.OrderByDescending(Position => Position.x).ToList(); // van groot naar klein 
-            
-        
-         
-            }
-            foreach(Position p in templist){
-                returnRoute.addPosition(p);
-                Console.Write("pos x: " + p.x.ToString() + "pos y:" + p.y.ToString() + " ---");
             }
 
-            reverse = !reverse;
-
-        }
-     
             return returnRoute;
         }
 
