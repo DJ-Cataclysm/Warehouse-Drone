@@ -7,7 +7,7 @@ namespace DroneControl
 {
     public class RouteInterpreter
     {
-        public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover, goBackwardsCalibration, goForwardCalibration;
+        public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover, goBackwardsCalibration, goForwardCalibration, flyToOtherRack;
         public GoToHeight goToHeight;
         public BarcodeSmallLeft barcodeSmallLeft;
         public BarcodeSmallRight barcodeSmallRight;
@@ -31,6 +31,8 @@ namespace DroneControl
             shortHover = new ShortHover(ref autopilotController);
             goBackwardsCalibration = new GoBackwardsCalibration(ref autopilotController);
             goForwardCalibration = new GoForwardCalibration(ref autopilotController);
+            flyToOtherRack = new FlyToOtherRack(ref autopilotController);
+       
             turn = new Turn(ref autopilotController);
 
 

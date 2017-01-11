@@ -67,6 +67,7 @@ namespace RoutePlanner
 
         public static Route makeSmartScanRoute(List<Position> itemsToCheck)
         {
+           
             Grid grid = new Grid(itemsToCheck);
 
             //Add drone starting point and endpoint

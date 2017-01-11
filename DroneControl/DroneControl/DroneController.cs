@@ -46,6 +46,88 @@ namespace DroneControl
             mainForm = form;
         }
 
+        public async Task startSmartScan()
+        {
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            route = MakeSmartScanRoute();
+            List<Position> routeList = route.getPositions();
+
+            autopilotController.Start();
+            routeInterpreter.takeOffCommand.execute();
+            routeInterpreter.shortHover.execute();
+            await flyTaskCompleted.Task;
+
+            // lijn vinden
+            Console.WriteLine("[START] lijn vinden");
+            isLineCalibration = true;
+            mainForm.scanningForLine = true;
+            await findLine();
+            isLineCalibration = false;
+            mainForm.scanningForLine = false;
+            Console.WriteLine("[STOP] lijn vinden");
+
+            // hoek calibratie
+            Console.WriteLine("[START] hoek callibratie");
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+            routeInterpreter.shortHover.execute();
+            await Task.Delay(300);
+            await turnCalibration();
+            isAngleCalibration = false;
+            mainForm.scanningForAngle = false;
+            Console.WriteLine("[STOP] hoek callibratie");
+
+                 //na het opstijgen en calibreren, loop door de gemaakte route
+            for (int i = 0; i < route.getCount()-1; i++ )
+            {
+              
+                Console.Write(" ga door met loop");
+
+                //vlieg naar de volgende positie
+                flyTaskCompleted = new TaskCompletionSource<bool>();
+                Position current = routeList[i];
+                Position target = routeList[i+1];
+                routeInterpreter.flyToCoordinate(current, target);
+                await flyTaskCompleted.Task;
+
+                if (target.isTargetPosition)
+                {
+
+                    //voor en achter calibratie
+                    isLineCalibration = true;
+                    mainForm.scanningForLine = true;
+                    await calibration();
+                    isLineCalibration = false;
+                    mainForm.scanningForLine = false;
+
+                    // hoek calibratie
+                    routeInterpreter.shortHover.execute();
+                    isAngleCalibration = true;
+                    mainForm.scanningForAngle = true;
+                    await turnCalibration();
+                    isAngleCalibration = false;
+                    mainForm.scanningForAngle = false;
+
+
+                    //barcode calibratie
+                    switchCamera(1);
+                    isBarcodeCalibration = true;
+                    mainForm.scanningForBarcode = true;
+                    await searchForBarcode(current);
+                    isBarcodeCalibration = false;
+                    mainForm.scanningForBarcode = false;
+                    switchCamera(2);
+                }
+
+
+            }
+            //einde route, landen.
+            routeInterpreter.landCommand.execute();
+            //mainForm.wmsForm.showMutations();
+           
+        }
+
+
         public async Task CycleCount()
         {
             isAngleCalibration = true;
@@ -93,11 +175,20 @@ namespace DroneControl
                 Console.Write(" ga door met loop");
 
                 //vlieg naar de volgende positie
-                flyTaskCompleted = new TaskCompletionSource<bool>();
+                
+               
                 Position current = routeList[i];
                 Position target = routeList[i+1];
-                routeInterpreter.flyToCoordinate(current, target);
-                await flyTaskCompleted.Task;
+                if (current.z == target.z)
+                {
+                    flyTaskCompleted = new TaskCompletionSource<bool>();
+                    routeInterpreter.flyToCoordinate(current, target);
+                    await flyTaskCompleted.Task;
+                }
+                else
+                {
+                    await flyToZ(current, target);
+                }
 
                 //voor en achter calibratie
                 isLineCalibration = true;
@@ -136,6 +227,66 @@ namespace DroneControl
             //mainForm.wmsForm.showMutations();
            
         }
+
+        private async Task flyToZ(Position currentPos, Position targetPos){
+            //turn 180 degrees
+            routeInterpreter.turn.execute(180);
+
+            //calibrate
+            //...
+          
+
+            // lijn vinden
+            Console.WriteLine("[START] lijn vinden");
+            isLineCalibration = true;
+            mainForm.scanningForLine = true;
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            routeInterpreter.flyToOtherRack.execute();
+            await flyTaskCompleted.Task;
+            isLineCalibration = false;
+            mainForm.scanningForLine = false;
+            Console.WriteLine("[STOP] lijn vinden");
+
+            //calibrate
+            //...
+
+
+            //fly to coordinate
+            Position newCurrentPos = currentPos;
+            switch (currentPos.x)
+            {
+                case 0:
+                    newCurrentPos.x = 8;
+                    break;
+                case 1:
+                    newCurrentPos.x = 7;
+                    break;
+                case 2:
+                    newCurrentPos.x = 6;
+                    break;
+                case 3:
+                    newCurrentPos.x = 5;
+                    break;
+                case 5:
+                    newCurrentPos.x = 3;
+                    break;
+                case 6:
+                    newCurrentPos.x = 2;
+                    break;
+                case 7:
+                    newCurrentPos.x = 1;
+                    break;
+                case 8:
+                    newCurrentPos.x = 0;
+                    break;
+
+            }
+     
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            routeInterpreter.flyToCoordinate(newCurrentPos, targetPos);
+            await flyTaskCompleted.Task;
+
+    }
 
         //zoek naar een barcode door naar links en naar rechts te vliegen. 
         private async Task searchForBarcode(Position i)
