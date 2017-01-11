@@ -38,14 +38,14 @@ namespace DroneControl
             turn = new Turn(ref autopilotController);
         }
         
-        public void interpret(Route route)
+        public void interpret(List<Position> route)
         {
             //Enqueue takeoff
             takeOffCommand.execute();
 
             List<Position> positions = new List<Position>();
             positions.Add(new Position(0, 0, 0));
-            positions.AddRange(route.getPositions());
+            positions.AddRange(route);
 
             for (int i = 0; i < positions.Count-1; i++)
             {

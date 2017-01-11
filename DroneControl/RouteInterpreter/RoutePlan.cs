@@ -9,14 +9,14 @@ namespace RoutePlanner
 {
     public static class RoutePlan
     {
-        public static Route makeCycleCountRoute(List<Position> itemsToCheck)
+        public static List<Position> makeCycleCountRoute(List<Position> itemsToCheck)
         {
             /*
              * Create a cycle count route using a zig-zag algorithm.
              * First find all the unique Z coordinates, then find maximum Y value for coordinates with specified Z.
              * In a loop, order all positions matching Y and Z, either ascending or descending depending on direction.
              * Then add those positions to the final route. Each iteration we reverse the direction.
-             * We end up with a Route object ordered in such a way that the RouteInterpreter can plot a course through 
+             * We end up with a List ordered in such a way that the RouteInterpreter can plot a course through 
              * the whole warehouse and scan every position.
              */
 
@@ -25,8 +25,8 @@ namespace RoutePlanner
                 throw new InvalidOperationException("Empty list");
             }
 
-            Route returnRoute = new Route();
-            returnRoute.addPosition(new Position(0, 0, 0)); //Add beginning position
+            List<Position> route = new List<Position>();
+            route.Add(new Position(0, 0, 0)); //Add beginning position
 
             List<int> allZCoords = itemsToCheck.Select(p => p.z).Distinct().ToList(); //Find all distinct z values
             allZCoords.Sort(); //Sort this list ascending if not already done
@@ -54,16 +54,16 @@ namespace RoutePlanner
                         positionsToAdd = positionsToAdd.OrderBy(Position => Position.x).ToList(); // ascending
                     }
 
-                    returnRoute.addPositions(positionsToAdd);
+                    route.AddRange(positionsToAdd);
 
                     reverse = !reverse;
                 }
             }
 
-            return returnRoute;
+            return route;
         }
 
-        public static Route makeSmartScanRoute(List<Position> itemsToCheck)
+        public static List<Position> makeSmartScanRoute(List<Position> itemsToCheck)
         {
             Grid grid = new Grid(itemsToCheck);
 
@@ -73,22 +73,23 @@ namespace RoutePlanner
             GridPoint nearestNeighbour;
 
             //Keep creating routes between startPoint and nearestNeighbour until there are no new items to check.
-            Route route = new Route();
-            route.addPosition(startPoint);
+            List<Position> route = new List<Position>();
+            route.Add(startPoint);
             while (itemsToCheck.Count >= 1)
             {
                 grid.unweighted(startPoint); //Calculate all distances between startPoint and other points
                 itemsToCheck.RemoveAll(pos => pos.Equals(startPoint));
                 if(itemsToCheck.Count == 0) { break; }
                 nearestNeighbour = grid.getNearestNeighbour(itemsToCheck);
-                route.addPositions(grid.getPath(nearestNeighbour.position)); //Add to route
+                //Add path from startPoint to nearestNeighbour
+                route.AddRange(grid.getPath(nearestNeighbour.position)); //TODO: kan getPath niet beter een GridPoint als parameter hebben?
                 
                 startPoint = nearestNeighbour.position;
             }
 
             //This last step is required to return to (0,0,0)
             grid.unweighted(startPoint);
-            route.addPositions(grid.getPath(startAndEndpoint));
+            route.AddRange(grid.getPath(startAndEndpoint));
 
             return route;
         }
