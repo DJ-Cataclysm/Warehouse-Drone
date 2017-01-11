@@ -48,12 +48,6 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
-            isAngleCalibration = true;
-            mainForm.scanningForAngle = true;
-        }
-
-        public async Task aCycleCount()
-        {
             // Maak de route, start de drone
             flyTaskCompleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
@@ -76,15 +70,15 @@ namespace DroneControl
             Console.WriteLine("[STOP] lijn vinden");
 
             //// hoek calibratie
-            //Console.WriteLine("[START] hoek callibratie");
-            //isAngleCalibration = true;
-            //mainForm.scanningForAngle = true;  
-            //routeInterpreter.shortHover.execute();
-            //await Task.Delay(300);
-            //await turnCalibration();
-            //isAngleCalibration = false;
-            //mainForm.scanningForAngle  = false;
-            //Console.WriteLine("[STOP] hoek callibratie");
+            Console.WriteLine("[START] hoek callibratie");
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+            routeInterpreter.shortHover.execute();
+            await Task.Delay(300);
+            await turnCalibration();
+            isAngleCalibration = false;
+            mainForm.scanningForAngle = false;
+            Console.WriteLine("[STOP] hoek callibratie");
 
             //na het opstijgen en calibreren, loop door de gemaakte route
             for (int i = 0; i < route.getCount()-1; i++ )
@@ -107,12 +101,12 @@ namespace DroneControl
                 mainForm.scanningForLine = false;
 
                 //// hoek calibratie
-                //routeInterpreter.shortHover.execute();
-                //isAngleCalibration = true;
-                //mainForm.scanningForAngle = true;
-                //await turnCalibration();
-                //isAngleCalibration = false;
-                //mainForm.scanningForAngle = false;
+                routeInterpreter.shortHover.execute();
+                isAngleCalibration = true;
+                mainForm.scanningForAngle = true;
+                await turnCalibration();
+                isAngleCalibration = false;
+                mainForm.scanningForAngle = false;
 
 
                 //barcode calibratie
@@ -506,9 +500,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(150, 255);
-            colorFilter.Green = new IntRange(150, 255);
-            colorFilter.Blue = new IntRange(150, 255);
+            colorFilter.Red = new IntRange(145, 255);
+            colorFilter.Green = new IntRange(145, 255);
+            colorFilter.Blue = new IntRange(145, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
@@ -641,9 +635,9 @@ namespace DroneControl
             // step 1 - turn background to black
             ColorFiltering colorFilter = new ColorFiltering();
 
-            colorFilter.Red = new IntRange(180, 255);
+            colorFilter.Red = new IntRange(160, 255);
             colorFilter.Green = new IntRange(160, 255);
-            colorFilter.Blue = new IntRange(180, 255);
+            colorFilter.Blue = new IntRange(160, 255);
             colorFilter.FillOutsideRange = true;
 
             colorFilter.ApplyInPlace(bitmapData);
