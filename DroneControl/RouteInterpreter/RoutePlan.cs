@@ -9,7 +9,7 @@ namespace RoutePlanner
 {
     public static class RoutePlan
     {
-        public static Route makeCycleCountRoute()
+        public static Route makeCycleCountRoute(List<Position> itemsToCheck)
         {
             /*
              * Create a cycle count route using a zig-zag algorithm.
@@ -20,9 +20,7 @@ namespace RoutePlanner
              * the whole warehouse and scan every position.
              */
 
-            List<Position> positions = Positions.getPositions();
-
-            if (positions.Count == 0)
+            if (itemsToCheck.Count == 0)
             {
                 throw new InvalidOperationException("Empty list");
             }
@@ -30,13 +28,13 @@ namespace RoutePlanner
             Route returnRoute = new Route();
             returnRoute.addPosition(new Position(0, 0, 0)); //Add beginning position
 
-            List<int> allZCoords = positions.Select(p => p.z).Distinct().ToList(); //Find all distinct z values
+            List<int> allZCoords = itemsToCheck.Select(p => p.z).Distinct().ToList(); //Find all distinct z values
             allZCoords.Sort(); //Sort this list ascending if not already done
 
             foreach(int z in allZCoords)
             {
                 //get maximum y value within the current z coordinate.
-                int yAxisMax = positions.Aggregate((curMin, p) => p.y > curMin.y  && p.z == z? p : curMin).y; 
+                int yAxisMax = itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y  && p.z == z? p : curMin).y; 
 
                 //Sort the list so that each row gets reversed
                 bool reverse = true;
@@ -45,7 +43,7 @@ namespace RoutePlanner
                     List<Position> positionsToAdd = new List<Position>();
 
                     //Add positions whose y value matches i, and whose z value matches current z coordinate.
-                    positionsToAdd.AddRange(positions.Where(p => p.y == i && p.z == z)); 
+                    positionsToAdd.AddRange(itemsToCheck.Where(p => p.y == i && p.z == z)); 
 
                     if (reverse)
                     {
