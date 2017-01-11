@@ -462,12 +462,13 @@ namespace DroneControl
                 products = db.Products.ToList();
             }
 
+            List<Position> itemsToCheck = new List<Position>();
             foreach (Product p in products)
             {
-                Positions.addPosition(new Position(p.X, p.Y, p.Z));
+                itemsToCheck.Add(new Position(p.X, p.Y, p.Z));
             }
             //Make full cycle route using the positions in the static Positions class
-            return RoutePlan.makeCycleCountRoute();
+            return RoutePlan.makeCycleCountRoute(itemsToCheck);
         }
 
         private Route MakeSmartScanRoute()
