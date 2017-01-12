@@ -91,17 +91,17 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
-            //isAngleCalibration = true;
-            // mainForm.scanningForAngle = true;
+            isAngleCalibration = true;
+             mainForm.scanningForAngle = true;
 
             //await Task.Delay(5000);
             //await turnCalibration();
 
-            await switchCamera(VideoChannelType.Horizontal);
+            //await switchCamera(VideoChannelType.Horizontal);
 
-            await switchCamera(VideoChannelType.Vertical);
-            await switchCamera(VideoChannelType.Horizontal);
-            await switchCamera(VideoChannelType.Vertical);
+            //await switchCamera(VideoChannelType.Vertical);
+            //await switchCamera(VideoChannelType.Horizontal);
+            //await switchCamera(VideoChannelType.Vertical);
         }
 
         public async Task TESTCycleCount()
@@ -377,38 +377,6 @@ namespace DroneControl
             await Task.Delay(500);
         }
 
-        /*private void waitForCameraSwitch()
-        {
-            Stopwatch swTimeout = Stopwatch.StartNew();
-
-            var state = NavigationState.Unknown;
-            Action<NavigationData> onNavigationData = nd => state = nd.State;
-            NavigationDataAcquired += onNavigationData;
-            try
-            {
-                bool ackControlSent = false;
-                while (swTimeout.ElapsedMilliseconds < AckControlAndWaitForConfirmationTimeout)
-                {
-                    if (state.HasFlag(NavigationState.Command))
-                    {
-                        Send(ControlCommand.AckControlMode);
-                        ackControlSent = true;
-                    }
-
-                    if (ackControlSent && state.HasFlag(NavigationState.Command) == false)
-                    {
-                        break;
-                    }
-                    Task.Delay(5);
-                }
-            }
-            finally
-            {
-                NavigationDataAcquired -= onNavigationData;
-                Trace.Write(string.Format("AckCommand done in {0} ms.", swTimeout.ElapsedMilliseconds));
-            }
-        }*/
-
         public DroneClient getDroneClient()
         {
             return droneClient;
@@ -565,8 +533,7 @@ namespace DroneControl
 
             // step 3 - check objects' type and highlight
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-            Graphics g = Graphics.FromImage(myBitmap);
-
+            
             // Check if there's a line on the ground with a minimum surface area of 200 pixels and get it in the middle of the screen
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
@@ -584,7 +551,6 @@ namespace DroneControl
                     IntPoint lowerLeftCorner = findPointMakingShortestLine(upperLeftCorner, corners);
                     corners.Remove(lowerLeftCorner);
 
-                    //Als upperLeft corner hoger zit dan lowerRight, neem kortste lijn, anders de langste lijn.
                     IntPoint remainingCorner;
                     if (upperLeftCorner.Y < lowerRightCorner.Y)
                     {
@@ -607,8 +573,11 @@ namespace DroneControl
                     turnDegrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
                     Console.WriteLine(turnDegrees);
 
-                    Pen redPen = new Pen(Color.Red, 2);
-                    g.DrawLine(redPen, upperLeftCorner.X, upperLeftCorner.Y, remainingCorner.X, remainingCorner.Y);
+                    using (Graphics g = Graphics.FromImage(myBitmap))
+                    {
+                        Pen redPen = new Pen(Color.Red, 8);
+                        g.DrawLine(redPen, upperLeftCorner.X, upperLeftCorner.Y, remainingCorner.X, remainingCorner.Y);
+                    }
                 }
             }
         }
@@ -687,9 +656,9 @@ namespace DroneControl
 
             // Turn anything that isn't white, into black
             ColorFiltering colorFilter = new ColorFiltering();
-            colorFilter.Red = new IntRange(160, 255);
-            colorFilter.Green = new IntRange(160, 255);
-            colorFilter.Blue = new IntRange(160, 255);
+            colorFilter.Red = new IntRange(254, 255);
+            colorFilter.Green = new IntRange(254, 255);
+            colorFilter.Blue = new IntRange(254, 255);
             colorFilter.FillOutsideRange = true;
             colorFilter.ApplyInPlace(bitmapData);
 
