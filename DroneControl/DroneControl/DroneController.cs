@@ -23,7 +23,6 @@ namespace DroneControl
         AutopilotController autopilotController;
         DroneClient droneClient;
         RouteInterpreter routeInterpreter;
-        Route route;
         TaskCompletionSource<bool> flyTaskCompleted;
         TaskCompletionSource<bool> vormTaskCompleted;
         TaskCompletionSource<bool> scanTaskComleted;
@@ -140,8 +139,9 @@ namespace DroneControl
             flyTaskCompleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
-            route = MakeCycleCountRoute();
-            List<Position> routeList = route.getPositions();
+            //this.route = MakeCycleCountRoute();
+            //List<Position> route = this.route.getPositions();
+            List<Position> route = MakeCycleCountRoute();
             autopilotController.Start(); 
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
@@ -169,9 +169,9 @@ namespace DroneControl
             //Console.WriteLine("[STOP] hoek callibratie");
 
             //na het opstijgen en calibreren, loop door de gemaakte route
-            for (int i = 0; i < route.getCount()-1; i++ )
+            for (int i = 0; i < route.Count - 1; i++ )
             {
-              
+
                 Console.Write(" ga door met loop");
 
                 //vlieg naar de volgende positie
@@ -211,10 +211,10 @@ namespace DroneControl
                 routeInterpreter.shortHover.execute();
                 routeInterpreter.shortHover.execute();
                 isBarcodeCalibration = true;
-          mainForm.scanningForBarcode = true;
+                mainForm.scanningForBarcode = true;
             await searchForBarcode(current);
-            isBarcodeCalibration = false;
-            mainForm.scanningForBarcode = false;
+                isBarcodeCalibration = false;
+                mainForm.scanningForBarcode = false;
                 switchCamera(2);
                 routeInterpreter.shortHover.execute();
                 routeInterpreter.shortHover.execute();
@@ -377,8 +377,7 @@ namespace DroneControl
         
         public async Task SmartScan()
         {
-            Route route = MakeSmartScanRoute();
-            List<Position> routeList = route.getPositions();
+            List<Position> route = MakeSmartScanRoute();
 
             flyTaskCompleted = new TaskCompletionSource<bool>();
 
@@ -387,12 +386,12 @@ namespace DroneControl
 
             await flyTaskCompleted.Task; //Begin when drone is in the air and ready to fly the route
 
-            for (int i = 0; i < route.getCount() - 1; i++)
+            for (int i = 0; i < route.Count - 1; i++)
             {
                 flyTaskCompleted = new TaskCompletionSource<bool>();
 
-                Position current = routeList[i];
-                Position target = routeList[i + 1];
+                Position current = route[i];
+                Position target = route[i + 1];
 
                 routeInterpreter.flyToCoordinate(current, target);
 
@@ -601,7 +600,7 @@ namespace DroneControl
             droneClient.Dispose();
         }
 
-        private Route MakeCycleCountRoute()
+        private List<Position> MakeCycleCountRoute()
         {
             /*
              * Find all products, create a position per product and then plot a route between those positions.
@@ -622,7 +621,7 @@ namespace DroneControl
             return RoutePlan.makeCycleCountRoute(itemsToCheck);
         }
 
-        private Route MakeSmartScanRoute()
+        private List<Position> MakeSmartScanRoute()
         {
             /*
              * Find all products exceeding the deviation threshhold and plot a route between those products.
