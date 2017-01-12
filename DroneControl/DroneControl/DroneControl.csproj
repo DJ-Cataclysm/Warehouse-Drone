@@ -88,6 +88,7 @@
     <Compile Include="Commands\BarcodeSmallRight.cs" />
     <Compile Include="Commands\BarcodeSmallUpDown.cs" />
     <Compile Include="Commands\GoBackwardsCalibration.cs" />
+    <Compile Include="Commands\FlyToOtherRack.cs" />
     <Compile Include="Commands\GoForwardCalibration.cs" />
     <Compile Include="Commands\ShortHover.cs" />
     <Compile Include="Commands\GoForward.cs" />

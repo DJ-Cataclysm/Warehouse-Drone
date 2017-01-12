@@ -25,12 +25,10 @@ namespace DroneControl
         RouteInterpreter routeInterpreter;
         TaskCompletionSource<bool> flyTaskCompleted;
         TaskCompletionSource<bool> vormTaskCompleted;
-        TaskCompletionSource<bool> scanTaskComleted;
         MainForm mainForm;
         bool isBarcodeCalibration;
         bool isLineCalibration;
         bool isAngleCalibration;
-        bool isLeft;
         public int droneCalibrationDirection { set; get; }
         int turnDegrees;
  
@@ -48,8 +46,8 @@ namespace DroneControl
         public async Task startSmartScan()
         {
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            route = MakeSmartScanRoute();
-            List<Position> routeList = route.getPositions();
+            List<Position> route = MakeSmartScanRoute();
+            
 
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
@@ -63,15 +61,15 @@ namespace DroneControl
 
 
                  //na het opstijgen en calibreren, loop door de gemaakte route
-            for (int i = 0; i < route.getCount()-1; i++ )
+            for (int i = 0; i < route.Count()-1; i++ )
             {
               
 
 
                 //vlieg naar de volgende positie
                 flyTaskCompleted = new TaskCompletionSource<bool>();
-                Position current = routeList[i];
-                Position target = routeList[i+1];
+                Position current = route[i];
+                Position target = route[i+1];
                 routeInterpreter.flyToCoordinate(current, target);
                 await flyTaskCompleted.Task;
 
@@ -110,8 +108,6 @@ namespace DroneControl
             flyTaskCompleted = new TaskCompletionSource<bool>();
             vormTaskCompleted = new TaskCompletionSource<bool>();
 
-            //this.route = MakeCycleCountRoute();
-            //List<Position> route = this.route.getPositions();
             List<Position> route = MakeCycleCountRoute();
             autopilotController.Start(); 
             routeInterpreter.takeOffCommand.execute();
@@ -127,8 +123,8 @@ namespace DroneControl
             {
 
                 //vlieg naar de volgende positie
-                Position current = routeList[i];
-                Position target = routeList[i+1];
+                Position current = route[i];
+                Position target = route[i+1];
 
                 if (current.z == target.z)
                 {
