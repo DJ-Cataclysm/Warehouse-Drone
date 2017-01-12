@@ -24,7 +24,6 @@ namespace DroneControl
         DroneClient droneClient;
         RouteInterpreter routeInterpreter;
         TaskCompletionSource<bool> flyTaskCompleted;
-        TaskCompletionSource<bool> vormTaskCompleted;
         MainForm mainForm;
         bool isBarcodeCalibration;
         bool isLineCalibration;
@@ -42,59 +41,50 @@ namespace DroneControl
             routeInterpreter = new RouteInterpreter(ref autopilotController);
             mainForm = form;
         }
-
+       
         public async Task startSmartScan()
         {
+            //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();
             List<Position> route = MakeSmartScanRoute();
-            
 
             autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
-
             await findLine();
-
             await turnCalibration();
 
-
-                 //na het opstijgen en calibreren, loop door de gemaakte route
+            //loop through the made route
             for (int i = 0; i < route.Count()-1; i++ )
             {
               
 
 
-                //vlieg naar de volgende positie
+                //fly to the next position
                 flyTaskCompleted = new TaskCompletionSource<bool>();
                 Position current = route[i];
                 Position target = route[i+1];
                 routeInterpreter.flyToCoordinate(current, target);
                 await flyTaskCompleted.Task;
 
+                //calibrate if the target position is a smartscan item & scan the item
                 if (target.isTargetPosition)
                 {
-
-                    //voor en achter calibratie
                     await findLine();
-
-                    // hoek calibratie
                     await turnCalibration();
-
-                    //barcode calibratie
                     await searchForBarcode(current);
-             
                 }
 
 
             }
-            //einde route, landen.
+
+            //land after the route is done
             routeInterpreter.landCommand.execute();
             //mainForm.wmsForm.showMutations();
            
         }
-
 
         public async Task TESTCycleCount()
         {
@@ -104,28 +94,24 @@ namespace DroneControl
 
         public async Task CycleCount()
         {
-            // Maak de route, start de drone
+            //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            vormTaskCompleted = new TaskCompletionSource<bool>();
-
             List<Position> route = MakeCycleCountRoute();
             autopilotController.Start(); 
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
+
             await flyTaskCompleted.Task;
-
             await findLine();
-
             await turnCalibration();
 
-            //na het opstijgen en calibreren, loop door de gemaakte route
+            //loop through the route
             for (int i = 0; i < route.Count - 1; i++ )
             {
-
-                //vlieg naar de volgende positie
                 Position current = route[i];
                 Position target = route[i+1];
 
+                //fly to the next position (uses flyToZ if the position is on another rack)
                 if (current.z == target.z)
                 {
                     flyTaskCompleted = new TaskCompletionSource<bool>();
@@ -137,21 +123,21 @@ namespace DroneControl
                     await flyToZ(current, target);
                 }
 
+                //calibration and finding barcode
                 await findLine();
-
                 await turnCalibration();
-
-                //barcode calibratie
                 await searchForBarcode(current);
 
             }
-            //einde route, landen.
+            //land after the route is done
             routeInterpreter.landCommand.execute();
             //mainForm.wmsForm.showMutations();
            
         }
 
+        //function for flying to another rack
         private async Task flyToZ(Position currentPos, Position targetPos){
+
             //turn 180 degrees
             routeInterpreter.turn.execute(180);
 
@@ -159,12 +145,11 @@ namespace DroneControl
             await findLine();
             await turnCalibration();
 
-            //andere lijn vinden
+            //start flying to the other rack and find the line
             routeInterpreter.flyToOtherRack.execute();
             await Task.Delay(2000);
             await findLine();
             await turnCalibration();
-
 
             //fly to coordinate
             Position newCurrentPos = currentPos;
@@ -203,43 +188,43 @@ namespace DroneControl
 
     }
 
-        //zoek naar een barcode door naar links en naar rechts te vliegen. 
+        //function for calibrating the drone by searching the barcode 
         private async Task searchForBarcode(Position i)
         {
+            //enables front camera, enables the scanning for barcodes
             flyTaskCompleted = new TaskCompletionSource<bool>();
             switchCamera(1);
             routeInterpreter.shortHover.execute();
-
             isBarcodeCalibration = true;
             mainForm.scanningForBarcode = true;
- 
-            flyTaskCompleted = new TaskCompletionSource<bool>();
-            //1 maal links
+            
+            //calibrate by fling to the left and right, stops when the barcode is found
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-            //2 maal rechts
             routeInterpreter.barcodeSmallRight.execute(2000);
             routeInterpreter.shortHover.execute();
-            //1 maal links
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
-           await flyTaskCompleted.Task;
+            await flyTaskCompleted.Task;
 
-           isBarcodeCalibration = false;
-           mainForm.scanningForBarcode = false;
+            isBarcodeCalibration = false;
+            mainForm.scanningForBarcode = false;
 
-           switchCamera(2);
-           await Task.Delay(500);
+            //switch back to bottom camera
+            switchCamera(2);
+            await Task.Delay(500);
         }
 
+        //function for finding the line. used for front and back calibration
         public async Task findLine()
         {
-
+            //enables scanning for the line
             isLineCalibration = true;
             mainForm.scanningForLine = true;
 
+            //fly forwards and backwards to find the line. Stops if the line is found
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            await Task.Delay(3000);
+            await Task.Delay(1000);
             routeInterpreter.shortHover.execute();
             routeInterpreter.goForwardCalibration.execute();
             routeInterpreter.shortHover.execute();
@@ -255,76 +240,92 @@ namespace DroneControl
             mainForm.scanningForLine = false;
            
         }
+        //function used to manually set the flytask to completed.
         public void setFlyTaskCompleted()
         {
             flyTaskCompleted.TrySetResult(true);
         }
 
+/*
+ * -----------------------
+ * 
+ *checken of deze functie weg kan
+ *
+ * ----------------------------
+ * 
+ */
 
-        public async Task calibration(){
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+    //    public async Task calibration(){
+    //        flyTaskCompleted = new TaskCompletionSource<bool>();
 
-            //moet naar voren
-            if(droneCalibrationDirection == 1){
-               routeInterpreter.goForwardCalibration.execute();
-               routeInterpreter.shortHover.execute();
-                routeInterpreter.goBackwardsCalibration.execute();
-                routeInterpreter.shortHover.execute();
+    //        //moet naar voren
+    //        if(droneCalibrationDirection == 1){
+    //           routeInterpreter.goForwardCalibration.execute();
+    //           routeInterpreter.shortHover.execute();
+    //            routeInterpreter.goBackwardsCalibration.execute();
+    //            routeInterpreter.shortHover.execute();
 
-            }
-            //moet naar achter
-            if (droneCalibrationDirection == -1)
-            {
-                routeInterpreter.goBackwardsCalibration.execute();
-                routeInterpreter.shortHover.execute();
-                routeInterpreter.goForwardCalibration.execute();
-                routeInterpreter.shortHover.execute();
-            }
+    //        }
+    //        //moet naar achter
+    //        if (droneCalibrationDirection == -1)
+    //        {
+    //            routeInterpreter.goBackwardsCalibration.execute();
+    //            routeInterpreter.shortHover.execute();
+    //            routeInterpreter.goForwardCalibration.execute();
+    //            routeInterpreter.shortHover.execute();
+    //        }
 
-            await flyTaskCompleted.Task;
-    }
+    //        await flyTaskCompleted.Task;
+    //}
 
-        //calibreren van hoek
+        //function used for calibrating the angle of the drone using the line on the ground
         public async Task turnCalibration()
         {
-
+            //enables scanning for the angle
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
             routeInterpreter.shortHover.execute();
-
             flyTaskCompleted = new TaskCompletionSource<bool>();
            
+            //if the angle is out of the range turn the drone
             if (turnDegrees < -10 || turnDegrees > 10)
             {
                routeInterpreter.turn.execute(turnDegrees);
                Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
             }
-          await flyTaskCompleted.Task;
-          isAngleCalibration = false;
-          mainForm.scanningForAngle = false;
+
+            await flyTaskCompleted.Task;
+            isAngleCalibration = false;
+            mainForm.scanningForAngle = false;
         }
        
-
+        //function that stops all current tasks. Used for clearing the drone's tasks if it's calibrated.
         public void stopCurrentTasks(){
             Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
             routeInterpreter.shortHover.execute();
         }
 
-        public void setVormTaskCompleted()
-        {
-            vormTaskCompleted.SetResult(true);
-        }
-        
-
+        /*function that scans for the barcode, and if the barcode is found updates it in the WMS
+         * Called from Mainform frame update */
         public void scanForBarcode()
         {
-            string barcode = null;
-            barcode = scanBarcode();
+            string barcode;
+
+            // create a barcode reader instance
+            IBarcodeReader reader = new BarcodeReader();
+            // detect and decode the barcode inside the bitmap
+            var result = reader.Decode(mainForm.getFrame());
+            // return result or error
+            if (result != null)
+            {
+                barcode = result.Text;
+            }
+            else { barcode = null; }
+
             if (barcode != null)
             {
                 Console.WriteLine("Barcode gevoden " + barcode);
-                //scanTaskComleted.SetResult(true);
                 int id = int.MaxValue;
                 int.TryParse(barcode, out id);
                 mainForm.wmsForm.productScanned(id);
@@ -334,41 +335,18 @@ namespace DroneControl
                 {
                     isBarcodeCalibration = false;
                      stopCurrentTasks();
-                  
-                    //autopilotController.Start();
                     Console.WriteLine("[barcode] stop barcode calibratie , gevonden barcode: " + barcode);
-                    
                 }
             }
         }
 
-        private string scanBarcode()
-        {
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
-            // detect and decode the barcode inside the bitmap
-            
-            
-             var result = reader.Decode(mainForm.getFrame());
-            // return result or error
-            if (result != null)
-            {
-                return result.Text;
-            }
-            else { return null; }
-
-        }
-
-        public void enqueueTest()
-        {
-            routeInterpreter.testRoute();
-        }
-
+        //emergency button, used to immediately stop the motor of the drone
         public void emergency()
         {
             droneClient.Emergency();
         }
 
+        //function used to switch to the bottom camera(for line detection) or front camera(barcode detection)
         public void switchCamera(int oneForFrontTwoForBottom)
         {
             //Send basic configuration
@@ -496,6 +474,7 @@ namespace DroneControl
             droneClient.Dispose();
         }
 
+        //function that makes a full cycle count route using the RoutePlan class
         private List<Position> MakeCycleCountRoute()
         {
             /*
@@ -517,6 +496,7 @@ namespace DroneControl
             return RoutePlan.makeCycleCountRoute(itemsToCheck);
         }
 
+        //function that makes a smart scan route using the RoutePlan class
         private List<Position> MakeSmartScanRoute()
         {
             /*
@@ -539,6 +519,7 @@ namespace DroneControl
             return RoutePlan.makeSmartScanRoute(itemsToCheck);
         }
 
+        //function that calculates the angle from the drone using the line. Called from mainform frame update.
         public void calculateAngle()
         {
             Bitmap myBitmap = mainForm.getFrame();
@@ -675,7 +656,7 @@ namespace DroneControl
            }
         }
 
-
+        //function that checks if the line is found. Called from Mainform frame update
         public async Task zoekLijn()
         {
             Bitmap myBitmap = mainForm.getFrame();
