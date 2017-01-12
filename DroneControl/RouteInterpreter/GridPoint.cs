@@ -10,8 +10,8 @@ namespace RoutePlanner
     {
         public Position position;
         public List<Edge> adjacentGridPoints;
-        public GridPoint previous;
-        public double distance;
+        public GridPoint previous; //Used in path traversal
+        public double distance; //Distance between this GridPoint startPoint
         
         public GridPoint(Position position)
         {
