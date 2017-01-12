@@ -14,7 +14,8 @@ using System.Drawing.Imaging;
 using AForge.Imaging.Filters;
 using AForge;
 using AForge.Imaging;
-using AForge.Math.Geometry; 
+using AForge.Math.Geometry;
+using System.Diagnostics;
 
 namespace DroneControl
 {
@@ -23,8 +24,9 @@ namespace DroneControl
         AutopilotController autopilotController;
         DroneClient droneClient;
         RouteInterpreter routeInterpreter;
-        TaskCompletionSource<bool> flyTaskCompleted;
+        TaskCompletionSource<bool> flyTaskCompleted, cameraSwitched;
         MainForm mainForm;
+        Settings settings;
         bool isBarcodeCalibration;
         bool isLineCalibration;
         bool isAngleCalibration;
@@ -87,16 +89,22 @@ namespace DroneControl
         }
 
 
-        public async Task TESTCycleCount()
+        public async Task CycleCount()
         {
-            isAngleCalibration = true;
-            mainForm.scanningForAngle = true;
+            //isAngleCalibration = true;
+            // mainForm.scanningForAngle = true;
 
-            await Task.Delay(5000);
-            await turnCalibration();
+            //await Task.Delay(5000);
+            //await turnCalibration();
+
+            await switchCamera(VideoChannelType.Horizontal);
+
+            await switchCamera(VideoChannelType.Vertical);
+            await switchCamera(VideoChannelType.Horizontal);
+            await switchCamera(VideoChannelType.Vertical);
         }
 
-        public async Task CycleCount()
+        public async Task TESTCycleCount()
         {
             //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();
@@ -197,8 +205,7 @@ namespace DroneControl
         {
             //enables front camera, enables the scanning for barcodes
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            switchCamera(1);
-            await Task.Delay(2000);
+            await switchCamera(VideoChannelType.Horizontal);
             routeInterpreter.shortHover.execute();
             isBarcodeCalibration = true;
             mainForm.scanningForBarcode = true;
@@ -216,8 +223,7 @@ namespace DroneControl
             mainForm.scanningForBarcode = false;
 
             //switch back to bottom camera
-            switchCamera(2);
-            await Task.Delay(2000);
+            await switchCamera(VideoChannelType.Vertical);
         }
 
         //function for finding the line. used for front and back calibration
@@ -354,56 +360,54 @@ namespace DroneControl
         }
 
         //function used to switch to the bottom camera(for line detection) or front camera(barcode detection)
-        public void switchCamera(int oneForFrontTwoForBottom)
+        public async Task switchCamera(VideoChannelType videoChannelType)
         {
             //Send basic configuration
-            Settings settings = new Settings();
+            TaskCompletionSource<bool> cameraSwitched = new TaskCompletionSource<bool>();
+            if(settings == null)
+            {
+                settings = new Settings();
+            }
             var sendConfigTask = new Task(() =>
             {
-
-                if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
-                    settings.Custom.SessionId == "00000000")
-                {
-                    
-                    // set new session, application and profile
-                    droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
-
-                    settings.Custom.SessionId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-
-                    settings.Custom.ProfileId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-
-                    settings.Custom.ApplicationId = Settings.NewId();
-                    droneClient.Send(settings);
-
-                    droneClient.AckControlAndWaitForConfirmation();
-                 if (oneForFrontTwoForBottom == 1){
-                        settings.Video.Channel = VideoChannelType.Horizontal;
-                        droneClient.Send(settings);
-                 }
-                        if (oneForFrontTwoForBottom == 2){
-                        settings.Video.Channel = VideoChannelType.Vertical;
-                        droneClient.Send(settings);
-                 }
-                    
-
-                    droneClient.AckControlAndWaitForConfirmation();
-                }
-
+                settings.Video.Channel = videoChannelType;
                 droneClient.Send(settings);
             });
             sendConfigTask.Start();
-      
-
-
-
-
+            await Task.Delay(500);
         }
+
+        /*private void waitForCameraSwitch()
+        {
+            Stopwatch swTimeout = Stopwatch.StartNew();
+
+            var state = NavigationState.Unknown;
+            Action<NavigationData> onNavigationData = nd => state = nd.State;
+            NavigationDataAcquired += onNavigationData;
+            try
+            {
+                bool ackControlSent = false;
+                while (swTimeout.ElapsedMilliseconds < AckControlAndWaitForConfirmationTimeout)
+                {
+                    if (state.HasFlag(NavigationState.Command))
+                    {
+                        Send(ControlCommand.AckControlMode);
+                        ackControlSent = true;
+                    }
+
+                    if (ackControlSent && state.HasFlag(NavigationState.Command) == false)
+                    {
+                        break;
+                    }
+                    Task.Delay(5);
+                }
+            }
+            finally
+            {
+                NavigationDataAcquired -= onNavigationData;
+                Trace.Write(string.Format("AckCommand done in {0} ms.", swTimeout.ElapsedMilliseconds));
+            }
+        }*/
 
         public DroneClient getDroneClient()
         {
@@ -415,7 +419,7 @@ namespace DroneControl
             droneClient.Start();
 
             //Send basic configuration
-            Settings settings = new Settings();
+            settings = new Settings();
             var sendConfigTask = new Task(() =>
             {
 
