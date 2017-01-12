@@ -19,7 +19,7 @@ namespace RoutePlanner
              * We end up with a List ordered in such a way that the RouteInterpreter can plot a course through 
              * the whole warehouse and scan every position.
              */
-
+            
             if (itemsToCheck.Count == 0)
             {
                 throw new InvalidOperationException("Empty list");
@@ -38,29 +38,33 @@ namespace RoutePlanner
 
                 //Sort the list so that each row gets reversed
                 bool reverse = true;
-                for (int i = 0; i <= yAxisMax; i++)
+                for (int y = 0; y <= yAxisMax; y++)
                 {
-                    List<Position> positionsToAdd = new List<Position>();
-
-                    //Add positions whose y value matches i, and whose z value matches current z coordinate.
-                    positionsToAdd.AddRange(itemsToCheck.Where(p => p.y == i && p.z == z)); 
-
-                    if (reverse)
-                    {
-                        positionsToAdd = positionsToAdd.OrderByDescending(Position => Position.x).ToList(); // descending 
-                    }
-                    else
-                    {
-                        positionsToAdd = positionsToAdd.OrderBy(Position => Position.x).ToList(); // ascending
-                    }
-
+                    List<Position> positionsToAdd = zigzag(itemsToCheck, z, y, reverse);
                     route.AddRange(positionsToAdd);
-
                     reverse = !reverse;
                 }
             }
 
             return route;
+        }
+
+        private static List<Position> zigzag(List<Position> itemsToCheck, int z, int y, bool reverse)
+        {
+            List<Position> positionsToAdd = new List<Position>();
+
+            //Add positions whose y value matches y, and whose z value matches current z coordinate.
+            positionsToAdd.AddRange(itemsToCheck.Where(p => p.y == y && p.z == z));
+
+            if (reverse)
+            {
+                positionsToAdd = positionsToAdd.OrderByDescending(Position => Position.x).ToList(); // descending 
+            }
+            else
+            {
+                positionsToAdd = positionsToAdd.OrderBy(Position => Position.x).ToList(); // ascending
+            }
+            return positionsToAdd;
         }
 
         public static List<Position> makeSmartScanRoute(List<Position> itemsToCheck)

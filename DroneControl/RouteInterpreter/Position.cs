@@ -9,6 +9,7 @@ namespace RoutePlanner
     public class Position
     {
         public int x, y, z;
+        //This boolean determines if this position should be scanned for barcodes
         public bool isTargetPosition;
 
         public Position(int x, int y, int z, bool isTargetPosition = false)
@@ -16,7 +17,7 @@ namespace RoutePlanner
             this.x = x;
             this.y = y;
             this.z = z;
-            this.isTargetPosition = isTargetPosition;
+            this.isTargetPosition = isTargetPosition; 
         }
 
         public override bool Equals(object obj)
