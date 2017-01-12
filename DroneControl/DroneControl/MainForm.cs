@@ -233,7 +233,9 @@ namespace DroneControl
          */
         private void btnEmergency_Click(object sender, EventArgs e)
         {
-            _droneController.emergency();
+            //_droneController.emergency();
+            _droneController.stopAutopilot();
+            _droneClient.Land();
         }
 
         private string scanBarcode()

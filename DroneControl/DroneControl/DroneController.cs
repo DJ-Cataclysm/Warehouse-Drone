@@ -100,6 +100,9 @@ namespace DroneControl
         {
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
+
+            await Task.Delay(5000);
+            await turnCalibration();
         }
 
         public async Task CycleCount()
@@ -292,8 +295,10 @@ namespace DroneControl
             mainForm.scanningForAngle = true;
             routeInterpreter.shortHover.execute();
 
+            await Task.Delay(500);
+
             flyTaskCompleted = new TaskCompletionSource<bool>();
-           
+            Console.WriteLine("I should turn: " + turnDegrees);
             if (turnDegrees < -10 || turnDegrees > 10)
             {
                routeInterpreter.turn.execute(turnDegrees);
