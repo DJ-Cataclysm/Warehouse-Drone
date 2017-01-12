@@ -530,6 +530,35 @@ namespace DroneControl
         {
             Bitmap myBitmap = mainForm.getFrame();
 
+            // lock image
+            BitmapData bitmapData = myBitmap.LockBits(
+            new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+            ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+
+            // step 1 - turn background to black
+            ColorFiltering colorFilter = new ColorFiltering();
+            colorFilter.Red = new IntRange(150, 255);
+            colorFilter.Green = new IntRange(150, 255);
+            colorFilter.Blue = new IntRange(150, 255);
+            colorFilter.FillOutsideRange = true;
+            colorFilter.ApplyInPlace(bitmapData);
+
+            // step 2 - locating objects
+            BlobCounter blobCounter = new BlobCounter();
+            blobCounter.FilterBlobs = true;
+            blobCounter.MinHeight = 5;
+            blobCounter.MinWidth = 5;
+
+            blobCounter.ProcessImage(bitmapData);
+
+            Blob[] blobs = blobCounter.GetObjectsInformation();
+
+            myBitmap.UnlockBits(bitmapData);
+
+            // step 3 - check objects' type and highlight
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+            Graphics g = Graphics.FromImage(myBitmap);
+
             // Check if there's a line on the ground with a minimum surface area of 200 pixels and get it in the middle of the screen
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
