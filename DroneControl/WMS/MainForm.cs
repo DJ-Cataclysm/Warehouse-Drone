@@ -83,18 +83,21 @@ namespace WMS
         private void dgvProducts_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             //Get selected, edited product
-            Product editedRecord = (Product)dgvProducts.SelectedRows[0].DataBoundItem; //Get data bound Product object to that row
- 
-            //Edit and save product
-            using (ProductDBContext db = new ProductDBContext())
+            if(dgvProducts.SelectedRows.Count != 0)
             {
-                var existingRecord = db.Products.Find(editedRecord.ID);
-                if(existingRecord == null)
+                Product editedRecord = (Product)dgvProducts.SelectedRows[0].DataBoundItem; //Get data bound Product object to that row
+
+                //Edit and save product
+                using (ProductDBContext db = new ProductDBContext())
                 {
-                    return;
+                    var existingRecord = db.Products.Find(editedRecord.ID);
+                    if (existingRecord == null)
+                    {
+                        return;
+                    }
+                    db.Entry(existingRecord).CurrentValues.SetValues(editedRecord);
+                    db.SaveChanges();
                 }
-                db.Entry(existingRecord).CurrentValues.SetValues(editedRecord);
-                db.SaveChanges();
             }
         }
 
