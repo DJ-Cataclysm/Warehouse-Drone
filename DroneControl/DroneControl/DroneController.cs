@@ -87,7 +87,7 @@ namespace DroneControl
         }
 
 
-        public async Task CycleCount()
+        public async Task TESTCycleCount()
         {
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
@@ -96,7 +96,7 @@ namespace DroneControl
             await turnCalibration();
         }
 
-        public async Task TESTCycleCount()
+        public async Task CycleCount()
         {
             //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();
@@ -198,6 +198,7 @@ namespace DroneControl
             //enables front camera, enables the scanning for barcodes
             flyTaskCompleted = new TaskCompletionSource<bool>();
             switchCamera(1);
+            await Task.Delay(2000);
             routeInterpreter.shortHover.execute();
             isBarcodeCalibration = true;
             mainForm.scanningForBarcode = true;
@@ -216,7 +217,7 @@ namespace DroneControl
 
             //switch back to bottom camera
             switchCamera(2);
-            await Task.Delay(500);
+            await Task.Delay(2000);
         }
 
         //function for finding the line. used for front and back calibration
@@ -228,7 +229,7 @@ namespace DroneControl
 
             //fly forwards and backwards to find the line. Stops if the line is found
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            await Task.Delay(1000);
+            await Task.Delay(300);
             routeInterpreter.shortHover.execute();
             routeInterpreter.goForwardCalibration.execute();
             routeInterpreter.shortHover.execute();
@@ -363,6 +364,7 @@ namespace DroneControl
                 if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
                     settings.Custom.SessionId == "00000000")
                 {
+                    
                     // set new session, application and profile
                     droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
 
@@ -396,8 +398,10 @@ namespace DroneControl
                 droneClient.Send(settings);
             });
             sendConfigTask.Start();
+      
 
-       
+
+
 
         }
 

@@ -340,6 +340,7 @@ namespace DroneControl
 
         private void button1_Click(object sender, EventArgs e)
         {
+            _droneController.stopAutopilot();
             _droneClient.Land();
         }
     }
