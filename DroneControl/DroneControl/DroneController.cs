@@ -96,7 +96,7 @@ namespace DroneControl
         }
 
 
-        public async Task TESTCycleCount()
+        public async Task CycleCount()
         {
             isAngleCalibration = true;
             mainForm.scanningForAngle = true;
@@ -105,7 +105,7 @@ namespace DroneControl
             await turnCalibration();
         }
 
-        public async Task CycleCount()
+        public async Task TESTCycleCount()
         {
             // Maak de route, start de drone
             flyTaskCompleted = new TaskCompletionSource<bool>();
@@ -547,8 +547,6 @@ namespace DroneControl
         public void calculateAngle()
         {
             Bitmap myBitmap = mainForm.getFrame();
-            int angleDeg = 0;
-            bool goLeft;
 
             // lock image
             BitmapData bitmapData = myBitmap.LockBits(
@@ -588,98 +586,80 @@ namespace DroneControl
             {
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
-                
 
                 if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
                 {
-                    double shortestDistanceTo = 99999999;
-                    int shortestCorner1 = 0;
-                    int shortestCorner2 = 0;
-                    for (int a = 0; a < corners.Count; a++)
-                    {
-                        for (int b = 1; b < corners.Count-1; b++)
-                        {
-                            double currentDistanceTo = corners[a].DistanceTo(corners[b]);
-                            if (currentDistanceTo < shortestDistanceTo && a != b)
-                            {
-                                shortestDistanceTo = currentDistanceTo;
-                                    shortestCorner1 = a;
-                                    shortestCorner2 = b;
-                            }
-                        }
-                    }
-                    IntPoint corner1 = corners[shortestCorner1];
-                    IntPoint corner2 = corners[shortestCorner2];
-                    IntPoint crossing;
-                    Console.WriteLine(corner1.X + corner1.Y);
+                    //Find upperleft corner
+                    IntPoint upperLeftCorner = corners.Aggregate((curMin, c) => (c.X + c.Y) < (curMin.X + curMin.Y) ? c : curMin);
+                    corners.Remove(upperLeftCorner);
 
-                    double aLength;
-                    double bLength;
-                    double cLength;
+                    IntPoint lowerRightCorner = corners.Aggregate((curMax, c) => (c.X + c.Y) > (curMax.X + curMax.Y) ? c : curMax);
 
-                    if (corner1.Y < corner2.Y)
+                    IntPoint lowerLeftCorner = findPointMakingShortestLine(upperLeftCorner, corners);
+                    corners.Remove(lowerLeftCorner);
+
+                    //Als upperLeft corner hoger zit dan lowerRight, neem kortste lijn, anders de langste lijn.
+                    IntPoint remainingCorner;
+                    if (upperLeftCorner.Y < lowerRightCorner.Y)
                     {
-                        crossing = new IntPoint(corner1.X, corner2.Y);
-                        aLength = corner1.DistanceTo(corner2);
-                        bLength = corner1.DistanceTo(crossing);
-                        cLength = corner2.DistanceTo(crossing);
-                        if (corner1.X < corner2.X)
-                            goLeft = true;
-                        else
-                            goLeft = false;
+                        remainingCorner = findPointMakingShortestLine(upperLeftCorner, corners);
                     }
                     else
                     {
-                        crossing = new IntPoint(corner2.X, corner1.Y);
-                        aLength = corner2.DistanceTo(corner1);
-                        bLength = corner2.DistanceTo(crossing);
-                        cLength = corner1.DistanceTo(crossing);
-                        if (corner2.X < corner1.X)
-                            goLeft = true;
-                        else
-                            goLeft = false;
+                        remainingCorner = findPointMakingLongestLine(upperLeftCorner, corners);
                     }
-                    
-                    
+
+                    /*
+                     * We now have two points. 
+                     * Enough to calculate the angle of the line compared to the relative horizon of the drone camera feed.
+                     */
+                    if(remainingCorner.X - upperLeftCorner.X == 0)
+                    {
+                        return;
+                    }
+                    double angleRadians = Math.Atan(((double)remainingCorner.Y - upperLeftCorner.Y) / (remainingCorner.X - upperLeftCorner.X));
+                    turnDegrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
+                    Console.WriteLine(turnDegrees);
 
                     Pen redPen = new Pen(Color.Red, 2);
-                    g.DrawLine(redPen, corner1.X, corner1.Y, corner2.X, corner2.Y);
-                    g.DrawLine(redPen, corner1.X, corner1.Y, crossing.X, crossing.Y);
-                    g.DrawLine(redPen, corner2.X, corner2.Y, crossing.X, crossing.Y);
-
-
-
-                    //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
-                    double aCos = Math.Acos(((aLength * aLength) + (bLength * bLength) - (cLength * cLength)) / ((2 * aLength) * bLength));
-                    angleDeg = (int)Math.Ceiling(aCos * (180.0 / Math.PI));
-
-                    if (goLeft)
-                    {
-                        angleDeg = angleDeg * -1;
-                    } 
-                } 
+                    g.DrawLine(redPen, upperLeftCorner.X, upperLeftCorner.Y, remainingCorner.X, remainingCorner.Y);
+                }
             }
-
-            if (angleDeg != 0)
-            {
-                turnDegrees = angleDeg;
-            }
-       Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
-           if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
-                   Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
-
-          if (isAngleCalibration)
-                    {
-                        //isAngleCalibration = false;
-                      
-                        //stopCurrentTasks();
-
-                        Console.WriteLine(turnDegrees + " [angle] Correcte angle --> Doorgaan!");
-
-                    }
-           }
         }
 
+        private IntPoint findPointMakingLongestLine(IntPoint startPoint, List<IntPoint> points)
+        {
+            //Returns the point making the longest line between itself and startPoint.
+            double longestDistance = 0;
+            IntPoint longestPoint = startPoint; //longestPoint must be initialized
+            foreach (IntPoint point in points)
+            {
+                double currentDistance = startPoint.DistanceTo(point);
+                if (currentDistance > longestDistance)
+                {
+                    longestPoint = point;
+                    longestDistance = currentDistance;
+                }
+            }
+            return longestPoint;
+        }
+
+        private IntPoint findPointMakingShortestLine(IntPoint startPoint, List<IntPoint> points)
+        {
+            //Returns the point making the shortest line between itself and startPoint.
+            double shortestDistance = double.MaxValue;
+            IntPoint shortestPoint = startPoint; //shortestPoint must be initialized
+            foreach (IntPoint point in points)
+            {
+                double currentDistance = startPoint.DistanceTo(point);
+                if (currentDistance < shortestDistance)
+                {
+                    shortestPoint = point;
+                    shortestDistance = currentDistance;
+                }
+            }
+            return shortestPoint;
+        }
 
         public async Task zoekLijn()
         {
