@@ -7,7 +7,7 @@ namespace DroneControl
 {
     public class RouteInterpreter
     {
-        public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover, goBackwardsCalibration, goForwardCalibration;
+        public ICommand goForward, goLeft, goRight, landCommand, takeOffCommand, shortHover, goBackwardsCalibration, goForwardCalibration, flyToOtherRack;
         public GoToHeight goToHeight;
         public BarcodeSmallLeft barcodeSmallLeft;
         public BarcodeSmallRight barcodeSmallRight;
@@ -31,6 +31,8 @@ namespace DroneControl
             shortHover = new ShortHover(ref autopilotController);
             goBackwardsCalibration = new GoBackwardsCalibration(ref autopilotController);
             goForwardCalibration = new GoForwardCalibration(ref autopilotController);
+            flyToOtherRack = new FlyToOtherRack(ref autopilotController);
+       
             turn = new Turn(ref autopilotController);
 
 
@@ -38,14 +40,14 @@ namespace DroneControl
             turn = new Turn(ref autopilotController);
         }
         
-        public void interpret(Route route)
+        public void interpret(List<Position> route)
         {
             //Enqueue takeoff
             takeOffCommand.execute();
 
             List<Position> positions = new List<Position>();
             positions.Add(new Position(0, 0, 0));
-            positions.AddRange(route.getPositions());
+            positions.AddRange(route);
 
             for (int i = 0; i < positions.Count-1; i++)
             {

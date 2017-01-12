@@ -23,15 +23,12 @@ namespace DroneControl
         AutopilotController autopilotController;
         DroneClient droneClient;
         RouteInterpreter routeInterpreter;
-        Route route;
         TaskCompletionSource<bool> flyTaskCompleted;
         TaskCompletionSource<bool> vormTaskCompleted;
-        TaskCompletionSource<bool> scanTaskComleted;
         MainForm mainForm;
         bool isBarcodeCalibration;
         bool isLineCalibration;
         bool isAngleCalibration;
-        bool isLeft;
         public int droneCalibrationDirection { set; get; }
         int turnDegrees;
  
@@ -46,82 +43,49 @@ namespace DroneControl
             mainForm = form;
         }
 
-        public async Task CycleCount()
+        public async Task startSmartScan()
         {
-            // Maak de route, start de drone
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            vormTaskCompleted = new TaskCompletionSource<bool>();
+            List<Position> route = MakeSmartScanRoute();
+            
 
-            route = MakeCycleCountRoute();
-            List<Position> routeList = route.getPositions();
-            autopilotController.Start(); 
+            autopilotController.Start();
             routeInterpreter.takeOffCommand.execute();
             routeInterpreter.shortHover.execute();
+
             await flyTaskCompleted.Task;
 
-
-            // lijn vinden
-            Console.WriteLine("[START] lijn vinden");
-            isLineCalibration = true;
-            mainForm.scanningForLine = true;
             await findLine();
-            isLineCalibration = false;
-            mainForm.scanningForLine = false;
-            Console.WriteLine("[STOP] lijn vinden");
 
-            //// hoek calibratie
-            Console.WriteLine("[START] hoek callibratie");
-            isAngleCalibration = true;
-            mainForm.scanningForAngle = true;
-            routeInterpreter.shortHover.execute();
-            await Task.Delay(300);
             await turnCalibration();
-            isAngleCalibration = false;
-            mainForm.scanningForAngle = false;
-            Console.WriteLine("[STOP] hoek callibratie");
 
-            //na het opstijgen en calibreren, loop door de gemaakte route
-            for (int i = 0; i < route.getCount()-1; i++ )
+
+                 //na het opstijgen en calibreren, loop door de gemaakte route
+            for (int i = 0; i < route.Count()-1; i++ )
             {
               
-                Console.Write(" ga door met loop");
+
 
                 //vlieg naar de volgende positie
                 flyTaskCompleted = new TaskCompletionSource<bool>();
-                Position current = routeList[i];
-                Position target = routeList[i+1];
+                Position current = route[i];
+                Position target = route[i+1];
                 routeInterpreter.flyToCoordinate(current, target);
                 await flyTaskCompleted.Task;
 
-                //voor en achter calibratie
-                isLineCalibration = true;
-                mainForm.scanningForLine = true;
-                await calibration();
-                isLineCalibration = false;
-                mainForm.scanningForLine = false;
+                if (target.isTargetPosition)
+                {
 
-                //// hoek calibratie
-                routeInterpreter.shortHover.execute();
-                isAngleCalibration = true;
-                mainForm.scanningForAngle = true;
-                await turnCalibration();
-                isAngleCalibration = false;
-                mainForm.scanningForAngle = false;
+                    //voor en achter calibratie
+                    await findLine();
 
+                    // hoek calibratie
+                    await turnCalibration();
 
-                //barcode calibratie
-                switchCamera(1);
-                routeInterpreter.shortHover.execute();
-                routeInterpreter.shortHover.execute();
-                isBarcodeCalibration = true;
-          mainForm.scanningForBarcode = true;
-            await searchForBarcode(current);
-            isBarcodeCalibration = false;
-            mainForm.scanningForBarcode = false;
-                switchCamera(2);
-                routeInterpreter.shortHover.execute();
-                routeInterpreter.shortHover.execute();
-
+                    //barcode calibratie
+                    await searchForBarcode(current);
+             
+                }
 
 
             }
@@ -131,9 +95,123 @@ namespace DroneControl
            
         }
 
+
+        public async Task TESTCycleCount()
+        {
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+        }
+
+        public async Task CycleCount()
+        {
+            // Maak de route, start de drone
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            vormTaskCompleted = new TaskCompletionSource<bool>();
+
+            List<Position> route = MakeCycleCountRoute();
+            autopilotController.Start(); 
+            routeInterpreter.takeOffCommand.execute();
+            routeInterpreter.shortHover.execute();
+            await flyTaskCompleted.Task;
+
+            await findLine();
+
+            await turnCalibration();
+
+            //na het opstijgen en calibreren, loop door de gemaakte route
+            for (int i = 0; i < route.Count - 1; i++ )
+            {
+
+                //vlieg naar de volgende positie
+                Position current = route[i];
+                Position target = route[i+1];
+
+                if (current.z == target.z)
+                {
+                    flyTaskCompleted = new TaskCompletionSource<bool>();
+                    routeInterpreter.flyToCoordinate(current, target);
+                    await flyTaskCompleted.Task;
+                }
+                else
+                {
+                    await flyToZ(current, target);
+                }
+                await findLine();
+
+                await turnCalibration();
+
+                //barcode calibratie
+                await searchForBarcode(current);
+
+            }
+            //einde route, landen.
+            routeInterpreter.landCommand.execute();
+            //mainForm.wmsForm.showMutations();
+           
+        }
+
+        private async Task flyToZ(Position currentPos, Position targetPos){
+            //turn 180 degrees
+            routeInterpreter.turn.execute(180);
+
+            //calibrate
+            await findLine();
+            await turnCalibration();
+
+            //andere lijn vinden
+            routeInterpreter.flyToOtherRack.execute();
+            await Task.Delay(2000);
+            await findLine();
+            await turnCalibration();
+
+
+            //fly to coordinate
+            Position newCurrentPos = currentPos;
+            switch (currentPos.x)
+            {
+                case 0:
+                    newCurrentPos.x = 8;
+                    break;
+                case 1:
+                    newCurrentPos.x = 7;
+                    break;
+                case 2:
+                    newCurrentPos.x = 6;
+                    break;
+                case 3:
+                    newCurrentPos.x = 5;
+                    break;
+                case 5:
+                    newCurrentPos.x = 3;
+                    break;
+                case 6:
+                    newCurrentPos.x = 2;
+                    break;
+                case 7:
+                    newCurrentPos.x = 1;
+                    break;
+                case 8:
+                    newCurrentPos.x = 0;
+                    break;
+
+            }
+     
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            routeInterpreter.flyToCoordinate(newCurrentPos, targetPos);
+            await flyTaskCompleted.Task;
+
+    }
+
         //zoek naar een barcode door naar links en naar rechts te vliegen. 
         private async Task searchForBarcode(Position i)
         {
+            flyTaskCompleted = new TaskCompletionSource<bool>();
+            switchCamera(1);
+            routeInterpreter.shortHover.execute();
+
+            isBarcodeCalibration = true;
+            mainForm.scanningForBarcode = true;
+ 
             flyTaskCompleted = new TaskCompletionSource<bool>();
             //1 maal links
             routeInterpreter.barcodeSmallLeft.execute(1000);
@@ -145,11 +223,20 @@ namespace DroneControl
             routeInterpreter.barcodeSmallLeft.execute(1000);
             routeInterpreter.shortHover.execute();
            await flyTaskCompleted.Task;
-   
+
+           isBarcodeCalibration = false;
+           mainForm.scanningForBarcode = false;
+
+           switchCamera(2);
+           await Task.Delay(500);
         }
 
         public async Task findLine()
         {
+
+            isLineCalibration = true;
+            mainForm.scanningForLine = true;
+
             flyTaskCompleted = new TaskCompletionSource<bool>();
             await Task.Delay(3000);
             routeInterpreter.shortHover.execute();
@@ -163,6 +250,9 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
+            isLineCalibration = false;
+            mainForm.scanningForLine = false;
+           
         }
         public void setFlyTaskCompleted()
         {
@@ -195,15 +285,22 @@ namespace DroneControl
 
         //calibreren van hoek
         public async Task turnCalibration()
-        { 
+        {
+
+            isAngleCalibration = true;
+            mainForm.scanningForAngle = true;
+            routeInterpreter.shortHover.execute();
+
             flyTaskCompleted = new TaskCompletionSource<bool>();
            
-            if (turnDegrees < -5 || turnDegrees > 5)
+            if (turnDegrees < -10 || turnDegrees > 10)
             {
                routeInterpreter.turn.execute(turnDegrees);
                Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
             }
           await flyTaskCompleted.Task;
+          isAngleCalibration = false;
+          mainForm.scanningForAngle = false;
         }
        
 
@@ -218,52 +315,6 @@ namespace DroneControl
             vormTaskCompleted.SetResult(true);
         }
         
-        public async Task SmartScan()
-        {
-            Route route = MakeSmartScanRoute();
-            List<Position> routeList = route.getPositions();
-
-            flyTaskCompleted = new TaskCompletionSource<bool>();
-
-            autopilotController.Start();
-            routeInterpreter.takeOffCommand.execute();
-
-            await flyTaskCompleted.Task; //Begin when drone is in the air and ready to fly the route
-
-            for (int i = 0; i < route.getCount() - 1; i++)
-            {
-                flyTaskCompleted = new TaskCompletionSource<bool>();
-
-                Position current = routeList[i];
-                Position target = routeList[i + 1];
-
-                routeInterpreter.flyToCoordinate(current, target);
-
-                await flyTaskCompleted.Task;
-
-                //voor en achter calibratie
-                /*
-                mainForm.isDroneReady = true;
-                if (droneCalibrationDirection != 0)
-                {
-                    await calibration();
-                }*/
-
-                //barcode calibratie
-                if (target.isTargetPosition)
-                {
-                    isBarcodeCalibration = true;
-                    mainForm.scanningForBarcode = true;
-                    await searchForBarcode(current);
-                    isBarcodeCalibration = false;
-                    mainForm.scanningForBarcode = false;
-                }
-                
-            }
-            routeInterpreter.landCommand.execute();
-            //autopilotController.Stop();
-            mainForm.wmsForm.showMutations();
-        }
 
         public void scanForBarcode()
         {
@@ -444,7 +495,7 @@ namespace DroneControl
             droneClient.Dispose();
         }
 
-        private Route MakeCycleCountRoute()
+        private List<Position> MakeCycleCountRoute()
         {
             /*
              * Find all products, create a position per product and then plot a route between those positions.
@@ -456,15 +507,16 @@ namespace DroneControl
                 products = db.Products.ToList();
             }
 
+            List<Position> itemsToCheck = new List<Position>();
             foreach (Product p in products)
             {
-                Positions.addPosition(new Position(p.X, p.Y, p.Z));
+                itemsToCheck.Add(new Position(p.X, p.Y, p.Z));
             }
             //Make full cycle route using the positions in the static Positions class
-            return RoutePlan.makeCycleCountRoute();
+            return RoutePlan.makeCycleCountRoute(itemsToCheck);
         }
 
-        private Route MakeSmartScanRoute()
+        private List<Position> MakeSmartScanRoute()
         {
             /*
              * Find all products exceeding the deviation threshhold and plot a route between those products.

@@ -262,7 +262,7 @@ namespace DroneControl
 
         private void btnSmartScan_Click(object sender, EventArgs e)
         {
-            _droneController.SmartScan();
+            _droneController.startSmartScan();
         }
 
         private void checkAfwijking(Bitmap frame)
