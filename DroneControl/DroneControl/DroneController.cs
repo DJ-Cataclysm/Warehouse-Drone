@@ -522,55 +522,27 @@ namespace DroneControl
         //function that calculates the angle from the drone using the line. Called from mainform frame update.
         public void calculateAngle()
         {
-            Bitmap myBitmap = mainForm.getFrame();
+            Bitmap videoFrame = mainForm.getFrame();
+            BitmapData bitmapData = createFilteredBitMap(videoFrame);
+            BlobCounter blobCounter = new BlobCounter();
+            Blob[] blobs = findBlobs(blobCounter, bitmapData);
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+            Graphics g = Graphics.FromImage(videoFrame);
+            videoFrame.UnlockBits(bitmapData);
             int angleDeg = 0;
             bool goLeft;
 
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-
-            colorFilter.Red = new IntRange(150, 255);
-            colorFilter.Green = new IntRange(150, 255);
-            colorFilter.Blue = new IntRange(150, 255);
-            colorFilter.FillOutsideRange = true;
-
-            colorFilter.ApplyInPlace(bitmapData);
-
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-
-            Graphics g = Graphics.FromImage(myBitmap);
-
-            // check each object and draw triangle around objects, which
-            // are recognized as triangles
+            // Check if there's a line on the ground with a minimum surface area of 200 pixels and get it in the middle of the screen
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
-                
-
                 if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
                 {
+                    // Locate one of the two shortest side of the line
                     double shortestDistanceTo = 99999999;
-                    int shortestCorner1 = 0;
-                    int shortestCorner2 = 0;
+                    int shortestLineCorner1 = 0;
+                    int shortestLineCorner2 = 0;
                     for (int a = 0; a < corners.Count; a++)
                     {
                         for (int b = 1; b < corners.Count-1; b++)
@@ -579,54 +551,54 @@ namespace DroneControl
                             if (currentDistanceTo < shortestDistanceTo && a != b)
                             {
                                 shortestDistanceTo = currentDistanceTo;
-                                    shortestCorner1 = a;
-                                    shortestCorner2 = b;
+                                    shortestLineCorner1 = a;
+                                    shortestLineCorner2 = b;
                             }
                         }
                     }
-                    IntPoint corner1 = corners[shortestCorner1];
-                    IntPoint corner2 = corners[shortestCorner2];
+                    IntPoint corner1 = corners[shortestLineCorner1];
+                    IntPoint corner2 = corners[shortestLineCorner2];
                     IntPoint crossing;
-                    Console.WriteLine(corner1.X + corner1.Y);
 
-                    double aLength;
-                    double bLength;
-                    double cLength;
+                    double aSide;
+                    double bSide;
+                    double cSide;
 
+                    //Use the top point of the small side to create a triangle with the bottom point of the small side
                     if (corner1.Y < corner2.Y)
                     {
                         crossing = new IntPoint(corner1.X, corner2.Y);
-                        aLength = corner1.DistanceTo(corner2);
-                        bLength = corner1.DistanceTo(crossing);
-                        cLength = corner2.DistanceTo(crossing);
+                        aSide = corner1.DistanceTo(corner2);
+                        bSide = corner1.DistanceTo(crossing);
+                        cSide = corner2.DistanceTo(crossing);
                         if (corner1.X < corner2.X)
+                        {
                             goLeft = true;
+                        }
                         else
+                        {
                             goLeft = false;
+                        }
                     }
                     else
                     {
                         crossing = new IntPoint(corner2.X, corner1.Y);
-                        aLength = corner2.DistanceTo(corner1);
-                        bLength = corner2.DistanceTo(crossing);
-                        cLength = corner1.DistanceTo(crossing);
+                        aSide = corner2.DistanceTo(corner1);
+                        bSide = corner2.DistanceTo(crossing);
+                        cSide = corner1.DistanceTo(crossing);
                         if (corner2.X < corner1.X)
+                        {
                             goLeft = true;
+                        }
                         else
+                        {
                             goLeft = false;
+                        }
                     }
-                    
-                    
 
-                    Pen redPen = new Pen(Color.Red, 2);
-                    g.DrawLine(redPen, corner1.X, corner1.Y, corner2.X, corner2.Y);
-                    g.DrawLine(redPen, corner1.X, corner1.Y, crossing.X, crossing.Y);
-                    g.DrawLine(redPen, corner2.X, corner2.Y, crossing.X, crossing.Y);
-
-
-
-                    //Use the known Vertexes to calculate the angle that the drone deviates from the top Point
-                    double aCos = Math.Acos(((aLength * aLength) + (bLength * bLength) - (cLength * cLength)) / ((2 * aLength) * bLength));
+                    //Use the known sides to calculate the angle and direction that the drone has to turn to align itself with the line
+                    //using the formula cos(C) = (A^2 + B^2 - C^2) / (2*A*B)
+                    double aCos = Math.Acos(((aSide * aSide) + (bSide * bSide) - (cSide * cSide)) / ((2 * aSide) * bSide));
                     angleDeg = (int)Math.Ceiling(aCos * (180.0 / Math.PI));
 
                     if (goLeft)
@@ -636,22 +608,18 @@ namespace DroneControl
                 } 
             }
 
-            if (angleDeg != 0)
+            if (angleDeg > 3 || angleDeg < -3)
             {
                 turnDegrees = angleDeg;
             }
-       Console.WriteLine(" [angle] ((FOUT)) : " + turnDegrees);
            if (turnDegrees >-5 && turnDegrees < 5 && turnDegrees != 0){
-                   Console.WriteLine(" [angle] ((GOED)) : " + turnDegrees);
-
-          if (isAngleCalibration)
+           if (isAngleCalibration)
                     {
                         //isAngleCalibration = false;
                       
                         //stopCurrentTasks();
 
                         Console.WriteLine(turnDegrees + " [angle] Correcte angle --> Doorgaan!");
-
                     }
            }
         }
@@ -659,75 +627,63 @@ namespace DroneControl
         //function that checks if the line is found. Called from Mainform frame update
         public async Task zoekLijn()
         {
-            Bitmap myBitmap = mainForm.getFrame();
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-
-            colorFilter.Red = new IntRange(180, 255);
-            colorFilter.Green = new IntRange(160, 255);
-            colorFilter.Blue = new IntRange(180, 255);
-            colorFilter.FillOutsideRange = true;
-
-            colorFilter.ApplyInPlace(bitmapData);
-
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
+            Bitmap videoFrame = mainForm.getFrame();
+            BitmapData bitmapData = createFilteredBitMap(videoFrame);
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+            Graphics g = Graphics.FromImage(videoFrame);
+            BlobCounter blobCounter = new BlobCounter();
+            Blob[] blobs = findBlobs(blobCounter, bitmapData);
+            videoFrame.UnlockBits(bitmapData);
 
-            Graphics g = Graphics.FromImage(myBitmap);
-            
-
-            // check each object and draw triangle around objects, which
-            // are recognized as triangles
+            // Check if there's a line on the ground and get it in the middle of the screen
             for (int i = 0, n = blobs.Length; i < n; i++)
             {
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
-
                 if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
                 {
-                    foreach (IntPoint corner in corners)
-                    {
-                        Console.WriteLine(corner);
-                    }
-                    
                     mainForm.lineFound = true;
                     mainForm.scanningForLine = false;
-                    Console.WriteLine("[line] Lijn gevonden");
-
-
                     if (isLineCalibration)
                     {
                         isLineCalibration = false;
                         await Task.Delay(700);
                         stopCurrentTasks();
-
-                        //autopilotController.Start();
-                        Console.WriteLine("[line] 700 ms gewacht ; lijnvinden gestopt");
-
                     }
-
                 }
             }
-            mainForm.pbVideo.Image = myBitmap;
+            mainForm.pbVideo.Image = videoFrame;
             g.Dispose();
+        }
+
+        private BitmapData createFilteredBitMap(Bitmap frame)
+        {
+            // Lock image to prevent other sources from interfering
+            BitmapData bitmapData = frame.LockBits(
+                new Rectangle(0, 0, frame.Width, frame.Height),
+                ImageLockMode.ReadWrite, frame.PixelFormat);
+
+            // Turn anything that isn't white, into black
+            ColorFiltering colorFilter = new ColorFiltering();
+            colorFilter.Red = new IntRange(160, 255);
+            colorFilter.Green = new IntRange(160, 255);
+            colorFilter.Blue = new IntRange(160, 255);
+            colorFilter.FillOutsideRange = true;
+            colorFilter.ApplyInPlace(bitmapData);
+
+            return bitmapData;
+        }
+
+        private Blob[] findBlobs(BlobCounter counter, BitmapData bmpData)
+        {
+            // Find the corners in the frame and identify them
+            counter.FilterBlobs = true;
+            counter.MinHeight = 5;
+            counter.MinWidth = 5;
+            counter.ProcessImage(bmpData);
+            Blob[] blobs = counter.GetObjectsInformation();
+
+            return blobs;
         }
     }
 }

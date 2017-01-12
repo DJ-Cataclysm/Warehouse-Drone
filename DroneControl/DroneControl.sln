@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroneControl", "DroneControl\DroneControl.csproj", "{D5895297-3890-4E38-B139-97F409049444}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoutePlanner", "RouteInterpreter\RoutePlanner.csproj", "{35F455F3-BCC4-45B5-B967-B76ADB4B7637}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMS", "WMS\WMS.csproj", "{49EF419D-1ED9-4612-BDD8-13FAADE687C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroneControlTests", "DroneControlTests\DroneControlTests.csproj", "{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
