@@ -32,30 +32,7 @@ namespace DroneControl
             goBackwardsCalibration = new GoBackwardsCalibration(ref autopilotController);
             goForwardCalibration = new GoForwardCalibration(ref autopilotController);
             flyToOtherRack = new FlyToOtherRack(ref autopilotController);
-       
             turn = new Turn(ref autopilotController);
-
-
-
-            turn = new Turn(ref autopilotController);
-        }
-        
-        public void interpret(List<Position> route)
-        {
-            //Enqueue takeoff
-            takeOffCommand.execute();
-
-            List<Position> positions = new List<Position>();
-            positions.Add(new Position(0, 0, 0));
-            positions.AddRange(route);
-
-            for (int i = 0; i < positions.Count-1; i++)
-            {
-                flyToCoordinate(positions[i], positions[i + 1]);
-            }
-
-            //Enqueue landing
-            landCommand.execute();
         }
 
         public void flyToCoordinate(Position current, Position target)
@@ -112,18 +89,6 @@ namespace DroneControl
                 //Set facingDirection to true or false by even or uneven Z coordinate
                 facingDirection = (target.z % 2 == 0); //When false the strafe directions are inverted
             }
-        }
-        public void testRoute()
-        {
-            //Remove this method in release
-            //Used for enqueing commands in a test environment
-            //headings = new Heading(autopilotController.getNavigationData().Yaw);
-            //float hoogte = 1f;
-            takeOffCommand.execute();
-            goToHeight.execute(2f);
-            turn.execute(-180);
-            turn.execute(180);
-            landCommand.execute();
         }
     }
 }

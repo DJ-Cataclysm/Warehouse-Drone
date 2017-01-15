@@ -502,29 +502,29 @@ namespace DroneControl
         }
 
         //function that calculates the angle from the drone using the line. Called from mainform frame update.
-        public void calculateAngle()
+        public void detectLine()
         {
             Bitmap myBitmap = mainForm.getFrame();
 
             // lock image
             BitmapData bitmapData = myBitmap.LockBits(
-            new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-            ImageLockMode.ReadWrite, myBitmap.PixelFormat);
+                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+                ImageLockMode.ReadWrite, 
+                myBitmap.PixelFormat);
 
             // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-            colorFilter.Red = new IntRange(150, 255);
-            colorFilter.Green = new IntRange(150, 255);
-            colorFilter.Blue = new IntRange(150, 255);
-            colorFilter.FillOutsideRange = true;
-            colorFilter.ApplyInPlace(bitmapData);
+            IntRange colorRange = new IntRange(150, 255); 
+            ColorFiltering colorFilter = new ColorFiltering(colorRange, colorRange, colorRange);
+            colorFilter.FillOutsideRange = true; //All colors outside colorRange range are turned black
+            colorFilter.ApplyInPlace(bitmapData); //Apply to current bitmap
 
             // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
+            BlobCounter blobCounter = new BlobCounter()
+            {
+                FilterBlobs = true,
+                MinHeight = 5,
+                MinWidth = 5,
+            };
             blobCounter.ProcessImage(bitmapData);
 
             Blob[] blobs = blobCounter.GetObjectsInformation();
@@ -532,15 +532,13 @@ namespace DroneControl
             myBitmap.UnlockBits(bitmapData);
 
             // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-            
-            // Check if there's a line on the ground with a minimum surface area of 200 pixels and get it in the middle of the screen
-            for (int i = 0, n = blobs.Length; i < n; i++)
+            // Check if there's a line on the ground with a minimum surface area of 200 square pixels and get it in the middle of the screen
+            for (int i = 0; i < blobs.Length; i++)
             {
                 List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
-
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
+                
+                if (isQuadrilateralAndBigEnough(edgePoints, out corners))
                 {
                     //Find upperleft corner
                     IntPoint upperLeftCorner = corners.Aggregate((curMin, c) => (c.X + c.Y) < (curMin.X + curMin.Y) ? c : curMin);
@@ -548,72 +546,90 @@ namespace DroneControl
 
                     IntPoint lowerRightCorner = corners.Aggregate((curMax, c) => (c.X + c.Y) > (curMax.X + curMax.Y) ? c : curMax);
 
-                    IntPoint lowerLeftCorner = findPointMakingShortestLine(upperLeftCorner, corners);
+                    //Get IntPoint making shortest line
+                    IntPoint lowerLeftCorner = findPointMakingLongestOrShortestLine(upperLeftCorner, corners, false);
                     corners.Remove(lowerLeftCorner);
 
                     IntPoint remainingCorner;
                     if (upperLeftCorner.Y < lowerRightCorner.Y)
                     {
-                        remainingCorner = findPointMakingShortestLine(upperLeftCorner, corners);
+                        //Get IntPoint making shortest line
+                        remainingCorner = findPointMakingLongestOrShortestLine(upperLeftCorner, corners, false);
                     }
                     else
                     {
-                        remainingCorner = findPointMakingLongestLine(upperLeftCorner, corners);
+                        //Get IntPoint making longest line
+                        remainingCorner = findPointMakingLongestOrShortestLine(upperLeftCorner, corners, true);
                     }
 
                     /*
                      * We now have two points. 
                      * Enough to calculate the angle of the line compared to the relative horizon of the drone camera feed.
                      */
-                    if(remainingCorner.X - upperLeftCorner.X == 0)
-                    {
-                        return;
-                    }
-                    double angleRadians = Math.Atan(((double)remainingCorner.Y - upperLeftCorner.Y) / (remainingCorner.X - upperLeftCorner.X));
-                    turnDegrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
-                    Console.WriteLine(turnDegrees);
+                    turnDegrees = calculateAngle(upperLeftCorner, remainingCorner);
 
+                    /*
                     using (Graphics g = Graphics.FromImage(myBitmap))
                     {
                         Pen redPen = new Pen(Color.Red, 8);
                         g.DrawLine(redPen, upperLeftCorner.X, upperLeftCorner.Y, remainingCorner.X, remainingCorner.Y);
-                    }
+                    }*/
                 }
             }
         }
 
-        private IntPoint findPointMakingLongestLine(IntPoint startPoint, List<IntPoint> points)
+        private bool isQuadrilateralAndBigEnough(List<IntPoint> edgePoints, out List<IntPoint> corners)
         {
-            //Returns the point making the longest line between itself and startPoint.
-            double longestDistance = 0;
-            IntPoint longestPoint = startPoint; //longestPoint must be initialized
-            foreach (IntPoint point in points)
-            {
-                double currentDistance = startPoint.DistanceTo(point);
-                if (currentDistance > longestDistance)
-                {
-                    longestPoint = point;
-                    longestDistance = currentDistance;
-                }
-            }
-            return longestPoint;
+            double threshold = 200d;
+            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
+            bool isQuadrilateral = shapeChecker.IsQuadrilateral(edgePoints, out corners);
+            bool isBigEnough = corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > threshold;
+            return isQuadrilateral && isBigEnough;
         }
 
-        private IntPoint findPointMakingShortestLine(IntPoint startPoint, List<IntPoint> points)
+        private int calculateAngle(IntPoint pointA, IntPoint pointB)
         {
-            //Returns the point making the shortest line between itself and startPoint.
-            double shortestDistance = double.MaxValue;
-            IntPoint shortestPoint = startPoint; //shortestPoint must be initialized
+            if (pointB.X - pointA.X == 0)
+            {
+                return 0;
+            }
+            double angleRadians = Math.Atan(((double)pointB.Y - pointA.Y) / (pointB.X - pointA.X));
+            int degrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
+            return degrees;
+        }
+
+        private IntPoint findPointMakingLongestOrShortestLine(IntPoint startPoint, List<IntPoint> points, bool getLongest)
+        {
+            /*
+             * Returns the point making the longest or shortest line between itself and startPoint.
+             * This depends on the getLongest bool. If true then get the longest, else get shortest line.
+             */
+            double knownDistance;
+            if (getLongest)
+            {
+                knownDistance = 0d;
+            }
+            else
+            {
+                knownDistance = double.MaxValue;
+            }
+
+            IntPoint longestOrShortestPoint = startPoint; //Must be initialized
             foreach (IntPoint point in points)
             {
                 double currentDistance = startPoint.DistanceTo(point);
-                if (currentDistance < shortestDistance)
+                if (getLongest && currentDistance > knownDistance)
                 {
-                    shortestPoint = point;
-                    shortestDistance = currentDistance;
+                    longestOrShortestPoint = point;
+                    knownDistance = currentDistance;
+                }
+                else if(!getLongest && currentDistance < knownDistance)
+                {
+                    longestOrShortestPoint = point;
+                    knownDistance = currentDistance;
                 }
             }
-            return shortestPoint;
+            return longestOrShortestPoint;
         }
 
         public async Task zoekLijn()

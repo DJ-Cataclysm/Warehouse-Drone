@@ -2,25 +2,20 @@
 using AR.Drone.Avionics.Objectives;
 using AR.Drone.Client;
 using AR.Drone.Data.Navigation;
-using System.Threading;
-using System;
+
 namespace DroneControl
 {
     public class AutopilotController
     {
         private Autopilot _autopilot;
         private DroneClient _droneClient;
-        private DroneController droneController;
 
         public AutopilotController(DroneClient droneclient, DroneController dc)
         {
-
             _droneClient = droneclient;
             _autopilot = new Autopilot(_droneClient);
             _autopilot.BindToClient();
-            droneController = dc;
-
-            _autopilot.OnOutOfObjectives += volgende;
+            _autopilot.OnOutOfObjectives += dc.setFlyTaskCompleted;
         }
 
         public void EnqueueObjective(Objective objective)
@@ -30,26 +25,8 @@ namespace DroneControl
 
         public void Start()
         {
-            _autopilot.Start();
             _autopilot.Active = true;
-        }
-
-        public void volgende()
-
-        {
-
-            droneController.setFlyTaskCompleted();
-            //
-            
-        }
-        public bool isAutopilotActive()
-        {
-            if (_autopilot.Active)
-            {
-                return true;
-
-            }
-            else { return false; }
+            _autopilot.Start();
         }
 
         public void Stop()
@@ -62,6 +39,7 @@ namespace DroneControl
         {
             return _droneClient.NavigationData;
         }
+
         public void clearObjectives()
         {
             _autopilot.ClearObjectives();

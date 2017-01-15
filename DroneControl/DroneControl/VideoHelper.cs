@@ -11,6 +11,7 @@ namespace DroneControl
     /*
      * This code is from Ruslan-B, creator of the AR.Drone library for C#.
      * It is a helper class for updating and creating the bitmap used in showing the video feed. 
+     * Originally featured in the example AR.Drone.WinApp project of the library.
      */
     public static class VideoHelper
     {

@@ -154,7 +154,7 @@ namespace DroneControl
 
             if (scanningForAngle)
             {
-                _droneController.calculateAngle();
+                _droneController.detectLine();
             }
             
             
