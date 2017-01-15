@@ -37,17 +37,21 @@ namespace RoutePlanner
              * Find boundary coordinates for use with graph creation by using Linq.
              * Aggregate is used here to loop through the items while keep track of the smallest x/y/z.
              * CC is 22, but it does not really make sense to split this method up any further.
+             * Also contains magic index numbers, but since they are declared in the int[] boundary
+             * We'll allow it.
              */
             int[] boundary = new int[]
             {
-                itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x,
-                itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x,
-                itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y,
-                itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y ? p : curMin).y,
-                itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z,
-                itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z
+                itemsToCheck.Aggregate((curMin, p) => p.x < curMin.x ? p : curMin).x, //index = 0
+                itemsToCheck.Aggregate((curMin, p) => p.x > curMin.x ? p : curMin).x, //index = 1
+                itemsToCheck.Aggregate((curMin, p) => p.y < curMin.y ? p : curMin).y, //index = 2
+                itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y ? p : curMin).y, //index = 3
+                itemsToCheck.Aggregate((curMin, p) => p.z < curMin.z ? p : curMin).z, //index = 4
+                itemsToCheck.Aggregate((curMin, p) => p.z > curMin.z ? p : curMin).z  //index = 5
             };
-            if (boundary[0] > 0) { boundary[0] = 0; }
+
+            //Make sure the starting position is always within boundary
+            if (boundary[0] > 0) { boundary[0] = 0; } 
             if (boundary[2] > 0) { boundary[2] = 0; }
             if (boundary[4] > 0) { boundary[4] = 0; }
 
@@ -56,7 +60,10 @@ namespace RoutePlanner
 
         private void initializeGrid(int[] boundary)
         {
-            //Create all position objects within boundary and add to gridPointMap
+            /*
+             * Create all position objects within boundary and add to gridPointMap
+             * See findBoundary() for an definition of the magic index numbers.
+             */
             for (int x = boundary[0]; x <= boundary[1]; x++) //xMin to xMax
             {
                 for (int y = boundary[2]; y <= boundary[3]; y++) //yMin to yMax

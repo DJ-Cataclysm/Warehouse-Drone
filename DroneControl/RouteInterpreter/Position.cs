@@ -11,6 +11,8 @@ namespace RoutePlanner
         public int x, y, z;
         //This boolean determines if this position should be scanned for barcodes
         public bool isTargetPosition;
+        const int HASH_STARTNUMBER = 13; //Should be a prime number to avoid collisions
+        const int HASH_MULTIPLIER = 7;
 
         public Position(int x, int y, int z, bool isTargetPosition = false)
         {
@@ -34,13 +36,12 @@ namespace RoutePlanner
 
         public override int GetHashCode()
         {
-            int hash = 13;
-            hash = (hash * 7) + x.GetHashCode();
-            hash = (hash * 7) + y.GetHashCode();
-            hash = (hash * 7) + z.GetHashCode();
+            int hash = HASH_STARTNUMBER;
+            hash = (hash * HASH_MULTIPLIER) + x.GetHashCode();
+            hash = (hash * HASH_MULTIPLIER) + y.GetHashCode();
+            hash = (hash * HASH_MULTIPLIER) + z.GetHashCode();
             return hash;
         }
-
 
         public override string ToString()
         {

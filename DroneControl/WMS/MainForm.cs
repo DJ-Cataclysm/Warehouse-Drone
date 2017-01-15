@@ -9,6 +9,7 @@ namespace WMS
     {
         List<Mutation> pendingMutations;
         MutationForm mutationForm;
+        static DateTime MINIMUMDATE = new DateTime(1753, 1, 1); //SQLServer DateTime1 has this as minimum value
 
         public MainForm()
         {
@@ -154,8 +155,8 @@ namespace WMS
                     case "LastCheck":
                         //Must be a valid DateTime string
                         DateTime tempDate;
-                        DateTime minimumDate = new DateTime(1753, 1, 1); //SQLServer DateTime1 has this as minimum value
-                        if (!DateTime.TryParse((string)e.FormattedValue, out tempDate) || tempDate < minimumDate)
+                        
+                        if (!DateTime.TryParse((string)e.FormattedValue, out tempDate) || tempDate < MINIMUMDATE)
                         {
                             //DateTime string is invalid
                             MessageBox.Show("The value \"" + (string)e.FormattedValue + 
