@@ -42,26 +42,30 @@ namespace DroneControl
             int deltaZ = target.z - current.z;
 
             //Enqueue horizontal movement (X-axis)
-            if (deltaX > 0)
+            flyHorizontal(deltaX);
+
+            //Enqueue vertical movement (Y-axis), must be in range of 0 meters and 4.
+            flyVertical(deltaY, target.y);
+
+            //Enqueue aisle movement (Z-axis), limited to 0 and 1 at the moment.
+            flyToAisle(deltaZ, target.z);
+        }
+
+        private void flyHorizontal(int deltaX)
+        {
+            if (deltaX != 0)
             {
-                for (int timesRight = 0; timesRight < deltaX; timesRight++)
+                for (int i = 0; i < Math.Abs(deltaX); i++)
                 {
-                    if (facingDirection)
+                    if (facingDirection && deltaX > 0)
                     {
                         goRight.execute();
                     }
-                    else
+                    else if (!facingDirection && deltaX > 0)
                     {
                         goLeft.execute();
                     }
-
-                }
-            }
-            else if (deltaX < 0)
-            {
-                for (int timesLeft = 0; timesLeft > deltaX; timesLeft--)
-                {
-                    if (facingDirection)
+                    else if (facingDirection)
                     {
                         goLeft.execute();
                     }
@@ -71,14 +75,19 @@ namespace DroneControl
                     }
                 }
             }
+        }
 
-            //Enqueue vertical movement (Y-axis)
-            if ((deltaY > 0 || deltaY < 0) && target.y < 4 && target.y >= 0)
+        private void flyVertical(int deltaY, int targetY)
+        {
+            if (deltaY != 0 && targetY < 4 && targetY >= 0)
             {
                 float distanceFromGround = 0.2f;
-                goToHeight.execute(target.y + distanceFromGround);
+                goToHeight.execute(targetY + distanceFromGround);
             }
+        }
 
+        private void flyToAisle(int deltaZ, int targetZ)
+        {
             //Currently limited to either 0 or 1
             if (deltaZ != 0)
             {
@@ -87,7 +96,7 @@ namespace DroneControl
                 goForward.execute();
 
                 //Set facingDirection to true or false by even or uneven Z coordinate
-                facingDirection = (target.z % 2 == 0); //When false the strafe directions are inverted
+                facingDirection = (targetZ % 2 == 0); //When false the strafe directions are inverted
             }
         }
     }
