@@ -99,6 +99,7 @@ namespace RoutePlanner
             /*
              * Check for adjacent gridpoints (on all 6 sides) and returns those.
              * Even though the CC is 19, it does not really make sense to split this method up any further.
+             * Because of the FirstOrDefault predicates it is this high.
              */
             List<Position> adjacent = new List<Position>()
             {

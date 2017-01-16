@@ -23,8 +23,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RoutePlanner", "RouteInterp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMS", "WMS\WMS.csproj", "{49EF419D-1ED9-4612-BDD8-13FAADE687C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroneControlTests", "DroneControlTests\DroneControlTests.csproj", "{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,10 +69,6 @@ Global
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{49EF419D-1ED9-4612-BDD8-13FAADE687C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD53483D-6D2D-42AB-B177-B1A5C9F73C64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

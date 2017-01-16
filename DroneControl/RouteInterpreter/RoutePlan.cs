@@ -33,7 +33,7 @@ namespace RoutePlanner
 
             foreach(int z in allZCoords)
             {
-                //get maximum y value within the current z coordinate.
+                //Get maximum y value within the current z coordinate
                 int yAxisMax = itemsToCheck.Aggregate((curMin, p) => p.y > curMin.y  && p.z == z? p : curMin).y; 
 
                 //Sort the list so that each row gets reversed

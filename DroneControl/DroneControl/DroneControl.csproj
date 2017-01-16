@@ -83,7 +83,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="LineDetection.cs" />
     <Compile Include="AutopilotController.cs" />
+    <Compile Include="BarcodeScanning.cs" />
     <Compile Include="Commands\BarcodeSmallLeft.cs" />
     <Compile Include="Commands\BarcodeSmallRight.cs" />
     <Compile Include="Commands\BarcodeSmallUpDown.cs" />

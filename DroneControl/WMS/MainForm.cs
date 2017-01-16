@@ -150,39 +150,53 @@ namespace WMS
             {
                 //Find the edited column, trigger different behavior, depending on the column being edited
                 //Note: Title and description is a string and can therefore not really be invalid
-                switch (dgvProducts.Columns[e.ColumnIndex].Name)
+                string name = dgvProducts.Columns[e.ColumnIndex].Name;
+                string input = (string)e.FormattedValue;
+                if (name == "LastCheck")
                 {
-                    case "LastCheck":
-                        //Must be a valid DateTime string
-                        DateTime tempDate;
-                        
-                        if (!DateTime.TryParse((string)e.FormattedValue, out tempDate) || tempDate < MINIMUMDATE)
-                        {
-                            //DateTime string is invalid
-                            MessageBox.Show("The value \"" + (string)e.FormattedValue + 
-                                "\" is not valid, please input a valid date. Reverting input.");
-                            dgvProducts.CancelEdit();
-                        }
-                        else if (DateTime.Now < tempDate)
-                        {
-                            //DateTime string is invalid because it is in the future
-                            MessageBox.Show("The value \"" + (string)e.FormattedValue + 
-                                "\" is in the future, please input a valid date. Reverting input.");
-                            dgvProducts.CancelEdit();
-                        }
-                        break;
-                    case "Count": case "X": case "Y": case "Z":
-                        //Must be an integer bigger or equal to 0
-                        int tempInt;
-                        if (!int.TryParse((string)e.FormattedValue, out tempInt) || tempInt < 0)
-                        {
-                            //Count is invalid, it is either not an int or it is <0
-                            MessageBox.Show("The value \"" + (string)e.FormattedValue + 
-                                "\" is not a valid number. Reverting input.");
-                            dgvProducts.CancelEdit();
-                        }
-                        break;
+                    validateDate(input);
                 }
+                else if(name == "Count")
+                {
+                    validateInt(input, true);
+                }  
+                else if(name == "X" || name == "X" || name == "Z" || name == "Deviation")
+                {
+                    validateInt(input, false);
+                }       
+            }  
+        }
+
+        private void validateInt(string input, bool mustBeAboveZero)
+        {
+            int tempInt;
+            if (!int.TryParse(input, out tempInt) || (mustBeAboveZero && tempInt < 0))
+            {
+                //Value is invalid, it is either not an int or it is <0
+                MessageBox.Show("The value \"" + input +
+                    "\" is not a valid number. Reverting input.");
+                dgvProducts.CancelEdit();
+            }
+        }
+
+        private void validateDate(string input)
+        {
+            //Must be a valid DateTime string
+            DateTime tempDate;
+
+            if (!DateTime.TryParse(input, out tempDate) || tempDate < MINIMUMDATE)
+            {
+                //DateTime string is invalid
+                MessageBox.Show("The value \"" + input +
+                    "\" is not valid, please input a valid date. Reverting input.");
+                dgvProducts.CancelEdit();
+            }
+            else if (DateTime.Now < tempDate)
+            {
+                //DateTime string is invalid because it is in the future
+                MessageBox.Show("The value \"" + input +
+                    "\" is in the future, please input a valid date. Reverting input.");
+                dgvProducts.CancelEdit();
             }
         }
     }

@@ -14,11 +14,19 @@ namespace DroneControl
     {
         MainForm mainForm;
         DroneController droneController;
+        BlobCounter blobCounter;
 
         public LineDetection(MainForm mf, DroneController dc)
         {
             mainForm = mf;
             droneController = dc;
+
+            blobCounter = new BlobCounter()
+            {
+                FilterBlobs = true,
+                MinHeight = 5,
+                MinWidth = 5,
+            };
         }
 
         //function that calculates the angle from the drone using the line. Called from mainform frame update.
@@ -39,12 +47,6 @@ namespace DroneControl
             colorFilter.ApplyInPlace(bitmapData); //Apply to current bitmap
 
             // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter()
-            {
-                FilterBlobs = true,
-                MinHeight = 5,
-                MinWidth = 5,
-            };
             blobCounter.ProcessImage(bitmapData);
 
             Blob[] blobs = blobCounter.GetObjectsInformation();
@@ -61,10 +63,10 @@ namespace DroneControl
                 if (isQuadrilateralAndBigEnough(edgePoints, out corners))
                 {
                     //Find upperleft corner
-                    IntPoint upperLeftCorner = corners.Aggregate((curMin, c) => (c.X + c.Y) < (curMin.X + curMin.Y) ? c : curMin);
+                    IntPoint upperLeftCorner = getUpperLeftCorner(corners);
                     corners.Remove(upperLeftCorner);
 
-                    IntPoint lowerRightCorner = corners.Aggregate((curMax, c) => (c.X + c.Y) > (curMax.X + curMax.Y) ? c : curMax);
+                    IntPoint lowerRightCorner = getLowerRightCorner(corners);
 
                     //Get IntPoint making shortest line
                     IntPoint lowerLeftCorner = findPointMakingLongestOrShortestLine(upperLeftCorner, corners, false);
@@ -96,6 +98,19 @@ namespace DroneControl
                 }
             }
         }
+
+        private IntPoint getUpperLeftCorner(List<IntPoint> corners)
+        {
+            IntPoint upperLeftCorner = corners.Aggregate((curMin, c) => (c.X + c.Y) < (curMin.X + curMin.Y) ? c : curMin);
+            return upperLeftCorner;
+        }
+
+        private IntPoint getLowerRightCorner(List<IntPoint> corners)
+        {
+            IntPoint lowerRightCorner = corners.Aggregate((curMax, c) => (c.X + c.Y) > (curMax.X + curMax.Y) ? c : curMax);
+            return lowerRightCorner;
+        }
+
 
         private bool isQuadrilateralAndBigEnough(List<IntPoint> edgePoints, out List<IntPoint> corners)
         {

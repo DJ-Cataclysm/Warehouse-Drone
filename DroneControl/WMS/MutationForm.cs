@@ -17,11 +17,11 @@ namespace WMS
 
         private void refreshDataGridView()
         {
-            //Reset and set datasource, should be called each time the table changes.
+            //Reset and set datasource, should be called each time the table changes
             dgvProducts.DataSource = typeof(Mutation);
             dgvProducts.DataSource = pendingMutations;
 
-            //You may only modify the NewCount column.
+            //You may only modify the NewCount column
             foreach(DataGridViewColumn col in dgvProducts.Columns)
             {
                 if(col.Name == "NewCount")
@@ -45,7 +45,7 @@ namespace WMS
                     int tempInt;
                     if (!int.TryParse((string)e.FormattedValue, out tempInt) || tempInt < 0)
                     {
-                        //Count is invalid, it is either not an int or it is <0.
+                        //Count is invalid, it is either not an int or it is <0
                         MessageBox.Show("The value \"" + (string)e.FormattedValue + "\" is not a valid count number. Reverting input.");
                         dgvProducts.CancelEdit();
                     }
@@ -60,7 +60,7 @@ namespace WMS
 
             if (result == DialogResult.Yes)
             {
-                //Remove mutations with no changes.
+                //Remove mutations with no changes
                 pendingMutations.RemoveAll(m => m.NewCount == m.OldCount);
 
                 using (var db = new ProductDBContext())
