@@ -12,18 +12,15 @@ namespace DroneControl
 {
     public class LineDetection
     {
-        DroneController _droneController;
         BlobCounter _blobCounter;
         const int LOWERBOUND_COLOR_RANGE = 150; //Minimum = 0, must be lower than upperbound
         const int UPPERBOUNDBOUND_COLOR_RANGE = 255; //Maximum = 255, must be higher than lowerbound
-        const int MINIMUM_SURFACE_AREA_QUADRILATERAL = 200;
+        const int MIN_SURFACE_AREA_QUAD = 200; //Minimum surface area quadrilateral
         const int BLOB_MINHEIGHT = 5;
         const int BLOB_MINWIDTH = 5;
 
-        public LineDetection(DroneController droneController)
+        public LineDetection()
         {
-            _droneController = droneController;
-
             _blobCounter = new BlobCounter()
             {
                 FilterBlobs = true,
@@ -113,7 +110,7 @@ namespace DroneControl
         {
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
             bool isQuadrilateral = shapeChecker.IsQuadrilateral(edgePoints, out corners);
-            bool isBigEnough = corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > MINIMUM_SURFACE_AREA_QUADRILATERAL;
+            bool isBigEnough = corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > MIN_SURFACE_AREA_QUAD;
             return isQuadrilateral && isBigEnough;
         }
 

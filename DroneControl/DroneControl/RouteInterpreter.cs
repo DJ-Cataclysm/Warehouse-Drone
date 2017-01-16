@@ -12,6 +12,9 @@ namespace DroneControl
         public BarcodeSmallRight barcodeSmallRight;
         public Turn turn;
         AutopilotController autopilotController;
+        const float DISTANCE_FROM_GROUND = 0.2f;
+        const int MINIMUM_HEIGHT = 0;
+        const int MAXIMUM_HEIGHT = 4;
         bool facingDirection = true; //If false, strafing left and right are switched
 
         public RouteInterpreter(ref AutopilotController autopilotController)
@@ -74,10 +77,9 @@ namespace DroneControl
 
         private void flyVertical(int deltaY, int targetY)
         {
-            if (deltaY != 0 && targetY < 4 && targetY >= 0)
+            if (deltaY != 0 && targetY < MAXIMUM_HEIGHT && targetY >= MINIMUM_HEIGHT)
             {
-                float distanceFromGround = 0.2f;
-                goToHeight.execute(targetY + distanceFromGround);
+                goToHeight.execute(targetY + DISTANCE_FROM_GROUND);
             }
         }
     }

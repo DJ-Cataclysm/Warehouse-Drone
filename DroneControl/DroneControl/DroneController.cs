@@ -36,7 +36,7 @@ namespace DroneControl
             _droneClient = new DroneClient("192.168.1.1"); 
             _autopilotController = new AutopilotController(_droneClient, this);
             _routeInterpreter = new RouteInterpreter(ref _autopilotController);
-            _lineDetection = new LineDetection(this);
+            _lineDetection = new LineDetection();
             _barcodeReader = new BarcodeReader();
             _mainForm = form;
             
@@ -301,11 +301,6 @@ namespace DroneControl
             });
             sendConfigTask.Start();
             await Task.Delay(500); //Wait for config to be read by drone
-        }
-        
-        public DroneClient getDroneClient()
-        {
-            return _droneClient;
         }
 
         public void emergency()
