@@ -89,7 +89,7 @@ namespace DroneControl
         }
 
 
-        public async Task CycleCount()
+        public async Task TESTCycleCount()
         {
             isAngleCalibration = true;
              mainForm.scanningForAngle = true;
@@ -104,7 +104,7 @@ namespace DroneControl
             //await switchCamera(VideoChannelType.Vertical);
         }
 
-        public async Task TESTCycleCount()
+        public async Task CycleCount()
         {
             //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();
@@ -114,8 +114,10 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
-            await findLine();
+            await switchCamera(VideoChannelType.Vertical);
+            //await findLine();
             await turnCalibration();
+            await switchCamera(VideoChannelType.Horizontal);
 
             //loop through the route
             for (int i = 0; i < route.Count - 1; i++ )
@@ -136,14 +138,16 @@ namespace DroneControl
                 }
 
                 //calibration and finding barcode
-                await findLine();
+                await switchCamera(VideoChannelType.Vertical);
+                //await findLine();
                 await turnCalibration();
+                await switchCamera(VideoChannelType.Horizontal);
                 await searchForBarcode(current);
 
             }
             //land after the route is done
             routeInterpreter.landCommand.execute();
-            //mainForm.wmsForm.showMutations();
+            mainForm.wmsForm.showMutations();
            
         }
 
@@ -154,14 +158,16 @@ namespace DroneControl
             routeInterpreter.turn.execute(180);
 
             //calibrate
-            await findLine();
-            await turnCalibration();
+            //await findLine();
+            //await turnCalibration();
 
             //start flying to the other rack and find the line
             routeInterpreter.flyToOtherRack.execute();
             await Task.Delay(2000);
+            await switchCamera(VideoChannelType.Vertical);
             await findLine();
             await turnCalibration();
+            await switchCamera(VideoChannelType.Horizontal);
 
             //fly to coordinate
             Position newCurrentPos = currentPos;
@@ -672,9 +678,9 @@ namespace DroneControl
 
             // Turn anything that isn't white, into black
             ColorFiltering colorFilter = new ColorFiltering();
-            colorFilter.Red = new IntRange(254, 255);
-            colorFilter.Green = new IntRange(254, 255);
-            colorFilter.Blue = new IntRange(254, 255);
+            colorFilter.Red = new IntRange(150, 255);
+            colorFilter.Green = new IntRange(150, 255);
+            colorFilter.Blue = new IntRange(150, 255);
             colorFilter.FillOutsideRange = true;
             colorFilter.ApplyInPlace(bitmapData);
 
