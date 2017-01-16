@@ -19,7 +19,7 @@ namespace DroneControl
         TaskCompletionSource<bool> flyTaskCompleted, cameraSwitched;
         MainForm mainForm;
         public BarcodeScanning barcodeScanning;
-        public LineDetection2 angleDetection;
+        public LineDetection angleDetection;
         Settings settings;
         public int droneCalibrationDirection { set; get; }
         public int turnDegrees { set; get; }
@@ -33,7 +33,7 @@ namespace DroneControl
             droneClient = new DroneClient("192.168.1.1"); 
             autopilotController = new AutopilotController(droneClient, this);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
-            angleDetection = new LineDetection2(form, this);
+            angleDetection = new LineDetection(form, this);
             barcodeScanning = new BarcodeScanning(form, this);
             mainForm = form;
         }
