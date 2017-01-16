@@ -11,7 +11,7 @@
 
         public void execute()
         {
-            controllerReference.EnqueueObjective(new AR.Drone.Avionics.Objectives.Land(2500));
+            controllerReference.enqueueObjective(new AR.Drone.Avionics.Objectives.Land(2500));
         }
     }
 }

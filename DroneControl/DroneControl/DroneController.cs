@@ -8,61 +8,90 @@ using System.Collections.Generic;
 using System.Linq;
 using WMS;
 using System.Threading.Tasks;
+using System.Drawing;
+using ZXing;
 
 namespace DroneControl
 {
     public class DroneController
     {
-        AutopilotController autopilotController;
-        DroneClient droneClient;
-        RouteInterpreter routeInterpreter;
-        TaskCompletionSource<bool> flyTaskCompleted, cameraSwitched;
-        MainForm mainForm;
-        public BarcodeScanning barcodeScanning;
-        public LineDetection angleDetection;
-        Settings settings;
-        public int droneCalibrationDirection { set; get; }
-        public int turnDegrees { set; get; }
-        public bool scanningForBarcode, scanningForLine, scanningForAngle;
-        const int MAX_TURN_DEVIATION = 10; //if drone is off by more than MAX_TURN_DEVIATION, do corrective turn.
-        const double PRODUCT_DEVIATION_THRESHOLD = 0; //Products exceeding the product deviation threshold will be smartscanned.
+        AutopilotController _autopilotController;
+        DroneClient _droneClient;
+        RouteInterpreter _routeInterpreter;
+        TaskCompletionSource<bool> _flyTaskCompleted;
+        MainForm _mainForm;
+        LineDetection _lineDetection;
+        IBarcodeReader _barcodeReader;
+        Settings _settings;
+        int _turnDegrees;
+        bool _scanningForBarcode, _scanningForLine;
+        const int MAX_TURN_DEVIATION = 10; //if drone is off by more than MAX_TURN_DEVIATION, do corrective turn
+        const double PRODUCT_DEVIATION_THRESHOLD = 0; //Products exceeding the product deviation threshold will be smartscanned
+        const int VIDEO_BITRATE = 1000;
+        const int VIDEO_MAX_BITRATE = 2000;
 
         public DroneController(MainForm form)
         {
-            //The IP-address is always the default gateway when connected to the drone WiFi.
-            droneClient = new DroneClient("192.168.1.1"); 
-            autopilotController = new AutopilotController(droneClient, this);
-            routeInterpreter = new RouteInterpreter(ref autopilotController);
-            angleDetection = new LineDetection(form, this);
-            barcodeScanning = new BarcodeScanning(form, this);
-            mainForm = form;
+            //The IP-address is always the default gateway when connected to the drone WiFi
+            _droneClient = new DroneClient("192.168.1.1"); 
+            _autopilotController = new AutopilotController(_droneClient, this);
+            _routeInterpreter = new RouteInterpreter(ref _autopilotController);
+            _lineDetection = new LineDetection(this);
+            _barcodeReader = new BarcodeReader();
+            _mainForm = form;
+            
         }
 
         //Method called each time the MainForm.tmrVideoUpdate ticks
         public void videoUpdateTick()
         {
-            if (scanningForBarcode)
+            Bitmap videoFrame = _mainForm.getFrame();
+
+            if (_scanningForBarcode)
             {
-                barcodeScanning.scanForBarcode();
+                scanForBarcode(videoFrame);
             }
 
-            if (scanningForAngle)
+            if (_scanningForLine)
             {
-                angleDetection.detectLine();
+                _turnDegrees = _lineDetection.detectLine(videoFrame);
+                if (_turnDegrees != 0)
+                {
+                    _scanningForLine = false;
+                    stopCurrentTasks();
+                }
+            }
+        }
+
+        /*
+         * Function that scans for the barcode, and if the barcode is found, 
+         * send it to the WMS. Called from Mainform frame update.
+         */
+        private void scanForBarcode(Bitmap frame)
+        {
+            var result = _barcodeReader.Decode(frame);
+
+            if (result != null)
+            {
+                int id = int.MaxValue;
+                int.TryParse(result.Text, out id);
+                _mainForm.wmsForm.productScanned(id);
+                _scanningForBarcode = false;
+                stopCurrentTasks();
             }
         }
        
         public async Task SmartScan()
         {
             //Initial setup, starting the drone, finding the line & calibrating
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
             List<Position> route = makeSmartScanRoute();
 
-            autopilotController.Start();
-            routeInterpreter.takeOffCommand.execute();
-            routeInterpreter.shortHover.execute();
+            _autopilotController.start();
+            _routeInterpreter.takeOffCommand.execute();
+            _routeInterpreter.shortHover.execute();
 
-            await flyTaskCompleted.Task;
+            await _flyTaskCompleted.Task;
             await findLine();
             await turnCalibration();
 
@@ -70,11 +99,11 @@ namespace DroneControl
             for (int i = 0; i < route.Count()-1; i++ )
             {
                 //Fly to the next position
-                flyTaskCompleted = new TaskCompletionSource<bool>();
+                _flyTaskCompleted = new TaskCompletionSource<bool>();
                 Position current = route[i];
                 Position target = route[i+1];
-                routeInterpreter.flyToCoordinate(current, target);
-                await flyTaskCompleted.Task;
+                _routeInterpreter.flyToCoordinate(current, target);
+                await _flyTaskCompleted.Task;
 
                 //Calibrate if the target position is a smartscan item & scan the item
                 if (target.isTargetPosition)
@@ -86,20 +115,20 @@ namespace DroneControl
             }
 
             //Land after the route is done
-            routeInterpreter.landCommand.execute();
-            mainForm.wmsForm.showMutations();
+            _routeInterpreter.landCommand.execute();
+            _mainForm.wmsForm.showMutations();
         }
 
         public async Task CycleCount()
         {
             //Initial setup, starting the drone, finding the line & calibrating
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
             List<Position> route = makeCycleCountRoute();
-            autopilotController.Start(); 
-            routeInterpreter.takeOffCommand.execute();
-            routeInterpreter.shortHover.execute();
+            _autopilotController.start(); 
+            _routeInterpreter.takeOffCommand.execute();
+            _routeInterpreter.shortHover.execute();
 
-            await flyTaskCompleted.Task;
+            await _flyTaskCompleted.Task;
             await findLine();
             await turnCalibration();
 
@@ -112,9 +141,9 @@ namespace DroneControl
                 //Fly to the next position (uses flyToZ if the position is on another rack)
                 if (current.z == target.z)
                 {
-                    flyTaskCompleted = new TaskCompletionSource<bool>();
-                    routeInterpreter.flyToCoordinate(current, target);
-                    await flyTaskCompleted.Task;
+                    _flyTaskCompleted = new TaskCompletionSource<bool>();
+                    _routeInterpreter.flyToCoordinate(current, target);
+                    await _flyTaskCompleted.Task;
                 }
                 else
                 {
@@ -127,18 +156,18 @@ namespace DroneControl
 
             }
             //Land after the route is done
-            routeInterpreter.landCommand.execute();
-            mainForm.wmsForm.showMutations();
+            _routeInterpreter.landCommand.execute();
+            _mainForm.wmsForm.showMutations();
         }
 
         //Function for flying to another rack
         private async Task flyToZ(Position currentPos, Position targetPos)
         {
-            //Turn 180 degrees
-            routeInterpreter.turn.execute(180);
+            //Turn 180 degrees (half turn)
+            _routeInterpreter.turn.execute(180);
 
             //Start flying to the other rack and find the line
-            routeInterpreter.flyToOtherRack.execute();
+            _routeInterpreter.flyToOtherRack.execute();
             await Task.Delay(2000);
             await findLine();
             await turnCalibration();
@@ -146,7 +175,7 @@ namespace DroneControl
             //Fly to coordinate
             Position newCurrentPos = currentPos;
 
-            //Mirroring of x coordinate, limited to x values between 0 and 8.
+            //Mirroring of x coordinate, limited to x values between 0 and 8
             switch (currentPos.x)
             {
                 case 0:
@@ -175,78 +204,76 @@ namespace DroneControl
                     break;
             }
      
-            flyTaskCompleted = new TaskCompletionSource<bool>();
-            routeInterpreter.flyToCoordinate(newCurrentPos, targetPos);
-            await flyTaskCompleted.Task;
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
+            _routeInterpreter.flyToCoordinate(newCurrentPos, targetPos);
+            await _flyTaskCompleted.Task;
         }
 
         //Function for calibrating the drone by searching the barcode 
         private async Task searchForBarcode(Position i)
         {
             //Enables front camera, enables the scanning for barcodes
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
             await switchCamera(VideoChannelType.Horizontal);
-            routeInterpreter.shortHover.execute();
+            _routeInterpreter.shortHover.execute();
 
-            //At each new videoframe it will scan for a barcode.
-            scanningForBarcode = true;
+            //At each new videoframe it will scan for a barcode
+            _scanningForBarcode = true;
             
-            //It will slowly strafe left and right in order to find it.
-            routeInterpreter.barcodeSmallLeft.execute(1000);
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.barcodeSmallRight.execute(2000);
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.barcodeSmallLeft.execute(1000);
-            routeInterpreter.shortHover.execute();
-            await flyTaskCompleted.Task;
+            //It will slowly strafe left and right in order to find it
+            _routeInterpreter.barcodeSmallLeft.execute(1000);
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.barcodeSmallRight.execute(2000);
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.barcodeSmallLeft.execute(1000);
+            _routeInterpreter.shortHover.execute();
+            await _flyTaskCompleted.Task;
 
-            //It's possible the barcode hasn't been found, continue anyway.
-            scanningForBarcode = false;
+            //It's possible the barcode hasn't been found, continue anyway
+            _scanningForBarcode = false;
         }
 
-        //function for finding the line. used for front and back calibration
+        //Function for finding the line. used for front and back calibration
         public async Task findLine()
         {
-            //enables scanning for the line, switch to bottom camera
+            //Enables scanning for the line, switch to bottom camera
             await switchCamera(VideoChannelType.Vertical);
-            scanningForLine = true;
 
-            //fly forwards and backwards to find the line. Stops if the line is found
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+            //Fly forwards and backwards to find the line. Stops if the line is found
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
             await Task.Delay(300);
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goForwardCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goBackwardsCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goBackwardsCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goForwardCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            await flyTaskCompleted.Task;
-            scanningForLine = false;
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.goForwardCalibration.execute();
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.goBackwardsCalibration.execute();
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.goBackwardsCalibration.execute();
+            _routeInterpreter.shortHover.execute();
+            _routeInterpreter.goForwardCalibration.execute();
+            _routeInterpreter.shortHover.execute();
+            await _flyTaskCompleted.Task;
         }
 
-        //function used to manually set the flytask to completed.
+        //Function used to manually set the flytask to completed.
         public void setFlyTaskCompleted()
         {
-            flyTaskCompleted.TrySetResult(true);
+            _flyTaskCompleted.TrySetResult(true);
         }
 
         //function used for calibrating the angle of the drone using the line on the ground
         public async Task turnCalibration()
         {
-            scanningForAngle = true; //enables scanning for the angle
-            routeInterpreter.shortHover.execute();
+            _scanningForLine = true; //enables scanning for the angle
+            _routeInterpreter.shortHover.execute();
             await Task.Delay(500);
-            flyTaskCompleted = new TaskCompletionSource<bool>();
+            _flyTaskCompleted = new TaskCompletionSource<bool>();
             //If turnDegrees is too large it needs to turn
-            if (turnDegrees < -MAX_TURN_DEVIATION || turnDegrees > MAX_TURN_DEVIATION)
+            if (_turnDegrees < -MAX_TURN_DEVIATION || _turnDegrees > MAX_TURN_DEVIATION)
             {
-               routeInterpreter.turn.execute(turnDegrees);
+               _routeInterpreter.turn.execute(_turnDegrees);
             }
-            await flyTaskCompleted.Task;
-            scanningForAngle = false;
+            await _flyTaskCompleted.Task;
+            _scanningForLine = false;
 
             //Always look at front camera after turning
             await switchCamera(VideoChannelType.Horizontal);
@@ -254,8 +281,8 @@ namespace DroneControl
        
         //function that stops all current tasks. Used for clearing the drone's tasks if it's calibrated.
         public void stopCurrentTasks(){
-            autopilotController.clearObjectives();
-            routeInterpreter.shortHover.execute();
+            _autopilotController.clearObjectives();
+            _routeInterpreter.shortHover.execute();
         }
 
         //function used to switch to the bottom camera(for line detection) or front camera(barcode detection)
@@ -263,14 +290,14 @@ namespace DroneControl
         {
             //Send basic configuration, while also changing the video channel
             TaskCompletionSource<bool> cameraSwitched = new TaskCompletionSource<bool>();
-            if(settings == null)
+            if(_settings == null)
             {
-                settings = new Settings();
+                _settings = new Settings();
             }
             var sendConfigTask = new Task(() =>
             {
-                settings.Video.Channel = videoChannelType;
-                droneClient.Send(settings);
+                _settings.Video.Channel = videoChannelType;
+                _droneClient.Send(_settings);
             });
             sendConfigTask.Start();
             await Task.Delay(500); //Wait for config to be read by drone
@@ -278,94 +305,100 @@ namespace DroneControl
         
         public DroneClient getDroneClient()
         {
-            return droneClient;
+            return _droneClient;
         }
 
         public void emergency()
         {
-            droneClient.Emergency();
+            _droneClient.Emergency();
         }
 
         public void land()
         {
-            droneClient.Land();
+            _droneClient.Land();
         }
 
-        public void startClient()
+        public bool startClient()
         {
-            droneClient.Start();
+            _droneClient.Start();
+
+            if (!_droneClient.IsConnected)
+            {
+                return false;
+            }
 
             //Send starting configuration
-            settings = new Settings();
+            _settings = new Settings();
             var sendConfigTask = new Task(() =>
             {
 
-                if (string.IsNullOrEmpty(settings.Custom.SessionId) ||
-                    settings.Custom.SessionId == "00000000")
+                if (string.IsNullOrEmpty(_settings.Custom.SessionId) ||
+                    _settings.Custom.SessionId == "00000000")
                 {
                     // set new session, application and profile
-                    droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
+                    _droneClient.AckControlAndWaitForConfirmation(); // wait for the control confirmation
 
-                    settings.Custom.SessionId = Settings.NewId();
-                    droneClient.Send(settings);
+                    _settings.Custom.SessionId = Settings.NewId();
+                    _droneClient.Send(_settings);
 
-                    droneClient.AckControlAndWaitForConfirmation();
+                    _droneClient.AckControlAndWaitForConfirmation();
 
-                    settings.Custom.ProfileId = Settings.NewId();
-                    droneClient.Send(settings);
+                    _settings.Custom.ProfileId = Settings.NewId();
+                    _droneClient.Send(_settings);
 
-                    droneClient.AckControlAndWaitForConfirmation();
+                    _droneClient.AckControlAndWaitForConfirmation();
 
-                    settings.Custom.ApplicationId = Settings.NewId();
-                    droneClient.Send(settings);
+                    _settings.Custom.ApplicationId = Settings.NewId();
+                    _droneClient.Send(_settings);
 
-                    droneClient.AckControlAndWaitForConfirmation();
+                    _droneClient.AckControlAndWaitForConfirmation();
                     
-                    settings.Video.Channel = VideoChannelType.Vertical;
-                    droneClient.Send(settings);
+                    _settings.Video.Channel = VideoChannelType.Vertical;
+                    _droneClient.Send(_settings);
 
-                    droneClient.AckControlAndWaitForConfirmation();
+                    _droneClient.AckControlAndWaitForConfirmation();
                 }
 
-                settings.General.NavdataDemo = false;
-                settings.General.NavdataOptions = NavdataOptions.All;
+                _settings.General.NavdataDemo = false;
+                _settings.General.NavdataOptions = NavdataOptions.All;
 
-                settings.Video.BitrateCtrlMode = VideoBitrateControlMode.Dynamic;
-                settings.Video.Bitrate = 1000;
-                settings.Video.MaxBitrate = 2000;
+                //Video quality settings
+                _settings.Video.BitrateCtrlMode = VideoBitrateControlMode.Dynamic;
+                _settings.Video.Bitrate = VIDEO_BITRATE;
+                _settings.Video.MaxBitrate = VIDEO_MAX_BITRATE;
 
-                droneClient.Send(settings);
+                _droneClient.Send(_settings);
             });
             sendConfigTask.Start();
+
+            return true;
         }
 
         public void stopClient()
         {
-            droneClient.Stop();
+            _droneClient.Stop();
         }
 
         public void stopAutopilot()
         {
-            autopilotController.Stop();
+            _autopilotController.stop();
         }
 
         public void attachEventHandlers(Action<VideoPacket> videoPacketHandler, Action<NavigationData> navDataHandler)
         {
-            droneClient.VideoPacketAcquired += videoPacketHandler;
-            droneClient.NavigationDataAcquired += navDataHandler;
+            _droneClient.VideoPacketAcquired += videoPacketHandler;
+            _droneClient.NavigationDataAcquired += navDataHandler;
         }
 
         public void dispose()
         {
-            droneClient.Dispose();
+            _droneClient.Dispose();
         }
 
         //function that makes a full cycle count route using the RoutePlan class
         private List<Position> makeCycleCountRoute()
         {
-            /*
-             * Find all products, create a position per product and then plot a route between those positions.
-             */
+            //Find all products, create a position per product and then plot a route between those positions.
             List<Product> products = new List<Product>();
 
             using (ProductDBContext db = new ProductDBContext())
@@ -382,12 +415,9 @@ namespace DroneControl
             return RoutePlan.makeCycleCountRoute(itemsToCheck);
         }
 
-        //function that makes a smart scan route using the RoutePlan class
         private List<Position> makeSmartScanRoute()
         {
-            /*
-             * Find all products exceeding the deviation threshhold and plot a route between those products.
-             */
+            //Find all products exceeding the deviation threshhold and plot a route between those products.
             List<Product> products = new List<Product>();
 
             using (ProductDBContext db = new ProductDBContext())

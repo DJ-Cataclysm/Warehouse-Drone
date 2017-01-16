@@ -12,52 +12,52 @@ namespace DroneControl
 {
     public class LineDetection
     {
-        MainForm mainForm;
-        DroneController droneController;
-        BlobCounter blobCounter;
+        DroneController _droneController;
+        BlobCounter _blobCounter;
+        const int LOWERBOUND_COLOR_RANGE = 150; //Minimum = 0, must be lower than upperbound
+        const int UPPERBOUNDBOUND_COLOR_RANGE = 255; //Maximum = 255, must be higher than lowerbound
+        const int MINIMUM_SURFACE_AREA_QUADRILATERAL = 200;
+        const int BLOB_MINHEIGHT = 5;
+        const int BLOB_MINWIDTH = 5;
 
-        public LineDetection(MainForm mf, DroneController dc)
+        public LineDetection(DroneController droneController)
         {
-            mainForm = mf;
-            droneController = dc;
+            _droneController = droneController;
 
-            blobCounter = new BlobCounter()
+            _blobCounter = new BlobCounter()
             {
                 FilterBlobs = true,
-                MinHeight = 5,
-                MinWidth = 5,
+                MinHeight = BLOB_MINHEIGHT,
+                MinWidth = BLOB_MINWIDTH,
             };
         }
 
-        //function that calculates the angle from the drone using the line. Called from mainform frame update.
-        public void detectLine()
+        //Function that calculates the angle from the drone using the line. Called from mainform frame update.
+        public int detectLine(Bitmap frame)
         {
-            Bitmap myBitmap = mainForm.getFrame();
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
+            //Lock image
+            BitmapData bitmapData = frame.LockBits(
+                new Rectangle(0, 0, frame.Width, frame.Height),
                 ImageLockMode.ReadWrite,
-                myBitmap.PixelFormat);
+                frame.PixelFormat);
 
-            // step 1 - turn background to black
-            IntRange colorRange = new IntRange(150, 255);
+            //Filter image, make all unimportant pixels completely black
+            IntRange colorRange = new IntRange(LOWERBOUND_COLOR_RANGE, UPPERBOUNDBOUND_COLOR_RANGE);
             ColorFiltering colorFilter = new ColorFiltering(colorRange, colorRange, colorRange);
             colorFilter.FillOutsideRange = true; //All colors outside colorRange range are turned black
             colorFilter.ApplyInPlace(bitmapData); //Apply to current bitmap
 
-            // step 2 - locating objects
-            blobCounter.ProcessImage(bitmapData);
+            //Locating objects using a BlobCounter
+            _blobCounter.ProcessImage(bitmapData);
 
-            Blob[] blobs = blobCounter.GetObjectsInformation();
+            Blob[] blobs = _blobCounter.GetObjectsInformation();
 
-            myBitmap.UnlockBits(bitmapData);
+            frame.UnlockBits(bitmapData);
 
-            // step 3 - check objects' type and highlight
-            // Check if there's a line on the ground with a minimum surface area of 200 square pixels and get it in the middle of the screen
+            //Check if there's a line on the ground with a specified minimum surface area
             for (int i = 0; i < blobs.Length; i++)
             {
-                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
+                List<IntPoint> edgePoints = _blobCounter.GetBlobsEdgePoints(blobs[i]);
                 List<IntPoint> corners;
 
                 if (isQuadrilateralAndBigEnough(edgePoints, out corners))
@@ -85,18 +85,15 @@ namespace DroneControl
                     }
 
                     /*
-                     * We now have two points. 
-                     * Enough to calculate the angle of the line compared to the relative horizon of the drone camera feed.
+                     * We now have two points. Enough to calculate the angle of the line compared to 
+                     * the relative horizon of the drone camera feed.
                      */
-                    droneController.turnDegrees = calculateAngle(upperLeftCorner, remainingCorner);
-
-                    if(droneController.turnDegrees != 0)
-                    {
-                        droneController.scanningForAngle = false;
-                        droneController.stopCurrentTasks();
-                    }
+                    int angle = calculateAngle(upperLeftCorner, remainingCorner);
+                    return angle;
                 }
             }
+
+            return 0;
         }
 
         private IntPoint getUpperLeftCorner(List<IntPoint> corners)
@@ -114,10 +111,9 @@ namespace DroneControl
 
         private bool isQuadrilateralAndBigEnough(List<IntPoint> edgePoints, out List<IntPoint> corners)
         {
-            double threshold = 200d;
             SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
             bool isQuadrilateral = shapeChecker.IsQuadrilateral(edgePoints, out corners);
-            bool isBigEnough = corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > threshold;
+            bool isBigEnough = corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > MINIMUM_SURFACE_AREA_QUADRILATERAL;
             return isQuadrilateral && isBigEnough;
         }
 
@@ -128,7 +124,8 @@ namespace DroneControl
                 return 0;
             }
             double angleRadians = Math.Atan(((double)pointB.Y - pointA.Y) / (pointB.X - pointA.X));
-            int degrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
+            //Using literal because converting radians to degrees will never change
+            int degrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI)); 
             return degrees;
         }
 
@@ -165,6 +162,5 @@ namespace DroneControl
             }
             return longestOrShortestPoint;
         }
-
     }
 }

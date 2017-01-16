@@ -1,7 +1,6 @@
 ﻿using DroneControl.Commands;
 using RoutePlanner;
 using System;
-using System.Collections.Generic;
 
 namespace DroneControl
 {
@@ -12,7 +11,6 @@ namespace DroneControl
         public BarcodeSmallLeft barcodeSmallLeft;
         public BarcodeSmallRight barcodeSmallRight;
         public Turn turn;
-        BarcodeSmallUpDown barcodeSmallUpDown;
         AutopilotController autopilotController;
         bool facingDirection = true; //If false, strafing left and right are switched
 
@@ -27,7 +25,6 @@ namespace DroneControl
             takeOffCommand = new TakeOff(ref autopilotController);
             barcodeSmallLeft = new BarcodeSmallLeft(ref autopilotController);
             barcodeSmallRight = new BarcodeSmallRight(ref autopilotController);
-            barcodeSmallUpDown = new BarcodeSmallUpDown(ref autopilotController);
             shortHover = new ShortHover(ref autopilotController);
             goBackwardsCalibration = new GoBackwardsCalibration(ref autopilotController);
             goForwardCalibration = new GoForwardCalibration(ref autopilotController);
@@ -39,7 +36,6 @@ namespace DroneControl
         {
             int deltaX = target.x - current.x;
             int deltaY = target.y - current.y;
-            int deltaZ = target.z - current.z;
 
             //Enqueue horizontal movement (X-axis)
             flyHorizontal(deltaX);
@@ -47,8 +43,7 @@ namespace DroneControl
             //Enqueue vertical movement (Y-axis), must be in range of 0 meters and 4.
             flyVertical(deltaY, target.y);
 
-            //Enqueue aisle movement (Z-axis), limited to 0 and 1 at the moment.
-            flyToAisle(deltaZ, target.z);
+            //Z-axis movement is handled in DroneControl.
         }
 
         private void flyHorizontal(int deltaX)
@@ -83,20 +78,6 @@ namespace DroneControl
             {
                 float distanceFromGround = 0.2f;
                 goToHeight.execute(targetY + distanceFromGround);
-            }
-        }
-
-        private void flyToAisle(int deltaZ, int targetZ)
-        {
-            //Currently limited to either 0 or 1
-            if (deltaZ != 0)
-            {
-                //Turn around and go forward
-                turn.execute(180);
-                goForward.execute();
-
-                //Set facingDirection to true or false by even or uneven Z coordinate
-                facingDirection = (targetZ % 2 == 0); //When false the strafe directions are inverted
             }
         }
     }

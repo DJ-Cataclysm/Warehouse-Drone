@@ -1,33 +1,22 @@
-﻿using AForge;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
-using AForge.Math.Geometry;
-using AR.Drone.Client;
+﻿using AR.Drone.Client;
 using AR.Drone.Data;
 using AR.Drone.Data.Navigation;
 using AR.Drone.Video;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Windows.Forms;
-using ZXing;
 
 namespace DroneControl
 {
     public partial class MainForm : Form
     {
         private DroneController _droneController;
-        private DroneClient _droneClient;
         private readonly VideoPacketDecoderWorker _videoPacketDecoderWorker;
         private VideoFrame _frame;
         private Bitmap _frameBitmap;
         private uint _frameNumber;
         private NavigationData _navigationData;
         public WMS.MainForm wmsForm { get; set; }
-        public bool scanningForBarcode { get; set; }
-        public bool scanningForLine { get; set; }
-        public bool scanningForAngle { get; set; }
 
         public MainForm()
         {
@@ -37,18 +26,15 @@ namespace DroneControl
             _videoPacketDecoderWorker = new VideoPacketDecoderWorker(AR.Drone.Video.PixelFormat.BGR24, true, OnVideoPacketDecoded);
             _videoPacketDecoderWorker.Start();
 
-            //Create a droneclient and attach event handlers
             _droneController = new DroneController(this);
             _droneController.attachEventHandlers(OnVideoPacketAcquired, OnNavigationDataAcquired);
 
-            //Start timers
             tmrStateUpdate.Enabled = true;
             tmrVideoUpdate.Enabled = true;
 
-            //Attach exceptionhandler to the videopacketdecoder worker.
+            //Attach exceptionhandler to the videopacketdecoder worker
             _videoPacketDecoderWorker.UnhandledException += UnhandledException;
 
-            //Create instance of WMS.
             wmsForm = new WMS.MainForm();
             wmsForm.Show();
         }
@@ -89,20 +75,15 @@ namespace DroneControl
             } 
         }
 
-        /*
-         * A video packet has been decoded and will be stored.
-         */
         private void OnVideoPacketDecoded(VideoFrame frame)
         {
             _frame = frame;
         }
 
-        /*
-         * Timer Tick Event: If there is a new frame available, create bitmap of said frame and update display.
-         */
+        //If there is a new frame available, create bitmap of said frame and update display
         private void tmrVideoUpdate_Tick(object sender, EventArgs e)
         {
-            //Check if frame(number) has changed, if not: do not update.
+            //Check if frame(number) has changed, if not: do not update
             if (_frame == null || _frameNumber == _frame.Number)
             {
                 return;
@@ -123,15 +104,13 @@ namespace DroneControl
             _droneController.videoUpdateTick();
         }
 
-        /*
-         * Timer Tick Event: Periodic update of displayed navigational data.
-         */
+        //Periodic update of displayed navigational data
         private void tmrStateUpdate_Tick(object sender, EventArgs e)
         {
             //Navigational data can be null if there is no established connection to the drone
             if (_navigationData != null)
             {
-                //Updating the form with new navigation data.
+                //Updating the form with new navigation data
                 lblNavigationState.Text = _navigationData.State.ToString();
                 lblYaw.Text = _navigationData.Yaw.ToString();
                 lblPitch.Text = _navigationData.Pitch.ToString();
@@ -157,24 +136,25 @@ namespace DroneControl
             _droneController.stopAutopilot();
         }
 
-        private void btnCycleCount_Click(object sender, EventArgs e)
+        private async void btnCycleCount_Click(object sender, EventArgs e)
         {
-            _droneController.CycleCount();
+            await _droneController.CycleCount();
         }
 
-        private void btnSmartScan_Click(object sender, EventArgs e)
+        private async void btnSmartScan_Click(object sender, EventArgs e)
         {
-            _droneController.SmartScan();
+            await _droneController.SmartScan();
         }
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            _droneController.startClient();
-            lblConnectionStatus.Text = "Connected";
-            btnConnect.Enabled = false;
-            btnDisconnect.Enabled = true;
-            btnEmergency.Enabled = true;
-            _droneClient = _droneController.getDroneClient();
+            if (_droneController.startClient())
+            {
+                lblConnectionStatus.Text = "Connected";
+                btnConnect.Enabled = false;
+                btnDisconnect.Enabled = true;
+                btnEmergency.Enabled = true;
+            }
         }
 
         private void btnDisconnect_Click(object sender, EventArgs e)

@@ -17,14 +17,14 @@ namespace DroneControl.Commands
 
         public void execute(float hoogte)
         {
-            controllerReference.EnqueueObjective(
+            controllerReference.enqueueObjective(
                Objective.Create(4000,
                    new VelocityX(0.0f),
                    new VelocityY(0.0f),
                    new Altitude(hoogte)
                )
             );
-            controllerReference.EnqueueObjective(new Hover(2000));
+            controllerReference.enqueueObjective(new Hover(2000));
         }
     }
 }

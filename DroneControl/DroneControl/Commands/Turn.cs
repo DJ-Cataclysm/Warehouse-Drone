@@ -26,16 +26,14 @@ namespace DroneControl.Commands
                 degrees *= -1;
             }
             long totalTimeForManeuver = (long)(msPerDegree * degrees);
-            controllerReference.EnqueueObjective(
+            controllerReference.enqueueObjective(
                 Objective.Create(totalTimeForManeuver,
                     new VelocityX(0.0f),
                     new VelocityY(0.0f),
                     new SetYaw(velocity)
-                    
-                    //new AR.Drone.Avionics.Objectives.IntentObtainers.Heading(heading, 1f, true)
                 )
             );
-            controllerReference.EnqueueObjective(new Hover(4000));
+            controllerReference.enqueueObjective(new Hover(4000));
         }
     }
 }

@@ -14,16 +14,9 @@ namespace DroneControl.Commands
 
         public void execute()
         {
-            controllerReference.EnqueueObjective(new FlatTrim(500));
-            controllerReference.EnqueueObjective(new Takeoff(5000));
-            /* controllerReference.EnqueueObjective(
-                Objective.Create(5000,
-                    new VelocityX(0.0f),
-                    new VelocityY(0.0f),
-                    new Altitude(0.5f)
-                )
-            );*/
-            controllerReference.EnqueueObjective(new Hover(2000));
+            controllerReference.enqueueObjective(new FlatTrim(500));
+            controllerReference.enqueueObjective(new Takeoff(5000));
+            controllerReference.enqueueObjective(new Hover(2000));
         }
     }
 }

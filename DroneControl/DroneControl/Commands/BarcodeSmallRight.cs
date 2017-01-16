@@ -14,13 +14,12 @@ namespace DroneControl.Commands
 
         public void execute(long time)
         {
-            controllerReference.EnqueueObjective(
+            controllerReference.enqueueObjective(
                 Objective.Create(time,
                     new VelocityX(0.0f),
                     new VelocityY(0.15f)
                 )
             );
-    
         }
     }
 }

@@ -1,43 +1,36 @@
 ﻿using AR.Drone.Avionics;
 using AR.Drone.Avionics.Objectives;
 using AR.Drone.Client;
-using AR.Drone.Data.Navigation;
 
 namespace DroneControl
 {
     public class AutopilotController
     {
         private Autopilot _autopilot;
-        private DroneClient _droneClient;
 
-        public AutopilotController(DroneClient droneclient, DroneController dc)
+        public AutopilotController(DroneClient droneClient, DroneController droneController)
         {
-            _droneClient = droneclient;
-            _autopilot = new Autopilot(_droneClient);
+            _autopilot = new Autopilot(droneClient);
             _autopilot.BindToClient();
-            _autopilot.OnOutOfObjectives += dc.setFlyTaskCompleted;
+            _autopilot.OnOutOfObjectives += droneController.setFlyTaskCompleted;
         }
 
-        public void EnqueueObjective(Objective objective)
+        public void enqueueObjective(Objective objective)
         {
             _autopilot.EnqueueObjective(objective);
         }
 
-        public void Start()
+        public void start()
         {
             _autopilot.Active = true;
             _autopilot.Start();
         }
 
-        public void Stop()
+        public void stop()
         {
             _autopilot.Active = false;
             _autopilot.ClearObjectives();
-        }
-
-        public NavigationData getNavigationData()
-        {
-            return _droneClient.NavigationData;
+            _autopilot.Stop();
         }
 
         public void clearObjectives()
