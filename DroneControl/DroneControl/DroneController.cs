@@ -115,7 +115,7 @@ namespace DroneControl
 
             await flyTaskCompleted.Task;
             await switchCamera(VideoChannelType.Vertical);
-            //await findLine();
+            await findLine();
             await turnCalibration();
             await switchCamera(VideoChannelType.Horizontal);
 
@@ -244,11 +244,13 @@ namespace DroneControl
             await Task.Delay(300);
             routeInterpreter.shortHover.execute();
             routeInterpreter.goForwardCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goBackwardsCalibration.execute();
-            routeInterpreter.shortHover.execute();
-            routeInterpreter.goBackwardsCalibration.execute();
-            routeInterpreter.shortHover.execute();
+            routeInterpreter.goForwardCalibration.execute();
+            routeInterpreter.goForwardCalibration.execute();
+            //routeInterpreter.shortHover.execute();
+            //routeInterpreter.goBackwardsCalibration.execute();
+            //routeInterpreter.shortHover.execute();
+            //routeInterpreter.goBackwardsCalibration.execute();
+            //routeInterpreter.shortHover.execute();
             routeInterpreter.goForwardCalibration.execute();
             routeInterpreter.shortHover.execute();
 
