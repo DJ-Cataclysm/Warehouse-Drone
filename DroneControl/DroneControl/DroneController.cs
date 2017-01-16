@@ -25,11 +25,13 @@ namespace DroneControl
         RouteInterpreter routeInterpreter;
         TaskCompletionSource<bool> flyTaskCompleted;
         MainForm mainForm;
+        public LineDetection lineDetection;
+        public BarcodeScanning barcodeScanning;
+        public AngleDetection angleDetection;
         bool isBarcodeCalibration;
         bool isLineCalibration;
-        bool isAngleCalibration;
         public int droneCalibrationDirection { set; get; }
-        int turnDegrees;
+        public int turnDegrees { set; get; }
  
 
         public DroneController(MainForm form)
@@ -39,6 +41,9 @@ namespace DroneControl
             droneClient = new DroneClient("192.168.1.1"); 
             autopilotController = new AutopilotController(droneClient, this);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
+            lineDetection = new LineDetection(form, this);
+            angledetection = new AngleDetection(form, this);
+            barcodeScanning = new BarcodeScanning(form, this);
             mainForm = form;
         }
        
@@ -199,7 +204,6 @@ namespace DroneControl
             flyTaskCompleted = new TaskCompletionSource<bool>();
             switchCamera(1);
             routeInterpreter.shortHover.execute();
-            isBarcodeCalibration = true;
             mainForm.scanningForBarcode = true;
             
             //calibrate by fling to the left and right, stops when the barcode is found
@@ -211,7 +215,6 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
 
-            isBarcodeCalibration = false;
             mainForm.scanningForBarcode = false;
 
             //switch back to bottom camera
@@ -223,7 +226,6 @@ namespace DroneControl
         public async Task findLine()
         {
             //enables scanning for the line
-            isLineCalibration = true;
             mainForm.scanningForLine = true;
 
             //fly forwards and backwards to find the line. Stops if the line is found
@@ -240,110 +242,41 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
-            isLineCalibration = false;
             mainForm.scanningForLine = false;
            
         }
+
         //function used to manually set the flytask to completed.
         public void setFlyTaskCompleted()
         {
             flyTaskCompleted.TrySetResult(true);
         }
 
-/*
- * -----------------------
- * 
- *checken of deze functie weg kan
- *
- * ----------------------------
- * 
- */
-
-    //    public async Task calibration(){
-    //        flyTaskCompleted = new TaskCompletionSource<bool>();
-
-    //        //moet naar voren
-    //        if(droneCalibrationDirection == 1){
-    //           routeInterpreter.goForwardCalibration.execute();
-    //           routeInterpreter.shortHover.execute();
-    //            routeInterpreter.goBackwardsCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-
-    //        }
-    //        //moet naar achter
-    //        if (droneCalibrationDirection == -1)
-    //        {
-    //            routeInterpreter.goBackwardsCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-    //            routeInterpreter.goForwardCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-    //        }
-
-    //        await flyTaskCompleted.Task;
-    //}
 
         //function used for calibrating the angle of the drone using the line on the ground
         public async Task turnCalibration()
         {
             //enables scanning for the angle
-            isAngleCalibration = true;
             mainForm.scanningForAngle = true;
             routeInterpreter.shortHover.execute();
 
             await Task.Delay(500);
 
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            Console.WriteLine("I should turn: " + turnDegrees);
             if (turnDegrees < -10 || turnDegrees > 10)
             {
                routeInterpreter.turn.execute(turnDegrees);
-               Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
+               Console.WriteLine("[angle] turning :  " + turnDegrees +" degrees");
             }
 
             await flyTaskCompleted.Task;
-            isAngleCalibration = false;
             mainForm.scanningForAngle = false;
         }
        
         //function that stops all current tasks. Used for clearing the drone's tasks if it's calibrated.
         public void stopCurrentTasks(){
-            Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
             routeInterpreter.shortHover.execute();
-        }
-
-        /*function that scans for the barcode, and if the barcode is found updates it in the WMS
-         * Called from Mainform frame update */
-        public void scanForBarcode()
-        {
-            string barcode;
-
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
-            // detect and decode the barcode inside the bitmap
-            var result = reader.Decode(mainForm.getFrame());
-            // return result or error
-            if (result != null)
-            {
-                barcode = result.Text;
-            }
-            else { barcode = null; }
-
-            if (barcode != null)
-            {
-                Console.WriteLine("Barcode gevoden " + barcode);
-                int id = int.MaxValue;
-                int.TryParse(barcode, out id);
-                mainForm.wmsForm.productScanned(id);
-                mainForm.scanningForBarcode = false;
-
-                if (isBarcodeCalibration)
-                {
-                    isBarcodeCalibration = false;
-                     stopCurrentTasks();
-                    Console.WriteLine("[barcode] stop barcode calibratie , gevonden barcode: " + barcode);
-                }
-            }
         }
 
         //emergency button, used to immediately stop the motor of the drone
@@ -400,7 +333,7 @@ namespace DroneControl
        
 
         }
-
+        
         public DroneClient getDroneClient()
         {
             return droneClient;
@@ -525,179 +458,5 @@ namespace DroneControl
             return RoutePlan.makeSmartScanRoute(itemsToCheck);
         }
 
-        //function that calculates the angle from the drone using the line. Called from mainform frame update.
-        public void calculateAngle()
-        {
-            Bitmap myBitmap = mainForm.getFrame();
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-            new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-            ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-            colorFilter.Red = new IntRange(150, 255);
-            colorFilter.Green = new IntRange(150, 255);
-            colorFilter.Blue = new IntRange(150, 255);
-            colorFilter.FillOutsideRange = true;
-            colorFilter.ApplyInPlace(bitmapData);
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-            Graphics g = Graphics.FromImage(myBitmap);
-
-            // Check if there's a line on the ground with a minimum surface area of 200 pixels and get it in the middle of the screen
-            for (int i = 0, n = blobs.Length; i < n; i++)
-            {
-                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
-                List<IntPoint> corners;
-
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners) && corners[0].DistanceTo(corners[1]) * corners[1].DistanceTo(corners[2]) > 200)
-                {
-                    //Find upperleft corner
-                    IntPoint upperLeftCorner = corners.Aggregate((curMin, c) => (c.X + c.Y) < (curMin.X + curMin.Y) ? c : curMin);
-                    corners.Remove(upperLeftCorner);
-
-                    IntPoint lowerRightCorner = corners.Aggregate((curMax, c) => (c.X + c.Y) > (curMax.X + curMax.Y) ? c : curMax);
-
-                    IntPoint lowerLeftCorner = findPointMakingShortestLine(upperLeftCorner, corners);
-                    corners.Remove(lowerLeftCorner);
-
-                    //Als upperLeft corner hoger zit dan lowerRight, neem kortste lijn, anders de langste lijn.
-                    IntPoint remainingCorner;
-                    if (upperLeftCorner.Y < lowerRightCorner.Y)
-                    {
-                        remainingCorner = findPointMakingShortestLine(upperLeftCorner, corners);
-                    }
-                    else
-                    {
-                        remainingCorner = findPointMakingLongestLine(upperLeftCorner, corners);
-                    }
-
-                    /*
-                     * We now have two points. 
-                     * Enough to calculate the angle of the line compared to the relative horizon of the drone camera feed.
-                     */
-                    if(remainingCorner.X - upperLeftCorner.X == 0)
-                    {
-                        return;
-                    }
-                    double angleRadians = Math.Atan(((double)remainingCorner.Y - upperLeftCorner.Y) / (remainingCorner.X - upperLeftCorner.X));
-                    turnDegrees = (int)Math.Ceiling(angleRadians * (180.0 / Math.PI));
-                    Console.WriteLine(turnDegrees);
-
-                    Pen redPen = new Pen(Color.Red, 2);
-                    g.DrawLine(redPen, upperLeftCorner.X, upperLeftCorner.Y, remainingCorner.X, remainingCorner.Y);
-                }
-            }
-        }
-
-        private IntPoint findPointMakingLongestLine(IntPoint startPoint, List<IntPoint> points)
-        {
-            //Returns the point making the longest line between itself and startPoint.
-            double longestDistance = 0;
-            IntPoint longestPoint = startPoint; //longestPoint must be initialized
-            foreach (IntPoint point in points)
-            {
-                double currentDistance = startPoint.DistanceTo(point);
-                if (currentDistance > longestDistance)
-                {
-                    longestPoint = point;
-                    longestDistance = currentDistance;
-                }
-            }
-            return longestPoint;
-        }
-
-        private IntPoint findPointMakingShortestLine(IntPoint startPoint, List<IntPoint> points)
-        {
-            //Returns the point making the shortest line between itself and startPoint.
-            double shortestDistance = double.MaxValue;
-            IntPoint shortestPoint = startPoint; //shortestPoint must be initialized
-            foreach (IntPoint point in points)
-            {
-                double currentDistance = startPoint.DistanceTo(point);
-                if (currentDistance < shortestDistance)
-                {
-                    shortestPoint = point;
-                    shortestDistance = currentDistance;
-                }
-            }
-            return shortestPoint;
-        }
-
-        public async Task zoekLijn()
-        {
-            Bitmap videoFrame = mainForm.getFrame();
-            BitmapData bitmapData = createFilteredBitMap(videoFrame);
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-            Graphics g = Graphics.FromImage(videoFrame);
-            BlobCounter blobCounter = new BlobCounter();
-            Blob[] blobs = findBlobs(blobCounter, bitmapData);
-            videoFrame.UnlockBits(bitmapData);
-
-            // Check if there's a line on the ground and get it in the middle of the screen
-            for (int i = 0, n = blobs.Length; i < n; i++)
-            {
-                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
-                List<IntPoint> corners;
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
-                {
-                    mainForm.lineFound = true;
-                    mainForm.scanningForLine = false;
-                    if (isLineCalibration)
-                    {
-                        isLineCalibration = false;
-                        await Task.Delay(700);
-                        stopCurrentTasks();
-                    }
-                }
-            }
-            mainForm.pbVideo.Image = videoFrame;
-            g.Dispose();
-        }
-
-        private BitmapData createFilteredBitMap(Bitmap frame)
-        {
-            // Lock image to prevent other sources from interfering
-            BitmapData bitmapData = frame.LockBits(
-                new Rectangle(0, 0, frame.Width, frame.Height),
-                ImageLockMode.ReadWrite, frame.PixelFormat);
-
-            // Turn anything that isn't white, into black
-            ColorFiltering colorFilter = new ColorFiltering();
-            colorFilter.Red = new IntRange(160, 255);
-            colorFilter.Green = new IntRange(160, 255);
-            colorFilter.Blue = new IntRange(160, 255);
-            colorFilter.FillOutsideRange = true;
-            colorFilter.ApplyInPlace(bitmapData);
-
-            return bitmapData;
-        }
-
-        private Blob[] findBlobs(BlobCounter counter, BitmapData bmpData)
-        {
-            // Find the corners in the frame and identify them
-            counter.FilterBlobs = true;
-            counter.MinHeight = 5;
-            counter.MinWidth = 5;
-            counter.ProcessImage(bmpData);
-            Blob[] blobs = counter.GetObjectsInformation();
-
-            return blobs;
-        }
-    }
+      
 }
