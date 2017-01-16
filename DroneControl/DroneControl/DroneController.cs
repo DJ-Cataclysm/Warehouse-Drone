@@ -26,12 +26,14 @@ namespace DroneControl
         RouteInterpreter routeInterpreter;
         TaskCompletionSource<bool> flyTaskCompleted, cameraSwitched;
         MainForm mainForm;
+        public LineDetection lineDetection;
+        public BarcodeScanning barcodeScanning;
+        public AngleDetection angleDetection;
         Settings settings;
         bool isBarcodeCalibration;
         bool isLineCalibration;
-        bool isAngleCalibration;
         public int droneCalibrationDirection { set; get; }
-        int turnDegrees;
+        public int turnDegrees { set; get; }
  
 
         public DroneController(MainForm form)
@@ -41,6 +43,9 @@ namespace DroneControl
             droneClient = new DroneClient("192.168.1.1"); 
             autopilotController = new AutopilotController(droneClient, this);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
+            lineDetection = new LineDetection(form, this);
+            angledetection = new AngleDetection(form, this);
+            barcodeScanning = new BarcodeScanning(form, this);
             mainForm = form;
         }
        
@@ -213,7 +218,6 @@ namespace DroneControl
             flyTaskCompleted = new TaskCompletionSource<bool>();
             await switchCamera(VideoChannelType.Horizontal);
             routeInterpreter.shortHover.execute();
-            isBarcodeCalibration = true;
             mainForm.scanningForBarcode = true;
             
             //calibrate by fling to the left and right, stops when the barcode is found
@@ -225,7 +229,6 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
             await flyTaskCompleted.Task;
 
-            isBarcodeCalibration = false;
             mainForm.scanningForBarcode = false;
 
             //switch back to bottom camera
@@ -236,7 +239,6 @@ namespace DroneControl
         public async Task findLine()
         {
             //enables scanning for the line
-            isLineCalibration = true;
             mainForm.scanningForLine = true;
 
             //fly forwards and backwards to find the line. Stops if the line is found
@@ -255,110 +257,41 @@ namespace DroneControl
             routeInterpreter.shortHover.execute();
 
             await flyTaskCompleted.Task;
-            isLineCalibration = false;
             mainForm.scanningForLine = false;
            
         }
+
         //function used to manually set the flytask to completed.
         public void setFlyTaskCompleted()
         {
             flyTaskCompleted.TrySetResult(true);
         }
 
-/*
- * -----------------------
- * 
- *checken of deze functie weg kan
- *
- * ----------------------------
- * 
- */
-
-    //    public async Task calibration(){
-    //        flyTaskCompleted = new TaskCompletionSource<bool>();
-
-    //        //moet naar voren
-    //        if(droneCalibrationDirection == 1){
-    //           routeInterpreter.goForwardCalibration.execute();
-    //           routeInterpreter.shortHover.execute();
-    //            routeInterpreter.goBackwardsCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-
-    //        }
-    //        //moet naar achter
-    //        if (droneCalibrationDirection == -1)
-    //        {
-    //            routeInterpreter.goBackwardsCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-    //            routeInterpreter.goForwardCalibration.execute();
-    //            routeInterpreter.shortHover.execute();
-    //        }
-
-    //        await flyTaskCompleted.Task;
-    //}
 
         //function used for calibrating the angle of the drone using the line on the ground
         public async Task turnCalibration()
         {
             //enables scanning for the angle
-            isAngleCalibration = true;
             mainForm.scanningForAngle = true;
             routeInterpreter.shortHover.execute();
 
             await Task.Delay(500);
 
             flyTaskCompleted = new TaskCompletionSource<bool>();
-            Console.WriteLine("I should turn: " + turnDegrees);
             if (turnDegrees < -10 || turnDegrees > 10)
             {
                routeInterpreter.turn.execute(turnDegrees);
-               Console.WriteLine("[angle] turning ----> " + turnDegrees +"  <---- degrees");
+               Console.WriteLine("[angle] turning :  " + turnDegrees +" degrees");
             }
 
             await flyTaskCompleted.Task;
-            isAngleCalibration = false;
             mainForm.scanningForAngle = false;
         }
        
         //function that stops all current tasks. Used for clearing the drone's tasks if it's calibrated.
         public void stopCurrentTasks(){
-            Console.WriteLine("[clearing objectives] iets heeft de stop getriggered.");
             autopilotController.clearObjectives();
             routeInterpreter.shortHover.execute();
-        }
-
-        /*function that scans for the barcode, and if the barcode is found updates it in the WMS
-         * Called from Mainform frame update */
-        public void scanForBarcode()
-        {
-            string barcode;
-
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
-            // detect and decode the barcode inside the bitmap
-            var result = reader.Decode(mainForm.getFrame());
-            // return result or error
-            if (result != null)
-            {
-                barcode = result.Text;
-            }
-            else { barcode = null; }
-
-            if (barcode != null)
-            {
-                Console.WriteLine("Barcode gevoden " + barcode);
-                int id = int.MaxValue;
-                int.TryParse(barcode, out id);
-                mainForm.wmsForm.productScanned(id);
-                mainForm.scanningForBarcode = false;
-
-                if (isBarcodeCalibration)
-                {
-                    isBarcodeCalibration = false;
-                     stopCurrentTasks();
-                    Console.WriteLine("[barcode] stop barcode calibratie , gevonden barcode: " + barcode);
-                }
-            }
         }
 
         //emergency button, used to immediately stop the motor of the drone
@@ -384,7 +317,7 @@ namespace DroneControl
             sendConfigTask.Start();
             await Task.Delay(500);
         }
-
+        
         public DroneClient getDroneClient()
         {
             return droneClient;

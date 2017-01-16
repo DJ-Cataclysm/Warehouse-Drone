@@ -31,7 +31,6 @@ namespace DroneControl
         public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
         public bool scanningForLine { get; set; }
-        public bool lineFound { get; set; }
         public bool scanningForAngle { get; set; }
 
 
@@ -43,7 +42,6 @@ namespace DroneControl
             
             InitializeComponent();
 
-            lineFound = false;
 
             //Start videopacketdecoder worker
             _videoPacketDecoderWorker = new VideoPacketDecoderWorker(AR.Drone.Video.PixelFormat.BGR24, true, OnVideoPacketDecoded);
@@ -145,11 +143,12 @@ namespace DroneControl
             pbVideo.Image = _frameBitmap;
             if (scanningForBarcode)
             {
-              _droneController.scanForBarcode();
+              _droneController.barcodeScanning.scanForBarcode();
             }
 
             if (scanningForLine) {
-               _droneController.zoekLijn();
+
+               _droneController.lineDetection.zoekLijn();
             }
 
             if (scanningForAngle)
