@@ -18,48 +18,36 @@ using AForge.Math.Geometry;
 
 namespace DroneControl
 {
-    class BarcodeScanning
+    public class BarcodeScanning
     {
     
         MainForm mainForm;
         DroneController droneController;
+        IBarcodeReader reader;
 
         public BarcodeScanning(MainForm mf, DroneController dc)
         {
             mainForm = mf;
             droneController = dc;
+            reader = new BarcodeReader();
         }
 
-        /*function that scans for the barcode, and if the barcode is found updates it in the WMS
-      * Called from Mainform frame update */
+        /*
+         * function that scans for the barcode, and if the barcode is found updates it in the WMS
+         * Called from Mainform frame update 
+         */
          public void scanForBarcode()
         {
-            string barcode;
-
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
             // detect and decode the barcode inside the bitmap
             var result = reader.Decode(mainForm.getFrame());
-            // return result or error
+
             if (result != null)
             {
-                barcode = result.Text;
-            }
-            else { barcode = null; }
-
-            if (barcode != null)
-            {
-                Console.WriteLine("Barcode gevoden: " + barcode);
                 int id = int.MaxValue;
-                int.TryParse(barcode, out id);
+                int.TryParse(result.Text, out id);
                 mainForm.wmsForm.productScanned(id);
-                mainForm.scanningForBarcode = false;
-
-                if (mainForm.scanningForBarcode)
-                {
-                    mainForm.scanningForBarcode = false;
-                     droneController.stopCurrentTasks();
-                }
+                droneController.scanningForBarcode = false;
+                droneController.stopCurrentTasks();
             }
         }
     }

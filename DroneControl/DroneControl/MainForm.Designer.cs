@@ -63,7 +63,7 @@
             this.btnSmartScan = new System.Windows.Forms.Button();
             this.btnCycleCount = new System.Windows.Forms.Button();
             this.btnEmergency = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.btnLand = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pbVideo)).BeginInit();
             this.gbVideoFeed.SuspendLayout();
             this.gbTelemetry.SuspendLayout();
@@ -79,7 +79,6 @@
             this.pbVideo.Size = new System.Drawing.Size(640, 360);
             this.pbVideo.TabIndex = 0;
             this.pbVideo.TabStop = false;
-            this.pbVideo.Click += new System.EventHandler(this.pbVideo_Click);
             // 
             // gbVideoFeed
             // 
@@ -90,7 +89,6 @@
             this.gbVideoFeed.TabIndex = 1;
             this.gbVideoFeed.TabStop = false;
             this.gbVideoFeed.Text = "Video Feed";
-            this.gbVideoFeed.Enter += new System.EventHandler(this.gbVideoFeed_Enter);
             // 
             // gbTelemetry
             // 
@@ -409,22 +407,22 @@
             this.btnEmergency.UseVisualStyleBackColor = true;
             this.btnEmergency.Click += new System.EventHandler(this.btnEmergency_Click);
             // 
-            // button1
+            // btnLand
             // 
-            this.button1.Location = new System.Drawing.Point(451, 460);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Land";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.btnLand.Location = new System.Drawing.Point(451, 460);
+            this.btnLand.Name = "btnLand";
+            this.btnLand.Size = new System.Drawing.Size(75, 23);
+            this.btnLand.TabIndex = 10;
+            this.btnLand.Text = "Land";
+            this.btnLand.UseVisualStyleBackColor = true;
+            this.btnLand.Click += new System.EventHandler(this.btnLand_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(971, 483);
-            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnLand);
             this.Controls.Add(this.btnEmergency);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
@@ -473,11 +471,11 @@
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.Timer tmrStateUpdate;
-        private System.Windows.Forms.Timer tmrVideoUpdate;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button btnCycleCount;
         private System.Windows.Forms.Button btnSmartScan;
         private System.Windows.Forms.Button btnEmergency;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnLand;
+        public System.Windows.Forms.Timer tmrVideoUpdate;
     }
 }

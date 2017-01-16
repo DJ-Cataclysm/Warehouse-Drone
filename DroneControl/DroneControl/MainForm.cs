@@ -17,9 +17,6 @@ namespace DroneControl
 {
     public partial class MainForm : Form
     {
-        /*
-         * Fields
-         */
         private DroneController _droneController;
         private DroneClient _droneClient;
         private readonly VideoPacketDecoderWorker _videoPacketDecoderWorker;
@@ -28,20 +25,13 @@ namespace DroneControl
         private uint _frameNumber;
         private NavigationData _navigationData;
         public WMS.MainForm wmsForm { get; set; }
-        public int hasToCalibrate { get; set; }
         public bool scanningForBarcode { get; set; }
         public bool scanningForLine { get; set; }
         public bool scanningForAngle { get; set; }
 
-
-        /*
-         * Constructor: creating the form and creating the droneclient.
-         */
         public MainForm()
         {
-            
             InitializeComponent();
-
 
             //Start videopacketdecoder worker
             _videoPacketDecoderWorker = new VideoPacketDecoderWorker(AR.Drone.Video.PixelFormat.BGR24, true, OnVideoPacketDecoded);
@@ -63,9 +53,6 @@ namespace DroneControl
             wmsForm.Show();
         }
 
-        /*
-         * Basic exception handler
-         */
         private void UnhandledException(object sender, Exception exception)
         {
             MessageBox.Show(exception.ToString(), "Unhandled Exception (Ctrl+C)", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -80,29 +67,20 @@ namespace DroneControl
             Text += Environment.Is64BitProcess ? " [64-bit]" : " [32-bit]";
         }
 
-        /*
-         * Exiting the program, cleaning up.
-         */
         protected override void OnClosed(EventArgs e)
         {
             _droneController.stopAutopilot();
             _droneController.stopClient();
-            _droneController.Dispose();
+            _droneController.dispose();
             _videoPacketDecoderWorker.Dispose();
             base.OnClosed(e);
         }
 
-        /*
-         * Event: Storing received navigation data.
-         */
         private void OnNavigationDataAcquired(NavigationData data)
         {
             _navigationData = data;
         }
 
-        /*
-         * Event: Enqueue a video packet for the decoding process.
-         */
         private void OnVideoPacketAcquired(VideoPacket packet)
         {
             if (_videoPacketDecoderWorker.IsAlive)
@@ -112,7 +90,7 @@ namespace DroneControl
         }
 
         /*
-         * Event: A video packet has been decoded and will be stored.
+         * A video packet has been decoded and will be stored.
          */
         private void OnVideoPacketDecoded(VideoFrame frame)
         {
@@ -141,41 +119,8 @@ namespace DroneControl
                 VideoHelper.UpdateBitmap(ref _frameBitmap, ref _frame);
             }
             pbVideo.Image = _frameBitmap;
-            if (scanningForBarcode)
-            {
-              _droneController.barcodeScanning.scanForBarcode();
-            }
 
-            if (scanningForLine) {
-
-               _droneController.lineDetection.zoekLijn();
-            }
-
-            if (scanningForAngle)
-            {
-                _droneController.detectLine();
-            }
-            
-            
-            
-            if(hasToCalibrate == 0)
-            {
-              checkAfwijking(_frameBitmap);
-            }
-
-            
-            //moet vooruit vliegen om te calibreren
-            if (hasToCalibrate == 1 && scanningForLine)
-            {
-                _droneController.droneCalibrationDirection = 1;
-            }
-
-            //moet achteruit vliegen om te calibreren
-            if (hasToCalibrate == -1 && scanningForLine)
-            {
-                _droneController.droneCalibrationDirection = -1;
-            }
-        
+            _droneController.videoUpdateTick();
         }
 
         /*
@@ -201,6 +146,27 @@ namespace DroneControl
             }
         }
 
+        public Bitmap getFrame()
+        {
+            return _frameBitmap;
+        }
+
+        private void btnEmergency_Click(object sender, EventArgs e)
+        {
+            _droneController.emergency();
+            _droneController.stopAutopilot();
+        }
+
+        private void btnCycleCount_Click(object sender, EventArgs e)
+        {
+            _droneController.CycleCount();
+        }
+
+        private void btnSmartScan_Click(object sender, EventArgs e)
+        {
+            _droneController.SmartScan();
+        }
+
         private void btnConnect_Click(object sender, EventArgs e)
         {
             _droneController.startClient();
@@ -219,128 +185,10 @@ namespace DroneControl
             btnDisconnect.Enabled = false;
         }
 
-        /*
-         * Button Click: Scan current stored frame for barcodes.
-         */
-        public Bitmap getFrame()
-        {
-            return _frameBitmap;
-        }
-
-        /*
-         * These buttons are used in manually controlling the drone. This functionality will not be in the release.
-         */
-        private void btnEmergency_Click(object sender, EventArgs e)
-        {
-            //_droneController.emergency();
-            _droneController.stopAutopilot();
-            _droneClient.Land();
-        }
-
-        private string scanBarcode()
-        {
-            // create a barcode reader instance
-            IBarcodeReader reader = new BarcodeReader();
-            // detect and decode the barcode inside the bitmap
-            var result = reader.Decode(_frameBitmap);
-            // return result or error
-            if (result != null)
-            {
-                return result.Text;
-            }
-            else
-            {
-                return "Geen Barcode Gevonden";
-            }
-        }
-
-        private void btnCycleCount_Click(object sender, EventArgs e)
-        {
-            _droneController.CycleCount();
-        }
-
-        
-
-        private void btnSmartScan_Click(object sender, EventArgs e)
-        {
-            _droneController.startSmartScan();
-        }
-
-        private void checkAfwijking(Bitmap frame)
-        {
-            Bitmap myBitmap = frame;
-
-            // lock image
-            BitmapData bitmapData = myBitmap.LockBits(
-                new Rectangle(0, 0, myBitmap.Width, myBitmap.Height),
-                ImageLockMode.ReadWrite, myBitmap.PixelFormat);
-
-            // step 1 - turn background to black
-            ColorFiltering colorFilter = new ColorFiltering();
-
-            colorFilter.Red = new IntRange(0, 64);
-            colorFilter.Green = new IntRange(0, 64);
-            colorFilter.Blue = new IntRange(0, 64);
-            colorFilter.FillOutsideRange = false;
-
-            colorFilter.ApplyInPlace(bitmapData);
-
-
-            // step 2 - locating objects
-            BlobCounter blobCounter = new BlobCounter();
-
-            blobCounter.FilterBlobs = true;
-            blobCounter.MinHeight = 5;
-            blobCounter.MinWidth = 5;
-
-            blobCounter.ProcessImage(bitmapData);
-            Blob[] blobs = blobCounter.GetObjectsInformation();
-            myBitmap.UnlockBits(bitmapData);
-
-            // step 3 - check objects' type and highlight
-            SimpleShapeChecker shapeChecker = new SimpleShapeChecker();
-
-            Graphics g = Graphics.FromImage(myBitmap);
-
-            // check each object and draw triangle around objects, which
-            // are recognized as triangles
-            for (int i = 0, n = blobs.Length; i < n; i++)
-            {
-                List<IntPoint> edgePoints = blobCounter.GetBlobsEdgePoints(blobs[i]);
-                List<IntPoint> corners;
-
-                if (shapeChecker.IsQuadrilateral(edgePoints, out corners))
-                {
-                    foreach (IntPoint corner in corners)
-                    {
-                        if (corner.Y >= pbVideo.Height-40)
-                        {
-                            hasToCalibrate = 1;
-                        }
-                        else if (corner.Y <= 40)
-                        {
-                            hasToCalibrate = -1;
-                        }
-                    }
-                }
-            }
-            g.Dispose();
-        }
-        
-        private void gbVideoFeed_Enter(object sender, EventArgs e)
-        {
-        
-        }
-
-        private void pbVideo_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
+        private void btnLand_Click(object sender, EventArgs e)
         {
             _droneController.stopAutopilot();
-            _droneClient.Land();
+            _droneController.land();
         }
     }
 }
