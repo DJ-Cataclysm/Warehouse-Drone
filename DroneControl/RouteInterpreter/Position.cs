@@ -8,7 +8,7 @@ namespace RoutePlanner
 {
     public class Position
     {
-        public int x, y, z;
+        public int x, y, z; //z is used for the position of the rack
         //This boolean determines if this position should be scanned for barcodes
         public bool isTargetPosition;
         const int HASH_STARTNUMBER = 13; //Should be a prime number to avoid collisions
