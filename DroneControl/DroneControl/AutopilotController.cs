@@ -6,6 +6,10 @@ using System.Threading;
 using System;
 namespace DroneControl
 {
+    /* This class controls the autopilot, it sends objectives to the autopilot 
+     * wich than let's the drone fly these objectives
+    */
+
     public class AutopilotController
     {
         private Autopilot _autopilot;
@@ -34,14 +38,6 @@ namespace DroneControl
             _autopilot.Active = true;
         }
 
-        public void volgende()
-
-        {
-
-            droneController.setFlyTaskCompleted();
-            //
-            
-        }
         public bool isAutopilotActive()
         {
             if (_autopilot.Active)

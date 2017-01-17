@@ -148,7 +148,7 @@ namespace DroneControl
 
             if (scanningForLine) {
 
-               _droneController.lineDetection.zoekLijn();
+               _droneController.lineDetection.searchLine();
             }
 
             if (scanningForAngle)

@@ -113,17 +113,5 @@ namespace DroneControl
                 facingDirection = (target.z % 2 == 0); //When false the strafe directions are inverted
             }
         }
-        public void testRoute()
-        {
-            //Remove this method in release
-            //Used for enqueing commands in a test environment
-            //headings = new Heading(autopilotController.getNavigationData().Yaw);
-            //float hoogte = 1f;
-            takeOffCommand.execute();
-            goToHeight.execute(2f);
-            turn.execute(-180);
-            turn.execute(180);
-            landCommand.execute();
-        }
     }
 }

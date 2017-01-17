@@ -42,7 +42,7 @@ namespace DroneControl
             autopilotController = new AutopilotController(droneClient, this);
             routeInterpreter = new RouteInterpreter(ref autopilotController);
             lineDetection = new LineDetection(form, this);
-            angledetection = new AngleDetection(form, this);
+            angleDetection = new AngleDetection(form, this);
             barcodeScanning = new BarcodeScanning(form, this);
             mainForm = form;
         }
@@ -64,9 +64,6 @@ namespace DroneControl
             //loop through the made route
             for (int i = 0; i < route.Count()-1; i++ )
             {
-              
-
-
                 //fly to the next position
                 flyTaskCompleted = new TaskCompletionSource<bool>();
                 Position current = route[i];
@@ -81,27 +78,15 @@ namespace DroneControl
                     await turnCalibration();
                     await searchForBarcode(current);
                 }
-
-
             }
 
-            //land after the route is done
+            //land after the route is done and show mutations
             routeInterpreter.landCommand.execute();
-            //mainForm.wmsForm.showMutations();
-           
+            mainForm.wmsForm.showMutations(); 
         }
 
 
         public async Task CycleCount()
-        {
-            isAngleCalibration = true;
-            mainForm.scanningForAngle = true;
-
-            await Task.Delay(5000);
-            await turnCalibration();
-        }
-
-        public async Task TESTCycleCount()
         {
             //initial setup, starting the drone, finding the line & calibrating
             flyTaskCompleted = new TaskCompletionSource<bool>();

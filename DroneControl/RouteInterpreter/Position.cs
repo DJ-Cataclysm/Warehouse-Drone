@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace RoutePlanner
 {
+    /* Position are used for the drone position
+     *x is the horizontal position, y the vertical position and z is used 
+     *for the rack position
+    */
     public class Position
     {
         public int x, y, z;
